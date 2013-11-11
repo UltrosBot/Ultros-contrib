@@ -4,4 +4,6 @@ packages:
     Web:
         version: 0.0.1
         description: "An extensible web interface and REST API"
-        requires: []
+        requires:
+        - Bottle
+        - CherryPy
