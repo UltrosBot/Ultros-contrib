@@ -4,17 +4,17 @@ current_version:
     info: >
         Initial version. The plugin doesn't actually /do/ anything yet, but it's a valid plugin.
         This includes the first versions of the versions.yml and package.yml files.
-        
+         
         This plugin is being used almost as a kind of testbed for the package manager.
 description: >
     Provides a full web interface and REST API for Ultros.
-    
+     
     This includes management and manipulation, both via API keys and the standard authentication system.
     Currently, this is a HUGE work-in-progress. Expect big things, but don't expect them too soon!
-    
+     
     Requires both the "bottle" and "cherrypy" modules. 
     If you're using the package manager, these will be installed for you, provided you have pip installed.
-    
+     
     Doesn't require any other packages, outside of the ones included with Ultros.
 files:
 - plugins/
