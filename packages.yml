@@ -1,11 +1,10 @@
 # Packages list and a small amount of information goes here.
 
-packages:
-    Web:
-        version: 0.0.1
-        description: "An extensible web interface and REST API"
-        requires:
-            modules:
-            - "bottle"
-            - "cherrypy"
-            packages: []
+Web:
+    version: 0.0.1
+    description: "An extensible web interface and REST API"
+    requires:
+        modules:
+        - "bottle"
+        - "cherrypy"
+        packages: []
