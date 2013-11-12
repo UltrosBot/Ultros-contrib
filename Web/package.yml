@@ -17,7 +17,6 @@ description: >
      
     Doesn't require any other packages, outside of the ones included with Ultros.
 files:
-- plugins/
 - plugins/web.plug
 - plugins/web/
 - plugins/web/__init__.py
