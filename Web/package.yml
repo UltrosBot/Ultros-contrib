@@ -20,4 +20,9 @@ files:
 - plugins/web.plug
 - plugins/web/
 - plugins/web/__init__.py
+requires:
+    modules:
+    - "bottle"
+    - "cherrypy"
+    packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Web/README.md
