@@ -40,8 +40,8 @@ class MoneyPlugin(PluginObject):
             return self.rates_table
 
     def setup(self):
-        self.rates_table = self.decode_rates_table(self.get_rates_table())
         self.rates_table_updated = datetime.now()
+        self.rates_table = self.decode_rates_table(self.get_rates_table())
 
         self.config = Config("plugins/money.yml")
 
