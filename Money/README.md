@@ -23,6 +23,7 @@ This package supplies the following command..
   * `<'from' currency>` represents the currency you want to convert from.
   * `[<currency> <currency> ...]` represents the currencies you want to convert to. This defaults to whatever's in the configuration if not supplied.
 * The command will be output to the current channel - or in a private message, if used in one.
+* The command requires the `money.main` permission to be used.
 
 ## Licensing
 
