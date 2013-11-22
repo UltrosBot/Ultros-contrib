@@ -5,14 +5,14 @@ __author__ = 'Jim'
 
 import json
 
-from system.plugin import Plugin
+from system.plugin import PluginObject
 from system import command_manager
 from utils.config import Config
 from datetime import datetime, timedelta
 #from japan import loli_maids
 
 
-class MoneyPlugin(Plugin):
+class MoneyPlugin(PluginObject):
     def decode_rates_table(self, data):
         rates_json = json.loads(data)
         rates_table = rates_json['rates']
