@@ -1,0 +1,15 @@
+# Settings for the money converter plugin
+
+API-key: huehuehuehuehuehuehuehue # API key for https://openexchangerates.org/. You can get one for free.
+
+default-currs: # List the default currencies to be displayed if the user does not enter a currency to convert to.
+ - GBP # British Pounds
+ - USD # American Dollars
+ - EUR # Euros
+ - JPY # Japanese Yen
+ - AUD # Australian Dollar
+ - CHF # Chinese Yuan
+# These are the six most traded currencies as of the time of writing.
+
+curr-separator: " | " # the string used to separate the different currencies in the output, i.e: 15 USD | 87 GBP | 7800 JPY
+ 

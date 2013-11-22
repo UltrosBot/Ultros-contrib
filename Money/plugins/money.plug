@@ -1,0 +1,9 @@
+core:
+  name: Money
+  module: money
+info:
+  description: Plugin for converting between currencies.
+  author: Jim Joyce
+  version: 0.0.1
+  website: https://github.com/UltrosBot/Ultros-contrib/Money
+  copyright: Creative Commons BY-NC-SA http://creativecommons.org/licenses/by-nc-sa/3.0/
