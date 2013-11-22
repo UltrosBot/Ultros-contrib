@@ -11,10 +11,11 @@ If you'd like to add to this repository, please take note of the following guide
   * Be sure to reference the file or license in your plugin's .plug files, if you have any.
   * Licenses must be open-source licenses; a good place to find these licenses is [the Open Source Initiative](http://opensource.org/licenses)
 * Every package must include both a package.yml and versions.yml file.
-  * These yaml-based files will be used by the package installation script. There'll be more info on this when the script is written.
+  * These yaml-based files will be used by the package installation script. There'll be more info on this when the script is finished.
+    * Contact one of the repo maintainers if you need help with these files.
 * If your plugin needs configuration, include an example configuration file.
-* Do not commit libraries if you didn't develop them. List them in the README instead.
-  * Alternatively, provide a setup script that downloads and installs the libraries using pip.
+* Do not commit libraries if you didn't develop them. List them in your package.yml, if they're available from pip.
+  * If that's not the case, list them in your README.md file.
 * Test your code. Make sure it works. You don't have to supply a test suite, but we will be manually testing all submitted code.
 * Obviously, don't submit anything malicious. Don't bother trying to wreck our computers with malicious code either; we do our testing in VMs.
 
