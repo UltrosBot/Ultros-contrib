@@ -1,5 +1,2 @@
 0.0.1: >
-    Initial version. The plugin doesn't actually /do/ anything yet, but it's a valid plugin.
-    This includes the first versions of the versions.yml and package.yml files.
-    
-    This plugin is being used almost as a kind of testbed for the package manager.
+    Initial version. Has only one command, but can auto-update conversion rates from the internet.
