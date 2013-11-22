@@ -18,17 +18,6 @@ class MoneyPlugin(PluginObject):
         rates_table = rates_json['rates']
         return rates_table
 
-    def __init__(self):
-        self.rates_file = open("C:\Users\Jim\Downloads\latest.json", 'r')
-        self.rates_data = self.rates_file.read()
-
-        self.rates_table = self.decode_rates_table(self.rates_data)
-        self.rates_table_updated = datetime(1995, 7, 16)
-
-        self.config = Config("plugins/money.yml")
-
-        super(MoneyPlugin, self).__init__()
-
     def get_rates_table(self):
         now = datetime.now()
         if (now - self.rates_table_updated) > timedelta(hours=1):
@@ -39,9 +28,11 @@ class MoneyPlugin(PluginObject):
                 r = urllib.urlopen("http://openexchangerates.org/api/latest.js"
                                    "on?app_id=" + self.config["API-key"])
                 d = r.read()
+                
+                self.rates_table_updated = datetime.now()
                 return d
             else:
-                self.logger.error("key API-key not found in config file!")
+                self.logger.error("API-key not found in config file!")
                 return self.rates_table
         else:
             # The old data is still usable
@@ -49,6 +40,11 @@ class MoneyPlugin(PluginObject):
             return self.rates_table
 
     def setup(self):
+        self.rates_table = self.decode_rates_table(self.get_rates_table())
+        self.rates_table_updated = datetime.now()
+
+        self.config = Config("plugins/money.yml")
+        
         self.command = command_manager.CommandManager.instance()
         self.command.register_command("money", self.money_command_called,
                                       self, "money.main")
