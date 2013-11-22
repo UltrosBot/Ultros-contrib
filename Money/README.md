@@ -1,23 +1,30 @@
 Money
 =====
 
-CONFIGURATION
-You'll need to setup the following in money.yml:
-- You need an API key for the exchange rate service, [openexchangerates.org](https://openexchangerates.org/), which are free for 1000 uses/month. Enter it in API-key.
+The money package adds a plugin that provides a command for currency conversion between various currencies. 
+The currency conversion data is updated hourly.
 
-Other than that, the program should work fine wit the default settings. You can adjust the following if you wish:
-- You can change the default out currencies by changing default-currs. This is used if a user doesn't enter what currency(ies) to convert to.
-- You can change the output currency separator with curr-separator. By default, it is " | "
+## Configuration
 
-HOW TO USE
-The command syntax is .money <value> <start currency> [<end currency 1> <end currency 2>...]
-(replace . with whatever command character you're using)
-- <value> is the amount of money to convert from;
-- <start currency> is the currency that <value> is in.
-- <end currency X> (optional) is the currency to convert to. You can enter as many values as you like.
-If no end currency is entered, the command will default to a selection of common currencies, defined in money.yml
-Output will be sent to wherever the command was issued. If you use the command in a channel, the output will go to that channel etc.
+The money plugin features integration with [Open Exchange Rates](https://openexchangerates.org/) - You'll need to create
+a free account there and get an API key before you can use this plugin.
 
-CREDITS
-This was made by jimj316, with extensive help from gDude2002
-pls don't steal
+Configuration is stored in `config/plugins/money.yml`.
+
+* `API-key` - Your API key for the Open Exchange Rates site.
+* `default-currs: [GBP, USD, EUR, JPY, AUD, CHF]` - List of currencies to convert to if a user doesn't specify any output currencies.
+* `curr-separator: " | "` - What to use as a separator between output currencies.
+
+## Usage
+
+This package supplies the following command..
+* `money <value> <'from' currency> [<currency> <currency> ...]` - Do a currency conversion
+  * `<value>` represents the amount of currency you want to convert.
+  * `<'from' currency>` represents the currency you want to convert from.
+  * `[<currency> <currency> ...]` represents the currencies you want to convert to. This defaults to whatever's in the configuration if not supplied.
+* The command will be output to the current channel - or in a private message, if used in one.
+
+## Licensing
+
+This package was created by [jimj316](https://github.com/jimj316), who has licensed his work under the Creative Commons
+BY-NC-SA license. For more information, you can read the LICENSE file or check [this link](http://creativecommons.org/licenses/by-nc-sa/3.0/).
