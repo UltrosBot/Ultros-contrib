@@ -1,0 +1,16 @@
+name: Currency conversion
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version. Has only one command, but can auto-update conversion rates from the internet.
+description: >
+    Provides a command to convert between currencies.
+files:
+- plugins/money.plug
+- plugins/money/
+- plugins/money/__init__.py
+- config/plugins/money.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Money/README.md

@@ -8,3 +8,9 @@ Web:
         - "bottle"
         - "cherrypy"
         packages: []
+Money
+    version: 0.0.1
+    description: "A simple command to convert between currencies."
+    requires:
+        modules: []
+        packages: []
