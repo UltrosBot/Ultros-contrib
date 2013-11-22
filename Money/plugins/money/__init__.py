@@ -28,7 +28,7 @@ class MoneyPlugin(PluginObject):
                 r = urllib.urlopen("http://openexchangerates.org/api/latest.js"
                                    "on?app_id=" + self.config["API-key"])
                 d = r.read()
-                
+
                 self.rates_table_updated = datetime.now()
                 return d
             else:
@@ -44,7 +44,7 @@ class MoneyPlugin(PluginObject):
         self.rates_table_updated = datetime.now()
 
         self.config = Config("plugins/money.yml")
-        
+
         self.command = command_manager.CommandManager.instance()
         self.command.register_command("money", self.money_command_called,
                                       self, "money.main")
