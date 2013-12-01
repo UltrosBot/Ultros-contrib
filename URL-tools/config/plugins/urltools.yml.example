@@ -1,0 +1,19 @@
+sites:
+  apikeys:
+    osu: "" # Required for this handler
+  enabled:
+  - osu.ppy.sh
+  - youtube.com
+
+shorteners:
+
+  bitly:  # Optional, use these to track your shortened URLs
+    login: ""  # http://bitly.com/a/your_api_key
+    apikey: ""
+  enabled:
+  - bit.ly
+  - is.gd
+  - j.mp  # Is actually bit.ly
+  - nazr.in
+  - v.gd
+  - waa.ai

@@ -1,0 +1,24 @@
+name: URL Tools
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version. This implements all the URL shorteners (hopefully).
+description: >
+    Provides a set of tools for working with the URLs plugin. These tools provide both URL shorteners
+    and specific domain handlers for the URL title parser.
+
+    == DONE ==
+    Shorteners: bit.ly, is.gd, j.mp, nazr.in, v.gd, waa.ai
+
+    == PLANNED ==
+    Sites: youtube.com, osu.ppy.sh
+
+files:
+- plugins/urltools.plug
+- plugins/urltools/
+- plugins/urltools/__init__.py
+- config/plugins/urltools.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/URL-tools/README.md
