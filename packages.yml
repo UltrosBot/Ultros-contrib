@@ -14,3 +14,9 @@ Money:
     requires:
         modules: []
         packages: []
+URL-tools:
+    version: 0.0.1
+    description: "Provides a set of tools for working with the URLs plugin."
+    requires:
+        modules: []
+        packages: []
