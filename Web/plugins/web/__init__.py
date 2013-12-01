@@ -1,8 +1,8 @@
 __author__ = 'Gareth Coles'
 
-from system.plugin import Plugin
+from system.plugin import PluginObject
 
 
-class WebPlugin(Plugin):
+class WebPlugin(PluginObject):
 
     pass
