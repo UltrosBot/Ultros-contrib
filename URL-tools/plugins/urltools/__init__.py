@@ -3,7 +3,6 @@ from system.plugin_manager import YamlPluginManagerSingleton
 
 __author__ = 'Gareth Coles'
 
-import json
 import logging
 import urllib
 import urllib2
