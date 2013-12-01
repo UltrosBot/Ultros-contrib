@@ -34,9 +34,7 @@ class Plugin(PluginObject):
         self.sites["osu.ppy.sh"] = self.site_osu
         self.sites["youtube.com"] = self.site_youtube
 
-        self.shorteners["bit.ly"] = self.shortener_bitly
         self.shorteners["is.gd"] = self.shortener_isgd
-        self.shorteners["j.mp"] = self.shortener_jmp
         self.shorteners["nazr.in"] = self.shortener_nazrin
         self.shorteners["v.gd"] = self.shortener_vgd
         self.shorteners["waa.ai"] = self.shortener_waaai
