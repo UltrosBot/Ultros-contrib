@@ -72,7 +72,8 @@ class Plugin(PluginObject):
             urls.plugin_object.add_handler(site, self.sites[site])
 
         for shortener in shorteners_enabled:
-            urls.plugin_object.add_shortener(shortener, self.shorteners[shortener])
+            urls.plugin_object.add_shortener(shortener,
+                                             self.shorteners[shortener])
 
         self.logger.info("Enabled support for %s shorteners."
                          % len(shorteners_enabled))
