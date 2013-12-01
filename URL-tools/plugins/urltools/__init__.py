@@ -12,7 +12,7 @@ from utils.config import Config
 from utils.misc import output_exception
 
 
-class URLToolsPlugin(PluginObject):
+class Plugin(PluginObject):
 
     config = None
     api_details = {}
@@ -24,7 +24,7 @@ class URLToolsPlugin(PluginObject):
 
     def setup(self):
         try:
-            self.config = Config("plugins/money.yml")
+            self.config = Config("plugins/urltools.yml")
         except Exception:
             self.logger.error("Unable to load the configuration!")
             output_exception(self.logger, logging.ERROR)
@@ -56,27 +56,12 @@ class URLToolsPlugin(PluginObject):
                                      " configured. You'll need to add one if "
                                      "you want Osu! support.")
                     continue
-            sites_enabled.append(sites)
+            sites_enabled.append(site)
         self.logger.info("Enabled support for %s sites."
                          % len(sites_enabled))
 
         for shortener in shorteners["enabled"]:
-            if shortener.lower() == "bit.ly":
-                if not shorteners["bitly"]["apikey"]:
-                    self.logger.info("Enabling bit.ly support without an API "
-                                     "key.")
-                elif not shorteners["bitly"]["login"]:
-                    self.logger.info("Enabling bit.ly support without an API "
-                                     "login.")
-                else:
-                    self.logger.info("Bit.ly API key and login found!")
-                    self.api_details["bit.ly"] = shorteners["bitly"]
-            elif shortener.lower() == "j.mp":
-                if not shorteners["apikeys"]["bitly"]:
-                    self.logger.info("Enabling j.mp support without an API "
-                                     "key.")
-                else:
-                    self.logger.info("J.mp API key found!")
+            # This is for checking API keys and settings
             shorteners_enabled.append(shortener)
 
         self.logger.debug("Setting up shorteners with the URLs plugin..")
@@ -84,10 +69,10 @@ class URLToolsPlugin(PluginObject):
         urls = self.plugman.getPluginByName("URLs")
 
         for site in sites_enabled:
-            urls.add_handler(site, self.sites[site])
+            urls.plugin_object.add_handler(site, self.sites[site])
 
         for shortener in shorteners_enabled:
-            urls.add_shortener(shortener, self.shorteners[shortener])
+            urls.plugin_object.add_shortener(shortener, self.shorteners[shortener])
 
         self.logger.info("Enabled support for %s shorteners."
                          % len(shorteners_enabled))
@@ -111,21 +96,6 @@ class URLToolsPlugin(PluginObject):
         self.logger.debug("Response: %s" % data)
         return data
 
-    def shortener_bitly(self, url):
-        # Params: login, apiKey, longUrl, domain=bit.ly, format=txt
-        # URL: /v3/shorten
-        # Domain: api[-ssl].bitly.com
-        # Response: Text, shortened URL
-        params = {"longUrl": url, "format": "txt", "domain": "bit.ly"}
-
-        if "bit.ly" in self.api_details:
-            params["login"] = self.api_details["bit.ly"]["login"]
-            params["apiKey"] = self.api_details["bit.ly"]["apikey"]
-
-        data = self.do_get("http://api.bitly.com/v3/shorten", params)
-
-        return data
-
     def shortener_isgd(self, url):
         # Domain: is.gd
         # URL: /create.php
@@ -135,21 +105,6 @@ class URLToolsPlugin(PluginObject):
         params = {"url": url, "format": "simple"}
 
         data = self.do_get("http://is.gd/create.php", params)
-
-        return data
-
-    def shortener_jmp(self, url):
-        # Params: login, apiKey, longUrl, domain=j.mp, format=txt
-        # URL: /v3/shorten
-        # Domain: api[-ssl].bitly.com
-        # Response: Text, shortened URL
-        params = {"longUrl": url, "format": "txt", "domain": "j.mp"}
-
-        if "bit.ly" in self.api_details:
-            params["login"] = self.api_details["bit.ly"]["login"]
-            params["apiKey"] = self.api_details["bit.ly"]["apikey"]
-
-        data = self.do_get("http://api.bitly.com/v3/shorten", params)
 
         return data
 

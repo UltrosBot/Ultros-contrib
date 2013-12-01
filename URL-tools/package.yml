@@ -1,14 +1,14 @@
 name: URL Tools
 current_version:
-    number: 0.0.1
+    number: 0.1.0
     info: >
-        Initial version. This implements all the URL shorteners (hopefully).
+        Some fixes and removed bit.ly/j.mp support as they require OAuth tokens (which wasn't mentioned in the docs)
 description: >
     Provides a set of tools for working with the URLs plugin. These tools provide both URL shorteners
     and specific domain handlers for the URL title parser.
 
     == DONE ==
-    Shorteners: bit.ly, is.gd, j.mp, nazr.in, v.gd, waa.ai
+    Shorteners: is.gd,  nazr.in, v.gd, waa.ai
 
     == PLANNED ==
     Sites: youtube.com, osu.ppy.sh
