@@ -1,16 +1,14 @@
 # Packages list and a small amount of information goes here.
 
-Web:
-    version: 0.0.1
-    description: "An extensible web interface and REST API build on Bottle and CherryPy."
-    requires:
-        modules:
-        - "bottle"
-        - "cherrypy"
-        packages: []
 Money:
     version: 0.0.1
     description: "A simple command to convert between currencies."
+    requires:
+        modules: []
+        packages: []
+Teamspeak:
+    version: 0.0.1
+    description: "Provides a (somewhat hacky and slow) protocol for connecting to Teamspeak via the ServerQuery protocol."
     requires:
         modules: []
         packages: []
@@ -19,4 +17,12 @@ URL-tools:
     description: "Provides a set of tools for working with the URLs plugin."
     requires:
         modules: []
+        packages: []
+Web:
+    version: 0.0.1
+    description: "An extensible web interface and REST API build on Bottle and CherryPy."
+    requires:
+        modules:
+        - "bottle"
+        - "cherrypy"
         packages: []

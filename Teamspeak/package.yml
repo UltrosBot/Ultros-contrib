@@ -1,0 +1,20 @@
+name: Teamspeak protocol
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version. Not finished, but it will connect and print stuff.
+description: >
+    Provides a (somewhat hacky and slow) protocol for connecting to Teamspeak
+    via the ServerQuery protocol.
+files:
+- system/protocols/teamspeak/
+- system/protocols/teamspeak/__init__.py
+- system/protocols/teamspeak/channel.py
+- system/protocols/teamspeak/protocol.py
+- system/protocols/teamspeak/user.py
+- config/protocols/teamspeak.yml.example
+- utils/teamspeak.py
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Teamspeak/README.md
