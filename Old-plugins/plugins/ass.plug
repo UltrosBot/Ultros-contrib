@@ -1,0 +1,9 @@
+core:
+  name: Ass
+  module: ass
+info:
+  description: "Inspired by XKCD-bucket: Weird-ass person => Weird ass-person"
+  author: Sean; ported by Gareth
+  version: 0.0.1
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Old-plugins
+  copyright: See Ultros' license

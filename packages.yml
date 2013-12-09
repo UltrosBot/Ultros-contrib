@@ -6,6 +6,12 @@ Money:
     requires:
         modules: []
         packages: []
+Old-plugins:
+    version: 0.0.1
+    description: "Rewritten versions of most of the old plugins from the original Ultros."
+    requires:
+        modules: []
+        packages: []
 Teamspeak:
     version: 0.0.1
     description: "Provides a (somewhat hacky and slow) protocol for connecting to Teamspeak via the ServerQuery protocol."

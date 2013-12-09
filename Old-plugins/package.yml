@@ -1,0 +1,23 @@
+name: Old-plugins
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version.
+description: >
+    Rewritten versions of most of the old plugins from the original Ultros.
+
+    So far, the following plugins have been ported:
+    - Ass: weird-ass bucket => weird ass-bucket
+    - Brainfuck: A simple brainfuck interpreter
+files:
+- plugins/ass/
+- plugins/brainfuck/
+- config/plugins/brainfuck.yml.example
+- plugins/ass/__init__.py
+- plugins/ass.plug
+- plugins/brainfuck/__init__.py
+- plugins/brainfuck.plug
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Old-plugins/README.md
