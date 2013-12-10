@@ -4,7 +4,6 @@ import requests
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from system.protocols.generic.channel import Channel
 from utils.config import Config
 from utils.data import Data
 
@@ -114,7 +113,7 @@ class Plugin(PluginObject):
         try:
             track = response["recenttracks"]["track"][0]
             if (("nowplaying" in track["@attr"] and
-                         bool(track["@attr"]["nowplaying"]) == True)):
+                 bool(track["@attr"]["nowplaying"]))):
                 source.respond(u"%s is now playing: %s - %s" %
                                (username,
                                 track["artist"]["#text"],
@@ -167,9 +166,9 @@ class LastFM(object):
         # So fuck that, send it lower() to make sure
         method = method.lower()
         final_payload = {
-            "api_key" : self._api_key,
-            "format" : "json",
-            "method" : method
+            "api_key": self._api_key,
+            "format": "json",
+            "method": method
         }
         final_payload.update(payload)
         result = requests.post(self.API_URL, final_payload).json()
@@ -183,7 +182,7 @@ class LastFM(object):
     def user_get_recent_tracks(self, username, limit=None, page=None,
                                from_=None, extended=None, to=None):
         payload = {
-            "user" : username
+            "user": username
         }
         if limit is not None:
             payload["limit"] = limit
