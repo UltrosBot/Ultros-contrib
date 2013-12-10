@@ -1,0 +1,19 @@
+name: LastFM
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version. Now playing and basic username storing.
+description: >
+    LastFM API integration. Current features:
+    - Now Playing
+files:
+- plugins/lastfm/
+- plugins/lastfm/__init__.py
+- plugins/lastfm.plug
+- config/plugins/lastfm.yml.example
+requires:
+    modules: [
+        requests
+    ]
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/LastFM/README.md
