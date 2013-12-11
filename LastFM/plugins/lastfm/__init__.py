@@ -12,7 +12,6 @@ class Plugin(PluginObject):
 
     commands = None
     config = None
-    timeout = 100
 
     def setup(self):
         ### Grab important shit
