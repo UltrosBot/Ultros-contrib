@@ -1,6 +1,7 @@
 core:
   name: LastFM
   module: lastfm
+  dependencies: []
 info:
   description: "LastFM API integration."
   author: Sean Gordon

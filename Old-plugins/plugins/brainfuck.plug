@@ -1,6 +1,7 @@
 core:
   name: Brainfuck
   module: brainfuck
+  dependencies: []
 info:
   description: Simple Brainfuck interpreter
   author: Sean; ported by Gareth

@@ -1,6 +1,7 @@
 core:
   name: Ass
   module: ass
+  dependencies: []
 info:
   description: "Inspired by XKCD-bucket: Weird-ass person => Weird ass-person"
   author: Sean; ported by Gareth
