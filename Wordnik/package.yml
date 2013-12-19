@@ -2,10 +2,7 @@ name: Wordnik
 current_version:
     number: 0.0.1
     info: >
-        Initial version. The plugin doesn't actually /do/ anything yet, but it's a valid plugin.
-        This includes the first versions of the versions.yml and package.yml files.
-         
-        This plugin is being used almost as a kind of testbed for the package manager.
+        Initial version. Dict and WOTD commands are done.
 description: >
     Provides a dictionary lookup tool using the Wordnik API and Wiktionary.
 
