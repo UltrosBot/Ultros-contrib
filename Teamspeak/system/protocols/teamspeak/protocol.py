@@ -30,6 +30,8 @@ class Protocol(GenericProtocol):
     passw = ""
     sid = 1
 
+    name = "teamspeak"
+
     def __init__(self, factory, config):
         self.factory = factory
         self.config = config
