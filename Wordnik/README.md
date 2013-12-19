@@ -7,7 +7,12 @@ This plugin exposes that API for people that may want to use your bot.
 Before you start, you'll need to get yourself a Wordnik API key. To do this, please do the following..
 
 * Create an account on the [Wordnik site](http://wordnik.com) and verify your email.
-* Copy the following text: ```Ultros - This key will be used with the Wordnik plugin for the Ultros multi-protocol bot, used to provide definitions to users on IRC and other chat networks.```
+* Copy the following text:
+    ```
+    Ultros - This key will be used with the Wordnik plugin for the Ultros
+    multi-protocol bot, used to provide definitions to users on IRC and
+    other chat networks.
+    ```
 * Go to [This page](http://developer.wordnik.com) and paste the above text into the `How might you use the API?` box.
   * `esperluette` on [#Wordnik@Freenode](irc://irc.freenode.net/wordnik) has requested we copy and paste the same thing into the box, so please honor that request.
   * This step is important; while the API is currently automatically approved, this box is used to collect usage statistics.
