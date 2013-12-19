@@ -39,3 +39,16 @@ Web:
 #        modules:
 #        - "wordnik"
 #        packages: []
+LastFM:
+    version: 0.1.0
+    description: "LastFM API integration."
+    requires:
+        modules:
+        - "requests"
+        packages: []
+UrbanDictionary:
+    version: 0.1.0
+    description: "Provides definition lookup from UrbanDictionary.com"
+    requires:
+        modules: []
+        packages: []
