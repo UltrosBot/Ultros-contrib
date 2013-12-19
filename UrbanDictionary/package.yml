@@ -1,0 +1,16 @@
+name: UrbanDictionary
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version. Definition lookup command.
+description: >
+    Provides definition lookup from UrbanDictionary.com
+files:
+- plugins/urbandictionary/
+- plugins/urbandictionary/__init__.py
+- plugins/urbandictionary.plug
+- config/plugins/urbandictionary.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/UrbanDictionary/README.md

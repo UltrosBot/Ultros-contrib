@@ -1,0 +1,9 @@
+core:
+  name: UrbanDictionary
+  module: urbandictionary
+info:
+  description: "UrbanDictionary definition lookup"
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/UrbanDictionary
+  copyright: BSD 3-Clause
