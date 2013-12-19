@@ -4,8 +4,6 @@ import urllib2
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from utils.config import Config
-from utils.data import Data
 
 
 __author__ = 'Sean'
@@ -59,7 +57,7 @@ class Plugin(PluginObject):
 
     def get_definition(self, term):
         request = urllib2.Request("http://api.urbandictionary.com/v0/define?" +
-                                  urllib.urlencode({'term':term}))
+                                  urllib.urlencode({'term': term}))
         # Fuck you PEP8. Fuck you with the largest, spikiest dragon dildo, in
         # every orifice you have, and more.
         request.add_header('User-agent', 'Mozilla/5.0 '
