@@ -1,0 +1,11 @@
+core:
+  name: Wordnik
+  module: dict
+  dependencies:
+  - URLs
+info:
+  description: Provides a dictionary lookup tool using the Wordnik API and Wiktionary.
+  author: Gareth Coles
+  version: 0.0.1
+  website: https://github.com/UltrosBot/Ultros-contrib/Wordnik
+  copyright: See Ultros' license. Definitions belong to Wiktionary, access to which is granted by the Wordnik API.

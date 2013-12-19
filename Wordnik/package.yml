@@ -1,0 +1,25 @@
+name: Wordnik
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version. The plugin doesn't actually /do/ anything yet, but it's a valid plugin.
+        This includes the first versions of the versions.yml and package.yml files.
+         
+        This plugin is being used almost as a kind of testbed for the package manager.
+description: >
+    Provides a dictionary lookup tool using the Wordnik API and Wiktionary.
+
+    [dict command] Look up the definition of a word.
+    [wotd command] Look up the current word of the day and its definition.
+
+    Both commands use Wiktionary for definitions, gracegully provided by the Wordnik API.
+files:
+- plugins/wordnik/
+- plugins/wordnik.plug
+- plugins/wordnik/__init__.py
+- config/plugins/wordnik.example.yml
+requires:
+    modules:
+    - "wordnik"
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Wordnik/README.md
