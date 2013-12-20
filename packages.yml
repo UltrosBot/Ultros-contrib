@@ -1,5 +1,12 @@
 # Packages list and a small amount of information goes here.
 
+LastFM:
+    version: 0.1.0
+    description: "LastFM API integration."
+    requires:
+        modules:
+        - "requests"
+        packages: []
 Money:
     version: 0.0.1
     description: "A simple command to convert between currencies."
@@ -18,6 +25,12 @@ Teamspeak:
     requires:
         modules: []
         packages: []
+UrbanDictionary:
+    version: 0.1.0
+    description: "Provides definition lookup from UrbanDictionary.com"
+    requires:
+        modules: []
+        packages: []
 URL-tools:
     version: 0.1.0
     description: "Provides a set of tools for working with the URLs plugin."
@@ -32,23 +45,10 @@ Web:
         - "bottle"
         - "cherrypy"
         packages: []
-#Wordnik:
-#    version: 0.0.1
-#    description: "Provides a dictionary lookup tool using the Wordnik API and Wiktionary."
-#    requires:
-#        modules:
-#        - "wordnik"
-#        packages: []
-LastFM:
-    version: 0.1.0
-    description: "LastFM API integration."
+Wordnik:
+    version: 0.0.1
+    description: "Provides a dictionary lookup tool using the Wordnik API and Wiktionary."
     requires:
         modules:
-        - "requests"
-        packages: []
-UrbanDictionary:
-    version: 0.1.0
-    description: "Provides definition lookup from UrbanDictionary.com"
-    requires:
-        modules: []
+        - "wordnik"
         packages: []
