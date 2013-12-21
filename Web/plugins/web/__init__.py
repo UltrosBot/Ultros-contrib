@@ -63,6 +63,7 @@ class BottlePlugin(PluginObject):
 
         # endregion
 
+        self.logger.info("Starting Bottle app..")
         self._start_bottle()
 
     def deactivate(self):
@@ -71,7 +72,6 @@ class BottlePlugin(PluginObject):
 
     @run_async_daemon
     def _start_bottle(self):
-        self.logger.info("Starting Bottle app..")
         try:
             self.app.run(host=self.host, port=self.port, server='cherrypy',
                          quiet=True)
