@@ -11,10 +11,10 @@ description: >
 
     Both commands use Wiktionary for definitions, gracegully provided by the Wordnik API.
 files:
-- plugins/wordnik/
+- plugins/dict/
 - plugins/wordnik.plug
-- plugins/wordnik/__init__.py
-- config/plugins/wordnik.example.yml
+- plugins/dict/__init__.py
+- config/plugins/wordnik.yml.example
 requires:
     modules:
     - "wordnik"
