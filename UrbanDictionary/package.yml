@@ -9,7 +9,7 @@ files:
 - plugins/urbandictionary/
 - plugins/urbandictionary/__init__.py
 - plugins/urbandictionary.plug
-- config/plugins/urbandictionary.yml.example
+#- config/plugins/urbandictionary.yml.example
 requires:
     modules: []
     packages: []
