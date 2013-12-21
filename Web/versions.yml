@@ -3,3 +3,7 @@
     This includes the first versions of the versions.yml and package.yml files.
     
     This plugin is being used almost as a kind of testbed for the package manager.
+0.1.0: >
+    Web classes are working, with a default index page and the ability to serve static files.
+    This appears to be /FAST/, which is obviously a really good thing. More work needs done on it
+      before we can have a proper JSON API, but it's getting there.

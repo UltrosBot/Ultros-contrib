@@ -1,0 +1,6 @@
+# Configuration file for the Web plugin.
+# API keys don't go here - configure them with commands instead.
+
+hostname: 0.0.0.0  # Interface to listen on
+port: 8080  # Port to listen on
+output_requests: yes  # Whether to output requests or not
