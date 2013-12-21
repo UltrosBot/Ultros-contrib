@@ -124,7 +124,7 @@ class Plugin(PluginObject):
             # If the response is unexpected (example, the user has never
             # listened to anything), then we'll get errors. Log this in case
             # there's actually a bug in there somewhere.
-            self.logger.warning(exc_info=ex)
+            self.logger.debug("Error!", exc_info=ex)
             source.respond("%s is not currently listening to anything" %
                            username)
 
