@@ -5,7 +5,7 @@ import logging
 from bottle import default_app, request, hook, abort, static_file
 from bottle import mako_template as template
 
-from system.decorators import run_async
+from system.decorators import run_async_daemon
 from system.plugin import PluginObject
 from utils.config import Config
 
@@ -69,16 +69,14 @@ class BottlePlugin(PluginObject):
         self.app.close()
         super(PluginObject, self).deactivate()
 
-    @run_async
+    @run_async_daemon
     def _start_bottle(self):
         self.logger.info("Starting Bottle app..")
         try:
             self.app.run(host=self.host, port=self.port, server='cherrypy',
                          quiet=True)
         except Exception:
-            self.logger.exception("Exceptoin while running the Bottle app!")
-        finally:
-            self.logger.info("Bottle app has been closed.")
+            self.logger.exception("Exception while running the Bottle app!")
 
     def _log_request(self, rq, level=logging.DEBUG):
         ip = rq.remote_addr
