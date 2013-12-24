@@ -63,6 +63,12 @@ class DictPlugin(PluginObject):
         else:
             try:
                 definition = self.get_definition(args[0])
+                if not definition:
+                    if isinstance(source, User):
+                        caller.respond("%s | No definition found.")
+                    else:
+                        source.respond("%s | No definition found.")
+                    return
                 word = definition.word
                 text = definition.text
 
@@ -111,7 +117,9 @@ class DictPlugin(PluginObject):
         result = self.word_api.getDefinitions(word, limit=1,
                                               sourceDictionaries="wiktionary")
         self.logger.debug("Data: %s" % result)
-        return result[0]
+        if result:
+            return result[0]
+        return None
 
     def get_wotd(self):
         result = self.words_api.getWordOfTheDay()
