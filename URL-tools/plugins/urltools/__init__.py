@@ -204,7 +204,7 @@ class Plugin(PluginObject):
                     seconds = 0
                     for entry in feed["entry"]:
                         seconds += int(entry["media$group"]["yt$duration"]
-                        ["seconds"])
+                                            ["seconds"])
                     time = self.seconds_to_time(seconds)
                     return self.OUTPUT_YOUTUBE_PLAYLIST % (title,
                                                            count,
