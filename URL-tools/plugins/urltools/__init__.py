@@ -247,7 +247,8 @@ class Plugin(PluginObject):
 
     def seconds_to_time(self, secs):
         # TODO: Move this into formatting utils
-        #There's probably a more "pythonic" way to do this, but I didn't know of one
+        # There's probably a more "pythonic" way to do this, but I didn't know
+        # of one
         m, s = divmod(secs, 60)
         if m >= 60:
             h, m = divmod(m, 60)
@@ -255,13 +256,14 @@ class Plugin(PluginObject):
         else:
             return "%d:%02d" % (m, s)
 
-    def make_description_nice(self, description, max_length = -1):
+    def make_description_nice(self, description, max_length=-1):
         """
         Replace newlines with spaces and limit length
         """
         # TODO: Move this into formatting utils
         description = description.strip()
-        description = description.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
+        description = description.replace("\r\n", " ").replace("\r", " ") \
+            .replace("\n", " ")
         if max_length > 0 and len(description) > max_length:
             description = description[:max_length - 3] + "..."
         return description
