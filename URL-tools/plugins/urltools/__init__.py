@@ -25,9 +25,14 @@ class Plugin(PluginObject):
     plugman = None
 
     YOUTUBE_LOGO = "YOUTUBE"  # Separated for colouring
-    OUTPUT_YOUTUBE_VIDEO = "[" + YOUTUBE_LOGO + " Video] %s (%s) by %s, %s likes, %s dislikes, %s views"
-    OUTPUT_YOUTUBE_PLAYLIST = "[" + YOUTUBE_LOGO + " Playlist] %s (%s videos, total %s) by %s - \"%s\""
-    OUTPUT_YOUTUBE_CHANNEL = "[" + YOUTUBE_LOGO + " Channel] %s (%s subscribers, %s videos with %s total views) - \"%s\""
+    OUTPUT_YOUTUBE_VIDEO = "[" + YOUTUBE_LOGO + " Video] %s (%s) by %s, %s l" \
+                                                "ikes, %s dislikes, %s views"
+    OUTPUT_YOUTUBE_PLAYLIST = "[" + YOUTUBE_LOGO + " Playlist] %s (%s videos" \
+                                                   ", total %s) by %s - \"%s\""
+    OUTPUT_YOUTUBE_CHANNEL = "[" + YOUTUBE_LOGO + " Channel] %s (%s subscrib" \
+                                                  "ers, %s videos with %s to" \
+                                                  "tal views) - \"%s\""
+    # PEP MOTHERFUCKING 8 ^
 
     YOUTUBE_DESCRIPTION_LENGTH = 75
 
