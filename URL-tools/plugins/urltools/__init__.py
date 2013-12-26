@@ -1,4 +1,6 @@
 # coding=utf-8
+import json
+import urlparse
 from system.plugin_manager import YamlPluginManagerSingleton
 
 __author__ = 'Gareth Coles'
@@ -21,6 +23,13 @@ class Plugin(PluginObject):
     shorteners = {}
 
     plugman = None
+
+    YOUTUBE_LOGO = "YOUTUBE"  # Separated for colouring
+    OUTPUT_YOUTUBE_VIDEO = "[" + YOUTUBE_LOGO + " Video] %s (%s) by %s, %s likes, %s dislikes, %s views"
+    OUTPUT_YOUTUBE_PLAYLIST = "[" + YOUTUBE_LOGO + " Playlist] %s (%s videos, total %s) by %s - \"%s\""
+    OUTPUT_YOUTUBE_CHANNEL = "[" + YOUTUBE_LOGO + " Channel] %s (%s subscribers, %s videos with %s total views) - \"%s\""
+
+    YOUTUBE_DESCRIPTION_LENGTH = 75
 
     def setup(self):
         try:
@@ -147,7 +156,110 @@ class Plugin(PluginObject):
         return url
 
     def site_youtube(self, url):
-        return url
+        parsed = urlparse.urlparse(url)
+        if parsed.path.lower() == "/watch":
+            params = urlparse.parse_qs(parsed.query)
+            if "v" in params and len(params["v"]) > 0:
+                try:
+                    video_data = json.loads(urllib2.urlopen(
+                        "http://gdata.youtube.com/feeds/api/videos/%s?v=2&alt="
+                        "json" % params["v"][0]).read())
+                    entry = video_data["entry"]
+                    media_group = entry["media$group"]
+                    title = media_group["media$title"]["$t"]
+                    uploader = media_group["media$credit"][0]["yt$display"]
+                    time = self.seconds_to_time(int(
+                        media_group["yt$duration"]["seconds"]))
+                    views = entry["yt$statistics"]["viewCount"]
+                    likes = entry["yt$rating"]["numLikes"]
+                    dislikes = entry["yt$rating"]["numDislikes"]
+                    return self.OUTPUT_YOUTUBE_VIDEO % (title,
+                                                        time,
+                                                        uploader,
+                                                        likes,
+                                                        dislikes,
+                                                        views)
+                except:
+                    self.logger.exception('Could not get title for "%s"' % url)
+        elif parsed.path.lower() == "/playlist":
+            params = urlparse.parse_qs(parsed.query)
+            if "list" in params and len(params["list"]) > 0:
+                try:
+                    playlist_data = json.loads(urllib2.urlopen(
+                        "http://gdata.youtube.com/feeds/api/playlists/%s?v=2&a"
+                        "lt=json" % params["list"][0]).read())
+                    feed = playlist_data["feed"]
+                    title = feed["title"]["$t"]
+                    author = feed["author"][0]["name"]["$t"]
+                    description = feed["subtitle"]["$t"]
+                    description = self.make_description_nice(
+                        description,
+                        self.YOUTUBE_DESCRIPTION_LENGTH)
+                    count = len(feed["entry"])
+                    seconds = 0
+                    for entry in feed["entry"]:
+                        seconds += int(entry["media$group"]["yt$duration"]
+                        ["seconds"])
+                    time = self.seconds_to_time(seconds)
+                    return self.OUTPUT_YOUTUBE_PLAYLIST % (title,
+                                                           count,
+                                                           time,
+                                                           author,
+                                                           description)
+                except:
+                    self.logger.exception('Could not get title for "%s"' % url)
+        elif parsed.path.lower().startswith("/user/"):
+            parts = parsed.path.split("/")
+            if len(parts) >= 3:
+                try:
+                    user_data = json.loads(urllib2.urlopen(
+                        "http://gdata.youtube.com/feeds/api/users/%s?v=2&alt=j"
+                        "son" % parts[2]).read())
+                    entry = user_data["entry"]
+                    name = entry["title"]["$t"]
+                    description = entry["summary"]["$t"]
+                    description = self.make_description_nice(
+                        description,
+                        self.YOUTUBE_DESCRIPTION_LENGTH)
+                    subscribers = entry["yt$statistics"]["subscriberCount"]
+                    views = entry["yt$statistics"]["totalUploadViews"]
+                    videos = None
+                    for entry in entry["gd$feedLink"]:
+                        if entry["rel"].endswith("#user.uploads"):
+                            videos = entry["countHint"]
+                            break
+                    return self.OUTPUT_YOUTUBE_CHANNEL % (name,
+                                                          subscribers,
+                                                          videos,
+                                                          views,
+                                                          description)
+                except:
+                    self.logger.exception('Could not get title for "%s"' % url)
+            # If we get to here, then it's either a part of youtube we don't
+        # handle, or an exception was thrown (and caught) above, so let the
+        # regular title fetcher try.
+        return None
+
+    def seconds_to_time(self, secs):
+        # TODO: Move this into formatting utils
+        #There's probably a more "pythonic" way to do this, but I didn't know of one
+        m, s = divmod(secs, 60)
+        if m >= 60:
+            h, m = divmod(m, 60)
+            return "%d:%02d:%02d" % (h, m, s)
+        else:
+            return "%d:%02d" % (m, s)
+
+    def make_description_nice(self, description, max_length = -1):
+        """
+        Replace newlines with spaces and limit length
+        """
+        # TODO: Move this into formatting utils
+        description = description.strip()
+        description = description.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
+        if max_length > 0 and len(description) > max_length:
+            description = description[:max_length - 3] + "..."
+        return description
 
     def _disable_self(self):
         self.factory_manager.plugman.deactivatePluginByName(self.info.name)
