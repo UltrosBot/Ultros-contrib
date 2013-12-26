@@ -4,7 +4,7 @@ import requests
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from utils.config import Config
+from utils.config import YamlConfig
 from utils.data import Data
 
 
@@ -19,7 +19,7 @@ class Plugin(PluginObject):
 
         ### Initial config load
         try:
-            self.config = Config("plugins/lastfm.yml")
+            self.config = YamlConfig("plugins/lastfm.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")

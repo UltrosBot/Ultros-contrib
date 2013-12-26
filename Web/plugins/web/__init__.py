@@ -7,7 +7,7 @@ from bottle import mako_template as template
 
 from system.decorators import run_async_daemon
 from system.plugin import PluginObject
-from utils.config import Config
+from utils.config import YamlConfig
 
 
 class BottlePlugin(PluginObject):
@@ -26,7 +26,7 @@ class BottlePlugin(PluginObject):
     def setup(self):
         self.logger.debug("Entered setup method.")
         try:
-            self.config = Config("plugins/web.yml")
+            self.config = YamlConfig("plugins/web.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.warn("Using the default configuration --> "

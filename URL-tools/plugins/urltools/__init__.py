@@ -10,7 +10,7 @@ import urllib
 import urllib2
 
 from system.plugin import PluginObject
-from utils.config import Config
+from utils.config import YamlConfig
 from utils.misc import output_exception
 
 
@@ -38,7 +38,7 @@ class Plugin(PluginObject):
 
     def setup(self):
         try:
-            self.config = Config("plugins/urltools.yml")
+            self.config = YamlConfig("plugins/urltools.yml")
         except Exception:
             self.logger.error("Unable to load the configuration!")
             output_exception(self.logger, logging.ERROR)

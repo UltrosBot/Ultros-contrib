@@ -7,7 +7,7 @@ import json
 
 from system.plugin import PluginObject
 from system import command_manager
-from utils.config import Config
+from utils.config import YamlConfig
 from datetime import datetime, timedelta
 #from japan import loli_maids
 
@@ -21,7 +21,7 @@ class MoneyPlugin(PluginObject):
     commands = None
 
     def setup(self):
-        self.config = Config("plugins/money.yml")
+        self.config = YamlConfig("plugins/money.yml")
 
         self.commands = command_manager.CommandManager.instance()
         self.commands.register_command("money", self.money_command_called,

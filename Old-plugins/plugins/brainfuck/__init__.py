@@ -5,7 +5,7 @@ from datetime import datetime
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
 from system.protocols.generic.channel import Channel
-from utils.config import Config
+from utils.config import YamlConfig
 
 
 class Plugin(PluginObject):
@@ -18,7 +18,7 @@ class Plugin(PluginObject):
         self.commands = CommandManager.instance()
 
         try:
-            self.config = Config("plugins/brainfuck.yml")
+            self.config = YamlConfig("plugins/brainfuck.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling..")

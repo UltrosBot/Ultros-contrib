@@ -9,7 +9,7 @@ from system.command_manager import CommandManager
 from system.plugin import PluginObject
 from system.plugin_manager import YamlPluginManagerSingleton
 from system.protocols.generic.user import User
-from utils.config import Config
+from utils.config import YamlConfig
 
 
 class DictPlugin(PluginObject):
@@ -27,7 +27,7 @@ class DictPlugin(PluginObject):
 
     def setup(self):
         try:
-            self.config = Config("plugins/wordnik.yml")
+            self.config = YamlConfig("plugins/wordnik.yml")
         except Exception:
             self.logger.exception("Unable to load the configuration!")
             return self._disable_self()
