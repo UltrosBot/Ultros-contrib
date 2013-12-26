@@ -5,7 +5,7 @@ import requests
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
 from utils.config import YamlConfig
-from utils.data import Data
+from utils.data import YamlData
 
 
 class Plugin(PluginObject):
@@ -32,7 +32,7 @@ class Plugin(PluginObject):
             return
             ### Same for the data file (nickname=>lastfmusername map)
         try:
-            self.nickmap = Data("plugins/lastfm-nickmap.yml")
+            self.nickmap = YamlData("plugins/lastfm-nickmap.yml")
         except Exception:
             self.logger.exception("Error loading nickmap!")
             self.logger.error("Disabling...")
