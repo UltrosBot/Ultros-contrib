@@ -1,8 +1,9 @@
 name: DrunkOctopus
 current_version:
-    number: 0.1.0
+    number: 0.2.0
     info: >
-        Initial version. Talks drunkenly depending on configured drunkenness value.
+        + Optional sobering repeating task
+        + Drink command to get bot drunk
 description: >
     Gives your squidopus shots of vodka and rum.
 files:

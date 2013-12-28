@@ -1,6 +1,7 @@
 import random
 import re
 import string
+from twisted.internet import reactor
 from system.event_manager import EventManager
 
 __author__ = 'Sean'
@@ -38,10 +39,13 @@ class Plugin(PluginObject):
             return
 
         ### Create vars and stuff
+        self._sobering_call = None
         self._drunktalk = DrunkTalk()
 
         ### Load options from config
         self._load()
+
+        ### Register events and commands
 
         self.events.add_callback("MessageSent",
                                  self,
@@ -51,6 +55,10 @@ class Plugin(PluginObject):
                                        self.drunkenness_command,
                                        self,
                                        "drunkoctopus.drunkenness")
+        self.commands.register_command("drink",
+                                       self.drink_command,
+                                       self,
+                                       "drunkoctopus.drink")
 
     def reload(self):
         try:
@@ -63,6 +71,32 @@ class Plugin(PluginObject):
 
     def _load(self):
         self._drunktalk.drunkenness = self.config["drunkenness"]
+        self._cooldown_enabled = self.config["cooldown"]["enabled"]
+        self._cooldown_time = self.config["cooldown"]["time"]
+        self._cooldown_amount = self.config["cooldown"]["amount"]
+        self._drinks = self.config["drinks"]
+
+        # Sort out the sobering deferred as necessary
+        if self._cooldown_enabled:
+            if self._sobering_call is None:
+                self.logger.debug("Starting sobering call due to config "
+                                  "change")
+                self._sobering_call = reactor.callLater(self._cooldown_time,
+                                                        self._sober_up)
+        else:
+            if self._sobering_call is not None:
+                self.logger.debug("Cancelling sobering call due to config change")
+                self._sobering_call.cancel()
+
+    def _sober_up(self):
+        self.logger.debug("Sobering up")
+        drunk = self._drunktalk.drunkenness
+        drunk -= self._cooldown_amount
+        if drunk < 0:
+            drunk = 0
+        self._drunktalk.drunkenness = drunk
+        if self._cooldown_enabled:
+            reactor.callLater(self._cooldown_time, self._sober_up)
 
     def drunkenness_command(self, caller, source, args, protocol):
         if len(args) == 0:
@@ -81,6 +115,19 @@ class Plugin(PluginObject):
                                "arguments for usage)")
         else:
             caller.respond("Usage: {CHARS}drunkenness [percent level]")
+
+    def drink_command(self, caller, source, args, protocol):
+        if len(args) == 0:
+            caller.respond("Usage: {CHARS}drink <type of drink>")
+            return
+        drink = " ".join(args)
+        drinkl = drink.lower()
+        if drinkl in self._drinks:
+            # TODO: Action
+            source.respond("*drinks %s*" % drink)
+            self._drunktalk.drunkenness += self._drinks[drinkl]
+        else:
+            caller.respond("I don't have any of that.")
 
     def outgoing_message_handler(self, event):
         """

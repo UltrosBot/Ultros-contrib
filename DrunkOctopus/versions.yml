@@ -1,2 +1,5 @@
+0.2.0: >
+    + Optional sobering repeating task
+    + Drink command to get bot drunk
 0.1.0: >
     Initial version. Talks drunkenly depending on configured drunkness value.

@@ -1,1 +1,22 @@
-drunkenness: 50
+drunkenness: 0  # Initial drunkenness
+cooldown:  # Sobering up - drunkenness decreases by amount every time seconds
+  enabled: True
+  amount: 5
+  time : 60
+drinks:  # Different drinks and how much drunkenness they add
+  beer: 5
+  lager: 5
+  ale: 5
+  wine: 5
+  champagne: 5
+  red wine: 6
+  white wine: 5
+  sparkling wine: 5
+  vodka: 15
+  shot of vodka: 15
+  rum: 15
+  shot of rum: 15
+  rum and coke: 5
+  rum and cola: 5
+  vodka and coke: 5
+  vodka and cola: 5
