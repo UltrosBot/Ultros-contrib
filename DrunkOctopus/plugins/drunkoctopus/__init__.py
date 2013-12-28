@@ -247,7 +247,7 @@ class DrunkTalk(object):
         msgl = list(msg)
         pos = msg.find(" ")
         while pos != -1:
-            if random.randint(0, 99) < self._c_space_mixup:
+            if self._roll(self._c_space_mixup):
                 direction = 1
                 if pos == 0:
                     direction = 1
@@ -266,7 +266,7 @@ class DrunkTalk(object):
         start = 0
         while match is not None:
             pos = match.start() + start
-            if random.randint(0, 99) < self._c_letter_mixup:
+            if self._roll(self._c_letter_mixup):
                 pos2 = pos + 1
                 msgl[pos], msgl[pos2] = msgl[pos2], msgl[pos]
                 start = pos + 1
@@ -290,7 +290,7 @@ class DrunkTalk(object):
                 just_altered = False
                 continue
             if new_shift != shift:
-                if random.randint(0, 99) < self._c_shift_mixup:
+                if self._roll(self._c_shift_mixup):
                     # Function to check if it's possible to shift-swap a
                     # position
                     suitable = lambda p, s: msgl[p] in (
@@ -320,8 +320,7 @@ class DrunkTalk(object):
         msgl = list(msg)
         removed = 0
         for n, c in enumerate(msg):
-            if (c in string.punctuation and
-                    random.randint(0, 99) < self._c_punct_remove):
+            if c in string.punctuation and self._roll(self._c_punct_remove):
                 del msgl[n - removed]
                 removed += 1
         return ''.join(msgl)
@@ -330,8 +329,7 @@ class DrunkTalk(object):
         msgl = list(msg)
         added = 0
         for n, c in enumerate(msg):
-            if (c in string.punctuation and
-                    random.randint(0, 99) < self._c_punct_double):
+            if c in string.punctuation and self._roll(self._c_punct_double):
                 msgl.insert(n + added, c)
                 added += 1
         return ''.join(msgl)
@@ -339,7 +337,6 @@ class DrunkTalk(object):
     def _nearby_punctuation(self, msg):
         msgl = list(msg)
         for n, c in enumerate(msgl):
-            if (c in self._nearby_punct and
-                    random.randint(0, 99) < self._c_punct_similar):
+            if c in self._nearby_punct and self._roll(self._c_punct_similar):
                 msgl[n] = random.choice(self._nearby_punct[c])
         return ''.join(msgl)

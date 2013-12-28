@@ -1,3 +1,5 @@
+0.2.1: >
+    * Fixed mistake where drunkenness wasn't fully utilised
 0.2.0: >
     + Optional sobering repeating task
     + Drink command to get bot drunk
