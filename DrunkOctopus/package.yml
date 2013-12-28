@@ -1,0 +1,16 @@
+name: DrunkOctopus
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version. Talks drunkenly depending on configured drunkenness value.
+description: >
+    Gives your squidopus shots of vodka and rum.
+files:
+- plugins/drunkoctopus/
+- plugins/drunkoctopus/__init__.py
+- plugins/drunkoctopus.plug
+- config/plugins/drunkoctopus.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/DrunkOctopus/README.md

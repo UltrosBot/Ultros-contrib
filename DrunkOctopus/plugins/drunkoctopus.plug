@@ -1,0 +1,10 @@
+core:
+  name: DrunkOctopus
+  module: drunkoctopus
+  dependencies: []
+info:
+  description: "Gives your squidopus shots of vodka and rum."
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/DrunkOctopus
+  copyright: BSD 3-Clause
