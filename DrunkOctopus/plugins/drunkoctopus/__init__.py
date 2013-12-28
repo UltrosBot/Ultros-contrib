@@ -3,15 +3,11 @@ import re
 import string
 from twisted.internet import reactor
 from system.event_manager import EventManager
-
-__author__ = 'Sean'
-
-import requests
-
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
 from utils.config import YamlConfig
-from utils.data import YamlData
+
+__author__ = 'Sean'
 
 
 class Plugin(PluginObject):
@@ -85,7 +81,8 @@ class Plugin(PluginObject):
                                                         self._sober_up)
         else:
             if self._sobering_call is not None:
-                self.logger.debug("Cancelling sobering call due to config change")
+                self.logger.debug("Cancelling sobering call due to config "
+                                  "change")
                 self._sobering_call.cancel()
 
     def _sober_up(self):
@@ -133,7 +130,8 @@ class Plugin(PluginObject):
         """
         :type event: MessageSent
         """
-        self.logger.debug("RECEIVED %s EVENT: %s" % (event.type, event.message))
+        self.logger.debug("RECEIVED %s EVENT: %s" % (event.type,
+                                                     event.message))
         event.message = self._drunktalk.drunk_typing(event.message)
 
 
@@ -323,7 +321,7 @@ class DrunkTalk(object):
         removed = 0
         for n, c in enumerate(msg):
             if (c in string.punctuation and
-                        random.randint(0, 99) < self._c_punct_remove):
+                    random.randint(0, 99) < self._c_punct_remove):
                 del msgl[n - removed]
                 removed += 1
         return ''.join(msgl)
@@ -333,7 +331,7 @@ class DrunkTalk(object):
         added = 0
         for n, c in enumerate(msg):
             if (c in string.punctuation and
-                        random.randint(0, 99) < self._c_punct_double):
+                    random.randint(0, 99) < self._c_punct_double):
                 msgl.insert(n + added, c)
                 added += 1
         return ''.join(msgl)
@@ -342,6 +340,6 @@ class DrunkTalk(object):
         msgl = list(msg)
         for n, c in enumerate(msgl):
             if (c in self._nearby_punct and
-                        random.randint(0, 99) < self._c_punct_similar):
+                    random.randint(0, 99) < self._c_punct_similar):
                 msgl[n] = random.choice(self._nearby_punct[c])
         return ''.join(msgl)
