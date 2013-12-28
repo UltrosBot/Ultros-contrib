@@ -141,28 +141,28 @@ class DrunkTalk(object):
 
     # A dict of lowercase to uppercase keys
     _shifted_chars = {
-        "," : "<",
-        "." : ">",
-        "/" : "?",
-        "\\" : "|",
-        "-" : "_",
-        "=" : "+",
-        "`" : "~",
-        "[" : "{",
-        "]" : "}",
-        ";" : ":",
-        "'" : '"',
-        "#" : "~",
-        "1" : "!",
-        "2" : "@",
-        "3" : "#",
-        "4" : "$",
-        "5" : "%",
-        "6" : "^",
-        "7" : "&",
-        "8" : "*",
-        "9" : "(",
-        "0" : ")"
+        ",": "<",
+        ".": ">",
+        "/": "?",
+        "\\": "|",
+        "-": "_",
+        "=": "+",
+        "`": "~",
+        "[": "{",
+        "]": "}",
+        ";": ":",
+        "'": '"',
+        "#": "~",
+        "1": "!",
+        "2": "@",
+        "3": "#",
+        "4": "$",
+        "5": "%",
+        "6": "^",
+        "7": "&",
+        "8": "*",
+        "9": "(",
+        "0": ")"
     }
 
     for c in string.ascii_lowercase:
@@ -174,29 +174,29 @@ class DrunkTalk(object):
 
     # Dict of nearby punctuation (same keyboard line, neightbouring keys)
     _nearby_punct = {
-        "," : ["."],
-        "." : [",", "/"],
-        "/" : ["."],
-        ";" : ["'"],
-        "'" : [";"],
-        "[" : ["]"],
-        "]" : ["[", "\\"]
+        ",": ["."],
+        ".": [",", "/"],
+        "/": ["."],
+        ";": ["'"],
+        "'": [";"],
+        "[": ["]"],
+        "]": ["[", "\\"]
     }
 
     _add = {
-        "~" : ["!"],
-        "!" : ["~", "@"],
-        "@" : ["!", "#"],
-        "#" : ['"', "$"],
-        "$" : ["#", "%"],
-        "%" : ["$", "^"],
-        "^" : ["%", "&"],
-        "&" : ["^", "*"],
-        "*" : ["&", "("],
-        "(" : ["*", ")"],
-        ")" : ["(", "_"],
-        "_" : [")", "+"],
-        "+" : ["="]
+        "~": ["!"],
+        "!": ["~", "@"],
+        "@": ["!", "#"],
+        "#": ['"', "$"],
+        "$": ["#", "%"],
+        "%": ["$", "^"],
+        "^": ["%", "&"],
+        "&": ["^", "*"],
+        "*": ["&", "("],
+        "(": ["*", ")"],
+        ")": ["(", "_"],
+        "_": [")", "+"],
+        "+": ["="]
     }
     for k, v in _nearby_punct.iteritems():
         _v = [_shifted_chars[c] for c in v]
@@ -266,7 +266,7 @@ class DrunkTalk(object):
         msgl = list(msg)
         match = re.search(r"\w\w", msg)
         start = 0
-        while match != None:
+        while match is not None:
             pos = match.start() + start
             if random.randint(0, 99) < self._c_letter_mixup:
                 pos2 = pos + 1
@@ -322,8 +322,8 @@ class DrunkTalk(object):
         msgl = list(msg)
         removed = 0
         for n, c in enumerate(msg):
-            if ((c in string.punctuation and
-                         random.randint(0, 99) < self._c_punct_remove)):
+            if (c in string.punctuation and
+                        random.randint(0, 99) < self._c_punct_remove):
                 del msgl[n - removed]
                 removed += 1
         return ''.join(msgl)
@@ -332,8 +332,8 @@ class DrunkTalk(object):
         msgl = list(msg)
         added = 0
         for n, c in enumerate(msg):
-            if ((c in string.punctuation and
-                         random.randint(0, 99) < self._c_punct_double)):
+            if (c in string.punctuation and
+                        random.randint(0, 99) < self._c_punct_double):
                 msgl.insert(n + added, c)
                 added += 1
         return ''.join(msgl)
@@ -341,7 +341,7 @@ class DrunkTalk(object):
     def _nearby_punctuation(self, msg):
         msgl = list(msg)
         for n, c in enumerate(msgl):
-            if ((c in self._nearby_punct and
-                         random.randint(0, 99) < self._c_punct_similar)):
+            if (c in self._nearby_punct and
+                        random.randint(0, 99) < self._c_punct_similar):
                 msgl[n] = random.choice(self._nearby_punct[c])
         return ''.join(msgl)
