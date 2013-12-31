@@ -42,6 +42,7 @@ class LastseenPlugin(PluginObject):
                                  self.user_disconnected, 0, cancelled=True)
 
     def get_user(self, user, protocol):
+        user = user.lower()
         with self.data as c:
             c.execute("""SELECT * FROM users WHERE user=? AND protocol=?""",
                       (user, protocol))
@@ -49,6 +50,7 @@ class LastseenPlugin(PluginObject):
             return d
 
     def insert_user(self, user, protocol):
+        user = user.lower()
         with self.data as c:
             now = time.time()
             c.execute("""INSERT INTO users VALUES (?, ?, ?)""", (user,
@@ -56,6 +58,7 @@ class LastseenPlugin(PluginObject):
                                                                  now))
 
     def update_user(self, user, protocol):
+        user = user.lower()
         with self.data as c:
             now = time.time()
             c.execute("""UPDATE users SET at=? WHERE user=? AND protocol=?""",
@@ -103,7 +106,7 @@ class LastseenPlugin(PluginObject):
                     for x in to_append:
                         if length - i == 0:
                             if i != 1:
-                                constructed += " and %s ago." % x
+                                constructed += " and %s" % x
                                 i += 1
                                 continue
                         if i != 1:
@@ -111,6 +114,8 @@ class LastseenPlugin(PluginObject):
                         else:
                             constructed += " %s" % x
                         i += 1
+
+                    constructed += " ago."
 
                     source.respond(constructed)
 
