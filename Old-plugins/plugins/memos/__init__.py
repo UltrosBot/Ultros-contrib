@@ -28,6 +28,8 @@ class MemosPlugin(PluginObject):
 
         self.events.add_callback("PreMessageReceived", self,
                                  self.message_received, 0)
+        self.commands.register_command("memo", self.memo_command, self,
+                                       "memo.send")
 
     def save_memo(self, sender, recipient, memo):
         recipient = recipient.lower()
@@ -54,11 +56,12 @@ class MemosPlugin(PluginObject):
                                                               sender, text))
 
     def memo_command(self, caller, source, args, protocol):
-        target = None  # TODO: parsing
-        memo = None  # TODO: parsing
-
-        if len(args) < 2:
-            caller.respond("Usage: {CHARS}memo TODO")
-        else:
-            self.save_memo(caller.nickname, target, memo)
-            source.respond("Alright, I'll keep that for %s." % target)
+        raise NotImplementedError("This isn't done yet.")
+        # target = None  # TODO: parsing
+        # memo = None  # TODO: parsing
+        #
+        # if len(args) < 2:
+        #     caller.respond("Usage: {CHARS}memo TODO")
+        # else:
+        #     self.save_memo(caller.nickname, target, memo)
+        #     source.respond("Alright, I'll keep that for %s." % target)
