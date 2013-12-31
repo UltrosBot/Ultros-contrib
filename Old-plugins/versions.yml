@@ -4,3 +4,6 @@
     Added rewritten GeoIP plugin.
 0.0.3: >
     Added rewritten lastseen plugin.
+0.0.4: >
+    Added Russian Roulette plugin. It's farly stripped down right now as we
+    need to do more work on the core to complete it.

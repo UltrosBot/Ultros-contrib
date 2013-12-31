@@ -1,8 +1,9 @@
 name: Old-plugins
 current_version:
-    number: 0.0.3
+    number: 0.0.4
     info: >
-        Added lastseen plugin.
+        Added Russian Roulette plugin. It's farly stripped down right now as we
+        need to do more work on the core to complete it.
 description: >
     Rewritten versions of most of the old plugins from the original Ultros.
 
@@ -15,6 +16,7 @@ files:
 - plugins/brainfuck/
 - plugins/geoip/
 - plugins/lastseen/
+- plugins/russianroulette/
 - config/plugins/brainfuck.yml.example
 - plugins/ass/__init__.py
 - plugins/ass.plug
@@ -24,6 +26,8 @@ files:
 - plugins/geoip.plug
 - plugins/lastseen/__init__.py
 - plugins/lastseen.plug
+- plugins/russianroulette/__init__.py
+- plugins/russianroulette.plug
 requires:
     modules: []
     packages: []
