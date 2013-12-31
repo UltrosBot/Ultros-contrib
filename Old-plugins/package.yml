@@ -1,8 +1,8 @@
 name: Old-plugins
 current_version:
-    number: 0.0.2
+    number: 0.0.3
     info: >
-        Initial version.
+        Added lastseen plugin.
 description: >
     Rewritten versions of most of the old plugins from the original Ultros.
 
@@ -14,6 +14,7 @@ files:
 - plugins/ass/
 - plugins/brainfuck/
 - plugins/geoip/
+- plugins/lastseen/
 - config/plugins/brainfuck.yml.example
 - plugins/ass/__init__.py
 - plugins/ass.plug
@@ -21,6 +22,8 @@ files:
 - plugins/brainfuck.plug
 - plugins/geoip/__init__.py
 - plugins/geoip.plug
+- plugins/lastseen/__init__.py
+- plugins/lastseen.plug
 requires:
     modules: []
     packages: []

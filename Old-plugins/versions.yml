@@ -1,4 +1,6 @@
 0.0.1: >
     Initial version. Ass and Brainfuck plugins.
 0.0.2: >
-    Added rewitten GeoIP plugin.
+    Added rewritten GeoIP plugin.
+0.0.3: >
+    Added rewritten lastseen plugin.
