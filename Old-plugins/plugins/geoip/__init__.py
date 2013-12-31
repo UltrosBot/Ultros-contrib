@@ -20,7 +20,7 @@ class GeoIPPlugin(PluginObject):
 
     def command(self, caller, source, args, protocol):
         if len(args) < 1:
-            caller.respond("Usage: {CHAR}geoip <address>")
+            caller.respond("Usage: {CHARS}geoip <address>")
         else:
             addr = urllib.quote_plus(args[0])
             resp = urllib.urlopen(self.api_url % addr)

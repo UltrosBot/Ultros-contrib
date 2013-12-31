@@ -1,0 +1,10 @@
+core:
+  name: Memos
+  module: memos
+  dependencies: []
+info:
+  description: "Memos - send messages to people who aren't online, for them to read later."
+  author: Kamyla; ported and rewritten by Gareth
+  version: 0.0.1
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Old-plugins
+  copyright: See Ultros' license

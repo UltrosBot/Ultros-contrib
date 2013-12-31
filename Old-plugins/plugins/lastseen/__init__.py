@@ -66,7 +66,7 @@ class LastseenPlugin(PluginObject):
 
     def seen_command(self, caller, source, args, protocol):
         if not args:
-            caller.respond("Usage: {CHAR}seen <username>")
+            caller.respond("Usage: {CHARS}seen <username>")
         else:
             user = " ".join(args)
 
