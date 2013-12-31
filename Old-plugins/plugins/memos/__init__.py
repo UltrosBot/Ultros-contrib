@@ -9,7 +9,7 @@ from system.protocols.generic.channel import Channel
 from utils.data import SqliteData
 
 
-class LastseenPlugin(PluginObject):
+class MemosPlugin(PluginObject):
 
     commands = None
     events = None
