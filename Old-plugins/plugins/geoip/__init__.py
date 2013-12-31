@@ -26,7 +26,7 @@ class GeoIPPlugin(PluginObject):
             resp = urllib.urlopen(self.api_url % addr)
             data = resp.read()
 
-            if data.lower() == "not found":
+            if data.lower().strip("\n").strip("\r").strip(" ") == "notfound":
                 source.respond("%s | Not found" % args[0])
             else:
                 parsed = json.loads(data)
