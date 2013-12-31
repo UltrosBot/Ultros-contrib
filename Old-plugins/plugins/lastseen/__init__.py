@@ -51,8 +51,9 @@ class LastseenPlugin(PluginObject):
     def insert_user(self, user, protocol):
         with self.data as c:
             now = time.time()
-            c.execute("""INSERT INTO users VALUES (?, ?, ?)""", (user, protocol
-                                                                 , now))
+            c.execute("""INSERT INTO users VALUES (?, ?, ?)""", (user,
+                                                                 protocol,
+                                                                 now))
 
     def update_user(self, user, protocol):
         with self.data as c:
