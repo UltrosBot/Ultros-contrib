@@ -74,6 +74,11 @@ class LastseenPlugin(PluginObject):
                 source.respond("I'm right here, smartass.")
                 return
 
+            if user.lower() == caller.nickname.lower():
+                source.respond("Having a bit of an out-of-body experience, "
+                               "%s?" % caller.nickname)
+                return
+
             data = self.get_user(user, protocol.name)
             if not data:
                 source.respond("User '%s' not found." % user)
