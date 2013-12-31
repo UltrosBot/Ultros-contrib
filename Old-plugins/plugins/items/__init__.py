@@ -67,7 +67,8 @@ class ItemsPlugin(PluginObject):
         if self.storage_type == "sqlite":
             if not self.has_item(item):
                 with self.data as c:
-                    c.execute("""INSERT INTO items VALUES (?, ?)""", (item, owner))
+                    c.execute("""INSERT INTO items VALUES (?, ?)""", (item,
+                                                                      owner))
         else:
             with self.data:
                 self.data["items"].append([item, owner])
@@ -126,10 +127,9 @@ class ItemsPlugin(PluginObject):
             item_owner = item[1]
             self.remove_item(item_name)
             protocol.send_action(source, "retrieves %s%s '%s' and hands it to "
-                                         "%s"
-                                         % (item_owner,
-                                         "'" if item_owner[-1] == "s"
-                                         else "'s",
-                                         item_name, caller.nickname))
+                                         "%s" % (item_owner,
+                                                 "'" if item_owner[-1] == "s"
+                                                 else "'s",
+                                                 item_name, caller.nickname))
         else:
             protocol.send_action(source, "doesn't have any items right now.")
