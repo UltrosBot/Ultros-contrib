@@ -7,3 +7,5 @@
 0.0.4: >
     Added Russian Roulette plugin. It's farly stripped down right now as we
     need to do more work on the core to complete it.
+0.0.5: >
+    Added items plugin. Hooooo boy.

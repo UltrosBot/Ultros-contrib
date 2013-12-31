@@ -1,0 +1,5 @@
+# You can specify json or sqlite here.
+# Use json if you want to be able to edit the items database easily
+# Use sqlite if you want to have an efficient plugin
+# There won't be a conversion tool between the two
+storage: sqlite

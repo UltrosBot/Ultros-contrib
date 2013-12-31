@@ -1,9 +1,8 @@
 name: Old-plugins
 current_version:
-    number: 0.0.4
+    number: 0.0.5
     info: >
-        Added Russian Roulette plugin. It's farly stripped down right now as we
-        need to do more work on the core to complete it.
+        Added items plugin. Hooooo boy.
 description: >
     Rewritten versions of most of the old plugins from the original Ultros.
 
@@ -11,19 +10,26 @@ description: >
     - Ass: weird-ass bucket => weird ass-bucket
     - Brainfuck: A simple brainfuck interpreter
     - GeoIP: A simple (but kind-of-accurate) GeoIP lookup plugin using freegeoip.net
+    - Items: The classic give/get plugin
+    - Lastseen: When were you last on?
+    - Russian-roulette: Bang!
 files:
 - plugins/ass/
 - plugins/brainfuck/
 - plugins/geoip/
+- plugins/items/
 - plugins/lastseen/
 - plugins/russianroulette/
 - config/plugins/brainfuck.yml.example
+- config/plugins/items.yml.example
 - plugins/ass/__init__.py
 - plugins/ass.plug
 - plugins/brainfuck/__init__.py
 - plugins/brainfuck.plug
 - plugins/geoip/__init__.py
 - plugins/geoip.plug
+- plugins/items/__init__.py
+- plugins/items.plug
 - plugins/lastseen/__init__.py
 - plugins/lastseen.plug
 - plugins/russianroulette/__init__.py
