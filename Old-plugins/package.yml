@@ -1,6 +1,6 @@
 name: Old-plugins
 current_version:
-    number: 0.0.1
+    number: 0.0.2
     info: >
         Initial version.
 description: >
@@ -9,14 +9,18 @@ description: >
     So far, the following plugins have been ported:
     - Ass: weird-ass bucket => weird ass-bucket
     - Brainfuck: A simple brainfuck interpreter
+    - GeoIP: A simple (but kind-of-accurate) GeoIP lookup plugin using freegeoip.net
 files:
 - plugins/ass/
 - plugins/brainfuck/
+- plugins/geoip/
 - config/plugins/brainfuck.yml.example
 - plugins/ass/__init__.py
 - plugins/ass.plug
 - plugins/brainfuck/__init__.py
 - plugins/brainfuck.plug
+- plugins/geoip/__init__.py
+- plugins/geoip.plug
 requires:
     modules: []
     packages: []

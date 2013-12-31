@@ -9,6 +9,8 @@ This package will contain most of the plugins from the old iteration of Ultros, 
   * A just-for-fun plugin. Stupid-ass bucket => stupid ass-bucket
 * Brainfuck
   * A simple interpreter for the somewhat-popular Brainfuck language
+* GeoIP
+  * A simple (but somewhat accurate) GeoIP tool, using freegeoip.net
 
 ## Configuration
 
@@ -25,8 +27,15 @@ This package will contain most of the plugins from the old iteration of Ultros, 
     * ```bf <code (no spaces)>```
   * Permission - ```brainfuck.exec```
     * Allows use of the bf command
+* GeoIP - 1 command, and 1 permission.
+  * Command - ```geoip```
+    * Looks up an address in the GeoIP database
+    * ```geoip <address>```
+  * Permission - ```geoip.command```
+    * Allows use of the geoip command
 
 ## Attribution
 
 * Sean Gordon: Ass and Brainfuck plugins
-* Gareth Coles: Plugin porting
+* Gareth Coles: Plugin porting and rewriting
+* Kamyla (AKA NotMeh): GeoIP plugin
