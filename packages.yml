@@ -1,5 +1,12 @@
 # Packages list and a small amount of information goes here.
 
+DrunkOctopus:
+    version: 0.2.1
+    description: "Gives your squidopus shots of vodka and rum."
+    requires:
+        modules: []
+        packages: []
+
 LastFM:
     version: 0.1.0
     description: "LastFM API integration."
