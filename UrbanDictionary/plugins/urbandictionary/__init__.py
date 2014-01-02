@@ -41,7 +41,7 @@ class Plugin(PluginObject):
         try:
             definition, permalink = self.get_definition(term)
             if definition is None:
-                source.respond('[UD] "%s" is not defined yet')
+                source.respond('[UD] "%s" is not defined yet' % term)
             else:
                 # TODO: Limit definition length
                 source.respond('[UD] "%s" - %s - (%s)' %
