@@ -93,6 +93,12 @@ class DictPlugin(PluginObject):
         try:
             wotd = self.get_wotd()
             definition = self.get_definition(wotd)
+            if not definition:
+                if isinstance(source, User):
+                    caller.respond("%s | No definition found." % wotd)
+                else:
+                    source.respond("%s | No definition found." % wotd)
+                return
             word = definition.word
             text = definition.text
 
