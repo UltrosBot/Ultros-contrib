@@ -6,6 +6,7 @@ import feedparser
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
+from system.decorators import run_async
 from system.plugin import PluginObject
 from system.plugin_manager import YamlPluginManagerSingleton
 from system.event_manager import EventManager
@@ -78,11 +79,16 @@ class Plugin(PluginObject):
             self.check_feed(feed)
             task.start(feed["frequency"])
 
+    @run_async
     def check_feed(self, feed):
         name = "<Unable to get feed name>"
         self.logger.debug("Feed: %s" % feed)
         try:  # Have to catch all exceptions, or the task will cancel.
             name = feed["name"]
+
+            if name not in self.tasks:
+                self.logger.warn("Feed '%s' has had its task removed!" % name)
+                return
 
             if name not in self.failures:
                 self.failures[name] = 0
