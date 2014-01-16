@@ -1,0 +1,17 @@
+name: xkcd
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version. Random comic, comic by number, comic by title.
+description: >
+    xkcd comic searching
+files:
+- plugins/xkcd/
+- plugins/xkcd/__init__.py
+- plugins/xkcd.plug
+requires:
+    modules: [
+        requests
+    ]
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/xkcd/README.md

@@ -1,0 +1,10 @@
+core:
+  name: xkcd
+  module: xkcd
+  dependencies: []
+info:
+  description: "xkcd comic searching"
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/xkcd
+  copyright: BSD 3-Clause
