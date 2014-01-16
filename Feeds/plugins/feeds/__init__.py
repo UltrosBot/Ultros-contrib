@@ -129,6 +129,7 @@ class Plugin(PluginObject):
 
                 self.relay(target["protocol"], target["target"],
                            target["type"], formatted)
+            self.feed_times[name] = entry.updated
         except:
             self.logger.exception("Error in update task for feed '%s'." % name)
 
