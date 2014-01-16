@@ -1,0 +1,18 @@
+name: Feeds
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version. Parses and relays feeds using three tokens.
+description: >
+    Allows you to check and relay RSS/ATOM feeds to a channel (or a user).
+files:
+- plugins/feeds/
+- plugins/feeds/__init__.py
+- plugins/feeds.plug
+- config/plugins/feeds.yml.example
+requires:
+    modules: [
+        feedparser
+    ]
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Feeds/README.md

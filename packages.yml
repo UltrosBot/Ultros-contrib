@@ -6,7 +6,13 @@ DrunkOctopus:
     requires:
         modules: []
         packages: []
-
+Feeds:
+    version: 0.0.1
+    description: "Allows you to check and relay RSS/ATOM feeds to a channel (or a user)."
+    requires:
+        modules:
+        - "feedparser"
+        packages: []
 LastFM:
     version: 0.1.0
     description: "LastFM API integration."

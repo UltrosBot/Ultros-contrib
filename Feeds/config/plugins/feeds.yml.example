@@ -1,0 +1,27 @@
+feeds:  # Set up your feeds here
+  - name: GitHub  # Name of your feed
+    # Location of your feed. Supports ATOM, RSS, and pretty much everything else.
+    url:  "https://github.com/UltrosBot/Ultros/commits/master.atom"
+    frequency: 60  # How often to check the feed, in seconds
+    instantly-relay: yes  # Whether to relay when we first parse this
+    targets:  # Where to send feed updates
+    - name: irc-esper-ultros  # The name of your target, as defined below
+      format: "[{NAME}] {TITLE} | {URL}"  # Format of the feed updates
+  - name: ArsTechnica  # A second feed definition
+    url: "http://feeds.arstechnica.com/arstechnica/index?format=xml"
+    frequency: 180
+    instantly-relay: no  # Whether to relay when we first parse this
+    targets:
+    - name: irc-esper-feeds
+      format: "[{NAME}] {TITLE} | {URL}"
+
+targets:  # Set up your targets here
+  irc-esper-ultros:  # Name of your target, to refer to above
+    protocol: irc-esper  # Name of the protocol
+    target: "#Ultros"  # Name of the target
+    type: channel  # Type of target. Supports "user" and "protocol".
+                   # Be aware of protocol-specific sending methods here. Do you really want to /notice users your feed updates on IRC?
+  irc-esper-feeds:  # A second target definition
+    protocol: irc-esper
+    target: "#Feeds"
+    type: channel

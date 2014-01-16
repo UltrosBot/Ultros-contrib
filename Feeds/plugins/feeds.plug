@@ -1,0 +1,10 @@
+core:
+  name: Feeds
+  module: feeds
+  dependencies: [URLs]
+info:
+  description: Plugin to handle feed parsing and updating
+  author: Gareth Coles
+  version: 0.0.1
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/Feeds
+  copyright: See Ultros' license
