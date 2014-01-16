@@ -89,8 +89,9 @@ class Plugin(PluginObject):
 
             if self.failures[name] > 5:
                 self.logger.warn("Disabling update task for feed '%s' as "
-                                 "there has been lots of errors." % name)
+                                 "there has too many errors." % name)
                 self.tasks[name].stop()
+                del self.tasks[name]
                 return
 
             d = feedparser.parse(feed["url"])
@@ -136,3 +137,8 @@ class Plugin(PluginObject):
     def relay(self, protocol, target, target_type, message):
         p = self.factory_manager.get_protocol(protocol)
         p.send_msg(target, message, target_type)
+
+    def deactivate(self):
+        for task in self.tasks.values():
+            task.stop()
+        self.tasks = {}
