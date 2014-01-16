@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from utils.config import YamlConfig
 from utils.data import YamlData
 
 __author__ = 'Sean'
@@ -19,11 +18,13 @@ class xkcdError(Exception):
     """
     pass
 
+
 class NoSuchComicError(xkcdError):
     """
     The requested comic doesn't exist
     """
     pass
+
 
 class ConnectionError(xkcdError):
     """
