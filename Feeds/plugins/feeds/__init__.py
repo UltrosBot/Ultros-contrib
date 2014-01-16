@@ -28,8 +28,6 @@ class Plugin(PluginObject):
     tasks = {}
     failures = {}
 
-
-
     def setup(self):
         self.logger.debug("Entered setup method.")
         try:
