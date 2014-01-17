@@ -4,7 +4,6 @@ __author__ = 'Gareth Coles'
 import feedparser
 
 from twisted.internet import reactor
-from twisted.internet.task import LoopingCall
 
 from system.decorators import run_async
 from system.plugin import PluginObject
@@ -26,7 +25,6 @@ class Plugin(PluginObject):
     feed_times = {}
     targets = {}
 
-    tasks = {}
     failures = {}
 
     def setup(self):
@@ -74,10 +72,8 @@ class Plugin(PluginObject):
                 self.feeds.append(feed)
 
         for feed in self.feeds:
-            task = LoopingCall(self.check_feed, feed)
-            self.tasks[feed["name"]] = task
             self.check_feed(feed)
-            task.start(feed["frequency"])
+            reactor.callLater(feed["frequency"], self.check_feed, feed)
 
     @run_async
     def check_feed(self, feed):
@@ -96,8 +92,6 @@ class Plugin(PluginObject):
             if self.failures[name] > 5:
                 self.logger.warn("Disabling update task for feed '%s' as "
                                  "there has too many errors." % name)
-                self.tasks[name].stop()
-                del self.tasks[name]
                 return
 
             d = feedparser.parse(feed["url"])
@@ -108,11 +102,13 @@ class Plugin(PluginObject):
             if name in self.feed_times:
                 last = self.feed_times[name]
                 if last == d.entries[0].updated:
+                    reactor.callLater(feed["frequency"], self.check_feed, feed)
                     return
             else:
                 self.feed_times[name] = d.entries[0].updated
                 self.logger.debug("Feed '%s' initialized." % name)
                 if not feed["instantly-relay"]:
+                    reactor.callLater(feed["frequency"], self.check_feed, feed)
                     return
 
             self.logger.info("Feed updated: '%s'" % feed)
@@ -137,8 +133,10 @@ class Plugin(PluginObject):
                 self.relay(target["protocol"], target["target"],
                            target["type"], formatted)
             self.feed_times[name] = entry.updated
+            reactor.callLater(feed["frequency"], self.check_feed, feed)
         except:
             self.logger.exception("Error in update task for feed '%s'." % name)
+            reactor.callLater(feed["frequency"], self.check_feed, feed)
 
     def relay(self, protocol, target, target_type, message):
         p = self.factory_manager.get_protocol(protocol)
