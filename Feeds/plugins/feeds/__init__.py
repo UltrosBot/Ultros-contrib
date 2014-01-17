@@ -5,7 +5,7 @@ import feedparser
 
 from twisted.internet import reactor
 
-from system.decorators import run_async
+from system.decorators import run_async_daemon
 from system.plugin import PluginObject
 from system.plugin_manager import YamlPluginManagerSingleton
 from system.event_manager import EventManager
@@ -75,7 +75,7 @@ class Plugin(PluginObject):
             self.check_feed(feed)
             reactor.callLater(feed["frequency"], self.check_feed, feed)
 
-    @run_async
+    @run_async_daemon
     def check_feed(self, feed):
         name = "<Unable to get feed name>"
         self.logger.debug("Feed: %s" % feed)
