@@ -73,7 +73,6 @@ class Plugin(PluginObject):
 
         for feed in self.feeds:
             self.check_feed(feed)
-            reactor.callLater(feed["frequency"], self.check_feed, feed)
 
     @run_async_daemon
     def check_feed(self, feed):
