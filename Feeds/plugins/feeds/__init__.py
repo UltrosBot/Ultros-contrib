@@ -92,8 +92,8 @@ class Plugin(PluginObject):
 
             d = feedparser.parse(feed["url"])
 
-            self.logger.debug("Feed object: %s" % d)
-            self.logger.debug("Entries: %s" % d.entries)
+            # self.logger.debug("Feed object: %s" % d)
+            # self.logger.debug("Entries: %s" % d.entries)
 
             if name in self.feed_times:
                 last = self.feed_times[name]
@@ -107,10 +107,12 @@ class Plugin(PluginObject):
                     reactor.callLater(feed["frequency"], self.check_feed, feed)
                     return
 
-            self.logger.info("Feed updated: '%s'" % feed)
+            self.logger.info("Feed updated: '%s'" % name)
 
             entry = d.entries[0]
             entry["name"] = name
+
+            self.logger.debug("Entry: %s" % entry)
 
             if "title" not in entry:
                 entry["title"] = "(No title)"
