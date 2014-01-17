@@ -82,10 +82,6 @@ class Plugin(PluginObject):
         try:  # Have to catch all exceptions, or the task will cancel.
             name = feed["name"]
 
-            if name not in self.tasks:
-                self.logger.warn("Feed '%s' has had its task removed!" % name)
-                return
-
             if name not in self.failures:
                 self.failures[name] = 0
 
@@ -141,8 +137,3 @@ class Plugin(PluginObject):
     def relay(self, protocol, target, target_type, message):
         p = self.factory_manager.get_protocol(protocol)
         p.send_msg(target, message, target_type)
-
-    def deactivate(self):
-        for task in self.tasks.values():
-            task.stop()
-        self.tasks = {}
