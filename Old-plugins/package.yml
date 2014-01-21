@@ -1,8 +1,8 @@
 name: Old-plugins
 current_version:
-    number: 0.0.5
+    number: 0.0.6
     info: >
-        Added items plugin. Hooooo boy.
+        Updated for new command handler signature
 description: >
     Rewritten versions of most of the old plugins from the original Ultros.
 

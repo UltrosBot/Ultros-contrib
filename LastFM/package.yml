@@ -1,8 +1,8 @@
 name: LastFM
 current_version:
-    number: 0.1.0
+    number: 0.1.1
     info: >
-        Initial version. Now playing and basic username storing.
+        Updated for new command handler signature
 description: >
     LastFM API integration. Current features:
     - Now Playing

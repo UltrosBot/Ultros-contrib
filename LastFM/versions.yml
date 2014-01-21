@@ -1,2 +1,4 @@
 0.1.0: >
     Initial version. Now playing and basic username storing.
+0.1.1: >
+    Updated for new command handler signature

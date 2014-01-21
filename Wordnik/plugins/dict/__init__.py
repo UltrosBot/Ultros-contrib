@@ -57,7 +57,9 @@ class DictPlugin(PluginObject):
         self.commands.register_command("wotd", self.wotd_command,
                                        self, "wordnik.wotd")
 
-    def dict_command(self, caller, source, args, protocol):
+    def dict_command(self, protocol, caller, source, command, raw_args,
+                     parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) < 1:
             caller.respond("Usage: {CHAR}dict <word to look up>")
         else:
@@ -89,7 +91,9 @@ class DictPlugin(PluginObject):
                     source.respond("%s | %s (%s) - Provided by Wiktionary via "
                                    "the Wordnik API" % (word, text, short_url))
 
-    def wotd_command(self, caller, source, args, protocol):
+    def wotd_command(self, protocol, caller, source, command, raw_args,
+                     parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         try:
             wotd = self.get_wotd()
             definition = self.get_definition(wotd)

@@ -108,7 +108,9 @@ class ItemsPlugin(PluginObject):
                     return True
             return False
 
-    def give_command(self, caller, source, args, protocol):
+    def give_command(self, protocol, caller, source, command, raw_args,
+                     parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) == 0:
             caller.respond("Usage: {CHARS}give <item>")
         item = " ".join(args)
@@ -120,7 +122,9 @@ class ItemsPlugin(PluginObject):
             protocol.send_action(source, "ignores the '%s' as the one she has "
                                          "is better." % item)
 
-    def get_command(self, caller, source, args, protocol):
+    def get_command(self, protocol, caller, source, command, raw_args,
+                    parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if self.number_of_items() > 0:
             item = self.retrieve_random_item()
             item_name = item[0]

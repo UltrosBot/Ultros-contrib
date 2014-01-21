@@ -83,7 +83,9 @@ class Plugin(PluginObject):
         with self.nickmap:
             self.nickmap[user.lower()] = lastfm_user
 
-    def nowplaying_cmd(self, caller, source, args, protocol):
+    def nowplaying_cmd(self, protocol, caller, source, command, raw_args,
+                       parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         ### Get LastFM username to use
         username = None
         if len(args) == 0:
@@ -128,7 +130,9 @@ class Plugin(PluginObject):
             source.respond("%s is not currently listening to anything" %
                            username)
 
-    def lastfmnick_cmd(self, caller, source, args, protocol):
+    def lastfmnick_cmd(self, protocol, caller, source, command, raw_args,
+                       parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) == 0:
             username = self._get_username(caller.nickname, True)
             if username is None:

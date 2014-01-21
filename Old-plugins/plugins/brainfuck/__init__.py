@@ -43,7 +43,9 @@ class Plugin(PluginObject):
         self.timeout = self.config["timeout"]
         return True
 
-    def bf_command(self, caller, source, args, protocol):
+    def bf_command(self, protocol, caller, source, command, raw_args,
+                   parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) < 1:
             caller.respond("Usage: {CHARS}bf <brainfuck program>")
             return

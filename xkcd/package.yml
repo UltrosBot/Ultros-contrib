@@ -1,8 +1,8 @@
 name: xkcd
 current_version:
-    number: 0.1.0
+    number: 0.1.1
     info: >
-        Initial version. Random comic, comic by number, comic by title.
+        Updated for new command handler signature
 description: >
     xkcd comic searching
 files:

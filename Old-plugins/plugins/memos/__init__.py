@@ -55,7 +55,9 @@ class MemosPlugin(PluginObject):
                 target.respond("Memo for %s (from %s): %s" % (user.name,
                                                               sender, text))
 
-    def memo_command(self, caller, source, args, protocol):
+    def memo_command(self, protocol, caller, source, command, raw_args,
+                     parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         raise NotImplementedError("This isn't done yet.")
         # target = None  # TODO: parsing
         # memo = None  # TODO: parsing

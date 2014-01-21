@@ -1,2 +1,4 @@
 0.0.1: >
     Initial version. Dict and WOTD commands are done and work fine.
+0.0.2: >
+    Updated for new command handler signature

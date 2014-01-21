@@ -57,7 +57,9 @@ class MoneyPlugin(PluginObject):
             self.logger.debug("Rates table is still valid, not fetching.")
             return self.rates_table
 
-    def money_command_called(self, caller, source, args, protocol):
+    def money_command_called(self, protocol, caller, source, command, raw_args,
+                             parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         # This is called when a user types .money in chat
         if len(args) < 2:  # at least 2 arguments are needed, if the user has
         # entered one or none:

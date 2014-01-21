@@ -34,7 +34,9 @@ class Plugin(PluginObject):
 
             self.channels[channel] = data
 
-    def play(self, caller, source, args, protocol):
+    def play(self, protocol, caller, source, command, raw_args,
+             parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         self.logger.debug("Caller: %s" % repr(caller))
         self.logger.debug("Source: %s" % repr(source))
         self.logger.debug("Result: %s" % isinstance(source, Channel))

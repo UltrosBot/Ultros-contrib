@@ -18,7 +18,9 @@ class GeoIPPlugin(PluginObject):
         self.commands.register_command("geoip", self.command, self,
                                        "geoip.command")
 
-    def command(self, caller, source, args, protocol):
+    def command(self, protocol, caller, source, command, raw_args,
+                parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) < 1:
             caller.respond("Usage: {CHARS}geoip <address>")
         else:

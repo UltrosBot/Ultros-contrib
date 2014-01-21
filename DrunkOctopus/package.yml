@@ -1,8 +1,8 @@
 name: DrunkOctopus
 current_version:
-    number: 0.2.1
+    number: 0.2.2
     info: >
-        * Fixed mistake where drunkenness wasn't fully utilised
+        Updated for new command handler signature
 description: >
     Gives your squidopus shots of vodka and rum.
 files:

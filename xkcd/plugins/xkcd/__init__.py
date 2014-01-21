@@ -96,7 +96,9 @@ class Plugin(PluginObject):
                                              ("http://xkcd.com/%s/" %
                                               comic["num"])))
 
-    def xkcd_cmd(self, caller, source, args, protocol):
+    def xkcd_cmd(self, protocol, caller, source, command, raw_args,
+                 parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         ### Decide what they want to do
         comic = None
         if len(args) == 0:

@@ -5,6 +5,6 @@ core:
 info:
   description: Simple Brainfuck interpreter
   author: Sean; ported by Gareth
-  version: 0.0.1
+  version: 0.0.2
   website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Old-plugins
   copyright: See Ultros' license

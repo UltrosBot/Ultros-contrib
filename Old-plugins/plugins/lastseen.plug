@@ -5,6 +5,6 @@ core:
 info:
   description: "Lastseen plugin - Check when a user was last online"
   author: Gareth
-  version: 0.0.1
+  version: 0.0.2
   website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Old-plugins
   copyright: See Ultros' license

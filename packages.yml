@@ -1,7 +1,7 @@
 # Packages list and a small amount of information goes here.
 
 DrunkOctopus:
-    version: 0.2.1
+    version: 0.2.2
     description: "Gives your squidopus shots of vodka and rum."
     requires:
         modules: []
@@ -14,20 +14,20 @@ Feeds:
         - "feedparser"
         packages: []
 LastFM:
-    version: 0.1.0
+    version: 0.1.1
     description: "LastFM API integration."
     requires:
         modules:
         - "requests"
         packages: []
 Money:
-    version: 0.0.1
+    version: 0.0.2
     description: "A simple command to convert between currencies."
     requires:
         modules: []
         packages: []
 Old-plugins:
-    version: 0.0.2
+    version: 0.0.6
     description: "Rewritten versions of most of the old plugins from the original Ultros."
     requires:
         modules: []
@@ -39,7 +39,7 @@ Teamspeak:
         modules: []
         packages: []
 UrbanDictionary:
-    version: 0.1.0
+    version: 0.1.1
     description: "Provides definition lookup from UrbanDictionary.com"
     requires:
         modules: []
@@ -60,9 +60,16 @@ Web:
         - "mako"
         packages: []
 Wordnik:
-    version: 0.0.1
+    version: 0.0.2
     description: "Provides a dictionary lookup tool using the Wordnik API and Wiktionary."
     requires:
         modules:
         - "wordnik"
+        packages: []
+xkcd:
+    version: 0.1.1
+    description: "xkcd comic searching"
+    requires:
+        modules:
+        - "requests"
         packages: []

@@ -29,7 +29,9 @@ class Plugin(PluginObject):
                                        self,
                                        "urbandictionary.definition")
 
-    def urbandictionary_cmd(self, caller, source, args, protocol):
+    def urbandictionary_cmd(self, protocol, caller, source, command, raw_args,
+                            parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         ### Get LastFM username to use
         username = None
         if len(args) == 0:

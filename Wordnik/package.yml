@@ -1,8 +1,8 @@
 name: Wordnik
 current_version:
-    number: 0.0.1
+    number: 0.0.2
     info: >
-        Initial version. Dict and WOTD commands are done.
+        Updated for new command handler signature
 description: >
     Provides a dictionary lookup tool using the Wordnik API and Wiktionary.
 

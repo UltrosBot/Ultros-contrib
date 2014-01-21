@@ -64,7 +64,9 @@ class LastseenPlugin(PluginObject):
             c.execute("""UPDATE users SET at=? WHERE user=? AND protocol=?""",
                       (now, user, protocol))
 
-    def seen_command(self, caller, source, args, protocol):
+    def seen_command(self, protocol, caller, source, command, raw_args,
+                     parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if not args:
             caller.respond("Usage: {CHARS}seen <username>")
         else:

@@ -9,3 +9,5 @@
     need to do more work on the core to complete it.
 0.0.5: >
     Added items plugin. Hooooo boy.
+0.0.6: >
+    Updated for new command handler signature

@@ -95,7 +95,9 @@ class Plugin(PluginObject):
         if self._cooldown_enabled:
             reactor.callLater(self._cooldown_time, self._sober_up)
 
-    def drunkenness_command(self, caller, source, args, protocol):
+    def drunkenness_command(self, protocol, caller, source, command, raw_args,
+                            parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) == 0:
             caller.respond("Drunkenness level: %s" %
                            self._drunktalk.drunkenness)
@@ -113,7 +115,9 @@ class Plugin(PluginObject):
         else:
             caller.respond("Usage: {CHARS}drunkenness [percent level]")
 
-    def drink_command(self, caller, source, args, protocol):
+    def drink_command(self, protocol, caller, source, command, raw_args,
+                      parsed_args):
+        args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) == 0:
             caller.respond("Usage: {CHARS}drink <type of drink>")
             return
