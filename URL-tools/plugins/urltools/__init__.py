@@ -5,6 +5,7 @@ from system.plugin_manager import YamlPluginManagerSingleton
 
 __author__ = 'Gareth Coles'
 
+import locale
 import logging
 import urllib
 import urllib2
@@ -12,6 +13,9 @@ import urllib2
 from system.plugin import PluginObject
 from utils.config import YamlConfig
 from utils.misc import output_exception
+
+# Attempt to guess the locale.
+locale.setlocale(locale.LC_ALL, "")
 
 
 class Plugin(PluginObject):
@@ -176,8 +180,12 @@ class Plugin(PluginObject):
                     time = self.seconds_to_time(int(
                         media_group["yt$duration"]["seconds"]))
                     views = entry["yt$statistics"]["viewCount"]
+                    views = locale.format("%d", long(views), grouping=True)
                     likes = entry["yt$rating"]["numLikes"]
+                    likes = locale.format("%d", long(likes), grouping=True)
                     dislikes = entry["yt$rating"]["numDislikes"]
+                    dislikes = locale.format("%d", long(dislikes),
+                                             grouping=True)
                     return self.OUTPUT_YOUTUBE_VIDEO % (title,
                                                         time,
                                                         uploader,
