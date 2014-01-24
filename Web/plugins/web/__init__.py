@@ -83,7 +83,7 @@ class BottlePlugin(PluginObject):
         if css:
             self.logger.info("Optimizing and compiling %s CSS files."
                              % len(css))
-            css_bundle = webassets.Bundle(*css, filters="cssmin",
+            css_bundle = webassets.Bundle(*css, filters=["cssrewrite", "cssmin"],
                                           output="generated/packed.css")
 
             self.env.register("css", css_bundle)
@@ -117,7 +117,8 @@ class BottlePlugin(PluginObject):
         self.add_navbar_entry("Home", "/")
 
     def deactivate(self):
-        self.app.close()
+        if self.app:
+            self.app.close()
         super(PluginObject, self).deactivate()
 
     @run_async_daemon
