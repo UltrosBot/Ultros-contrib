@@ -1,17 +1,19 @@
 name: Web interface
 current_version:
-    number: 0.1.0
+    number: 0.1.1
     info: >
-        Web classes are working, with a default index page and the ability to serve static files.
-        This appears to be /FAST/, which is obviously a really good thing. More work needs done on it
-          before we can have a proper JSON API, but it's getting there.
+        Add a couple API functions to allow adding headers and modifying the navbar.
+
+        Also added automatic asset compilation and merging for .css and .js files.
+        This requires a couple of additional modules, "webassets" and "cssmin". As
+        usual, the package manager will install these for you.
 description: >
     Provides a full web interface and REST API for Ultros.
      
     This includes management and manipulation, both via API keys and the standard authentication system.
     Currently, this is a HUGE work-in-progress. Expect big things, but don't expect them too soon!
      
-    Requires both the "bottle" and "cherrypy" modules. 
+    Requires both the "bottle", "mako" and "cherrypy" modules.
     If you're using the package manager, these will be installed for you, provided you have pip installed.
      
     Doesn't require any other packages, outside of the ones included with Ultros.
@@ -34,6 +36,8 @@ requires:
     modules:
     - "bottle"
     - "cherrypy"
+    - "cssmin"
     - "mako"
+    - "webassets"
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Web/README.md

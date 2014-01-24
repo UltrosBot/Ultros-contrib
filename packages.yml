@@ -51,13 +51,15 @@ URL-tools:
         modules: []
         packages: []
 Web:
-    version: 0.1.0
-    description: "An extensible web interface and REST API build on Bottle and CherryPy."
+    version: 0.1.1
+    description: "An extensible web interface and REST API built on Bottle and CherryPy."
     requires:
         modules:
         - "bottle"
         - "cherrypy"
+        - "cssmin"
         - "mako"
+        - "webassets"
         packages: []
 Wordnik:
     version: 0.0.2

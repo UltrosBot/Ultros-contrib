@@ -1,12 +1,22 @@
-<div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">Ultros</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
+        <%page args="items={'Home':{'active':True,'url':'/'},'Test':{'active':False,'url':'/test'}}"/>
+            <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="/">Ultros</a>
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                    % for title, entry in items.items():
+                        % if entry["active"]:
+                            <li class="active"><a href="#">${title}</a></li>
+                        % endif
+                    % endfor
+                    % for title, entry in items.items():
+                        % if not entry["active"]:
+                            <li><a href="${entry['url']}">${title}</a></li>
+                        % endif
+                    % endfor
+                        </ul>
+                    </div>
+                </div>
+            </div>

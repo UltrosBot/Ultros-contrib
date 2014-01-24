@@ -2,6 +2,10 @@
 __author__ = 'Gareth Coles'
 
 import logging
+import os
+import sys
+import webassets
+
 from bottle import default_app, request, hook, abort, static_file
 from bottle import mako_template as template
 
@@ -18,8 +22,11 @@ class BottlePlugin(PluginObject):
     output_requests = True
 
     api_routes_list = []
+    navbar_items = {}
+    additional_headers = []
 
     config = None
+    env = None
 
     # region Internal
 
@@ -41,9 +48,52 @@ class BottlePlugin(PluginObject):
                 self.port = self.config["port"]
                 self.output_requests = self.config["output_requests"]
 
-        self.app = default_app()
+        base_path = "web/static"
 
-        # region Hooks and default routes
+        self.logger.info("Compiling and minifying Javascript and CSS..")
+        self.env = webassets.Environment(base_path, "/static")
+        self.env.debug = "--debug" in sys.argv
+        if "--debug" in sys.argv:
+            self.logger.warn("Environment is in debug mode, no compilation "
+                             "will be done.")
+
+        css = []
+        js = []
+
+        assets = os.listdir(base_path)
+        for asset in assets:
+            if asset.endswith(".css"):
+                css.append(asset)
+            elif asset.endswith(".js"):
+                js.append(asset)
+
+        if js:
+            self.logger.info("Optimizing and compiling %s JavaScript files."
+                             % len(js))
+            js_bundle = webassets.Bundle(*js, filters="rjsmin",
+                                         output="generated/packed.js")
+
+            self.env.register("js", js_bundle)
+
+            for url in self.env["js"].urls():
+                self._add_javascript(url)
+        else:
+            self.logger.info("No JavaScript files were found. Nothing to do.")
+
+        if css:
+            self.logger.info("Optimizing and compiling %s CSS files."
+                             % len(css))
+            css_bundle = webassets.Bundle(*css, filters="cssmin",
+                                          output="generated/packed.css")
+
+            self.env.register("css", css_bundle)
+
+            for url in self.env["css"].urls():
+                self._add_stylesheet(url)
+        else:
+            self.logger.info("No CSS files were found. Nothing to do.")
+
+        self.app = default_app()
 
         @hook('after_request')
         def log_all():
@@ -59,12 +109,12 @@ class BottlePlugin(PluginObject):
         self.app.route("/static/", ["GET", "POST"], self.static_403)
         self.app.route("/static", ["GET", "POST"], self.static_403)
         self.app.route("/", ["GET", "POST"], self.index)
-        self.app.route("/index", ["GET", "POST"], self.index)
-
-        # endregion
 
         self.logger.info("Starting Bottle app..")
+
         self._start_bottle()
+        self.app.route("/index", ["GET", "POST"], self.index)
+        self.add_navbar_entry("Home", "/")
 
     def deactivate(self):
         self.app.close()
@@ -83,12 +133,38 @@ class BottlePlugin(PluginObject):
         self.logger.log("[%s] %s %s" % (ip, request.method, request.fullpath),
                         level)
 
+    def _add_stylesheet(self, path):
+        header = '<link rel="stylesheet" href="%s" />' % path
+        self.add_header(header)
+
+    def _add_javascript(self, path):
+        header = '<script src="%s"></script>' % path
+        self.add_header(header)
+
+    # endregion
+
+    # region Public API functions
+
+    def add_navbar_entry(self, title, url):
+        if title in self.navbar_items:
+            return False
+        self.logger.debug("Adding navbar entry: %s -> %s" % (title, url))
+        self.navbar_items[title] = {"url": url, "active": False}
+        return True
+
+    def add_header(self, header):
+        self.logger.debug("Adding header: %s" % header)
+        self.additional_headers.append(header)
+
     # endregion
 
     # region Routes
 
     def index(self):
-        return template("web/templates/index.html")
+        nav_items = self.navbar_items
+        nav_items["Home"]["active"] = True
+        return template("web/templates/index.html", nav_items=nav_items,
+                        headers=self.additional_headers)
 
     def static(self, path):
         return static_file(path, root="web/static")
