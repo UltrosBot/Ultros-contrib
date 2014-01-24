@@ -83,7 +83,8 @@ class BottlePlugin(PluginObject):
         if css:
             self.logger.info("Optimizing and compiling %s CSS files."
                              % len(css))
-            css_bundle = webassets.Bundle(*css, filters=["cssrewrite", "cssmin"],
+            css_bundle = webassets.Bundle(*css, filters=["cssrewrite",
+                                                         "cssmin"],
                                           output="generated/packed.css")
 
             self.env.register("css", css_bundle)
