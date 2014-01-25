@@ -1,0 +1,22 @@
+name: Minecraft
+current_version:
+    number: 0.0.1
+    info: >
+        Web classes are working, with a default index page and the ability to serve static files.
+        This appears to be /FAST/, which is obviously a really good thing. More work needs done on it
+          before we can have a proper JSON API, but it's getting there.
+description: >
+    Provides a command for checking the status of a Minecraft server and a Minecraft/Mojang
+    server status watcher.
+files:
+# Configuration
+- config/plugins/minecraft.yml.example
+# Plugin
+- plugins/minecraft.plug
+- plugins/minecraft/
+- plugins/minecraft/__init__.py
+- plugins/minecraft/minecraft_query.py
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Minecraft/README.md

@@ -20,6 +20,12 @@ LastFM:
         modules:
         - "requests"
         packages: []
+Minecraft:
+    version: 0.0.1
+    description: "Provides a command for checking the status of a Minecraft server and a Minecraft/Mojang server status watcher."
+    requires:
+        modules: []
+        packages: []
 Money:
     version: 0.0.2
     description: "A simple command to convert between currencies."

@@ -1,0 +1,8 @@
+# Configuration file for the Minecraft plugin
+
+relay_status: yes  # Whether to relay Mojang status updates
+
+targets: # Places to relay status updates to
+  - protocol: irc-esper  # Protocol to relay to
+    target: "#Ultros"  # Target to relay to
+    target-type: channel  # Type of target, usually "user" or "channel"
