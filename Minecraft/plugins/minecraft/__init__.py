@@ -23,7 +23,7 @@ class Plugin(PluginObject):
     relay_targets = []
 
     status_url = "http://status.mojang.com/check"
-    status_refresh_rate = 60
+    status_refresh_rate = 600
 
     statuses = {
         "minecraft.net": "???",

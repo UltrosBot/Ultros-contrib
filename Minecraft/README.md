@@ -10,7 +10,7 @@ watcher.
 The `minecraft.yml` file contains the following configuration..
 * `relay_status` - Whether to enable the service status watcher. This will relay Mojang status updates to the configured targets.
   * Set this to either `yes` or `no`.
-  * Checks are done every 60 seconds.
+  * Checks are done every 600 seconds (ten minutes). The first check is done after 60 seconds, to be sure that all protocols are connected and set up.
 * `targets` - A list of targets to relay status updates to
   * `protocol` - Name of the protocol to relay to
   * `target` - Name of the target to relay to
