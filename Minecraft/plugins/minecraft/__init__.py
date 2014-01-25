@@ -29,7 +29,8 @@ class Plugin(PluginObject):
             return
 
         self.commands = CommandManager.instance()
-        self.commands.register_command("mcquery", self.query_command, self, "minecraft.query")
+        self.commands.register_command("mcquery", self.query_command, self,
+                                       "minecraft.query")
 
     def query_command(self, protocol, caller, source, command, raw_args,
                       parsed_args):
