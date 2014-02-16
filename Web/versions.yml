@@ -13,3 +13,6 @@
     Also added automatic asset compilation and merging for .css and .js files.
     This requires a couple of additional modules, "webassets" and "cssmin". As
     usual, the package manager will install these for you.
+0.1.2: >
+    Display some information on the index page (packages, plugins and protocols),
+    could also be used to demonstrate how to access global data from within templates.

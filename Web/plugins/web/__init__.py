@@ -12,6 +12,7 @@ from bottle import mako_template as template
 from system.decorators import run_async_daemon
 from system.plugin import PluginObject
 from utils.config import YamlConfig
+from utils.packages import packages
 
 
 class BottlePlugin(PluginObject):
@@ -27,6 +28,8 @@ class BottlePlugin(PluginObject):
 
     config = None
     env = None
+
+    packs = None
 
     # region Internal
 
@@ -47,6 +50,8 @@ class BottlePlugin(PluginObject):
                 self.host = self.config["hostname"]
                 self.port = self.config["port"]
                 self.output_requests = self.config["output_requests"]
+
+        self.packs = packages.Packages()
 
         base_path = "web/static"
 
@@ -165,8 +170,12 @@ class BottlePlugin(PluginObject):
     def index(self):
         nav_items = self.navbar_items
         nav_items["Home"]["active"] = True
-        return template("web/templates/index.html", nav_items=nav_items,
-                        headers=self.additional_headers)
+        return template("web/templates/index.html",
+                        nav_items=nav_items,
+                        headers=self.additional_headers,
+                        packages=self.packs.get_installed_packages(),
+                        plugins=self.factory_manager.loaded_plugins.values(),
+                        factories=self.factory_manager.factories)
 
     def static(self, path):
         return static_file(path, root="web/static")
@@ -177,3 +186,4 @@ class BottlePlugin(PluginObject):
     # endregion
 
     pass  # So the regions work in PyCharm
+

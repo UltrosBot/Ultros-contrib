@@ -1,12 +1,9 @@
 name: Web interface
 current_version:
-    number: 0.1.1
+    number: 0.1.2
     info: >
-        Add a couple API functions to allow adding headers and modifying the navbar.
-
-        Also added automatic asset compilation and merging for .css and .js files.
-        This requires a couple of additional modules, "webassets" and "cssmin". As
-        usual, the package manager will install these for you.
+    Display some information on the index page (packages, plugins and protocols),
+    could also be used to demonstrate how to access global data from within templates.
 description: >
     Provides a full web interface and REST API for Ultros.
      

@@ -6,6 +6,81 @@
                 <h1>Welcome!</h1>
 
                 <p>This is the default page. The web plugin is in its early stages, so watch this space!</p>
+
+                <div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                    Packages and plugins
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <p>Currently installed packages: ${len(packages)}</p>
+                                <ul>
+                                    % for package in packages.items():
+                                        <li>${package[0]} v${package[1]}</li>
+                                    % endfor
+                                </ul>
+                                <p>Currently enabled plugins: ${len(plugins)}</p>
+                                <ul>
+                                    % for plugin in plugins:
+                                        <li><a href="${plugin.website}">${plugin.name}</a> v${plugin.version}</li>
+                                    % endfor
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                    Protocols
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <ul>
+                                    <%
+                                        types_map = {"Protocol": "Unknown",
+                                                     "ChannelsProtocol": "Channel-based"}
+                                    %>
+                                    % for name in factories.keys():
+                                        <li> ${name}
+                                            <ul>
+                                                <li>Type: ${factories[name].protocol.TYPE}</li>
+                                                <%
+                                                    from system.protocols.generic.protocol import ChannelsProtocol
+                                                    inst = isinstance(factories[name].protocol, ChannelsProtocol)
+                                                %>
+                                                % if inst:
+                                                    <li>${factories[name].protocol.num_channels} channel(s) </li>
+                                                % endif
+                                            </ul>
+                                        </li>
+                                    % endfor
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                                    Other statistics
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseThree" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                Nothing here yet!
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
