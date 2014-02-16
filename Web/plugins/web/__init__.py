@@ -186,4 +186,3 @@ class BottlePlugin(PluginObject):
     # endregion
 
     pass  # So the regions work in PyCharm
-
