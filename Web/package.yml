@@ -2,8 +2,8 @@ name: Web interface
 current_version:
     number: 0.1.2
     info: >
-    Display some information on the index page (packages, plugins and protocols),
-    could also be used to demonstrate how to access global data from within templates.
+        Display some information on the index page (packages, plugins and protocols),
+        could also be used to demonstrate how to access global data from within templates.
 description: >
     Provides a full web interface and REST API for Ultros.
      
