@@ -40,7 +40,7 @@ class AuthPlugin(PluginObject):
 
     @run_async
     def wolfram_command(self, protocol, caller, source, command, raw_args,
-                      parsed_args):
+                        parsed_args):
         target = caller
         if isinstance(source, Channel):
             target = source
