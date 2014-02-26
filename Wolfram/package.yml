@@ -1,0 +1,22 @@
+name: Wolfram
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version, should work fully.
+description: >
+    Provides a command to query Wolfram|Alpha.
+
+    Requires an AppID. You can get one from here:
+      http://products.wolframalpha.com/api/
+files:
+# Configuration
+- config/plugins/wolfram.yml.example
+# Plugin
+- plugins/wolfram.plug
+- plugins/wolfram/
+- plugins/wolfram/__init__.py
+requires:
+    modules:
+    - "wolframalpha"
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Wolfram/README.md

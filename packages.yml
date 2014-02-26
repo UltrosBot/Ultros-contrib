@@ -67,6 +67,13 @@ Web:
         - "mako"
         - "webassets"
         packages: []
+Wolfram:
+    version: 0.0.1
+    description: "PProvides a command to query Wolfram|Alpha."
+    requires:
+        modules:
+        - "wolframalpha"
+        packages: []
 Wordnik:
     version: 0.0.2
     description: "Provides a dictionary lookup tool using the Wordnik API and Wiktionary."
