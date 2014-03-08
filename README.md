@@ -1,8 +1,41 @@
 Ultros-contrib
 ==============
 
-This repo contains packages for Ultros that have been contributed by people other than the core development team.
+This repo contains packages for Ultros that have either been contributed by people other than the core development team,
+or that the core team considers to be extra functionality.
+
 Packages may contain plugins, protocols, utils, and otherwise pretty much any files the developer requires.
+
+Installing packages
+-------------------
+
+To install packages from this repository, please use the `packages.py` program which is included with the
+main Ultros distribution, [here](https://github.com/UltrosBot/Ultros). Please note that this package
+manager is not complete or well-written; we'll be rewriting it when we have time. Usage is as follows:
+
+`$ python packages.py <command> [options]`
+
+The package manager requires Pip, but you should already have installed that if you followed the
+[setup instructions in the wiki](https://github.com/UltrosBot/Ultros/wiki/Requirements) over on the main
+Ultros repository.
+
+**Note: Package names are case-sensitive and usually start with a capital letter**
+
+* Management commands
+    * `install <package>` - Installs a package, provided it's not already installed.
+    * `update <package>` - Update (reinstall) a currently installed package.
+    * `update all` - Update (reinstall) all currently installed packages.
+    * `uninstall <package>` - Uninstall a currently installed package.
+* Informational operations
+    * `list` - List all available packages.
+    * `list-installed` - List all installed packages.
+    * `info <package>` - Show information for a single package.
+* Other operations
+    * `help` - Shows a help message similar to this list of commands.
+
+Contributing
+------------
+
 If you'd like to add to this repository, please take note of the following guidelines..
 
 * Packages must have a file structure that matches Ultros' file structure - making installation a simple copy and paste of a set of files.
