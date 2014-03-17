@@ -74,6 +74,10 @@ class MoneyPlugin(PluginObject):
             start_currency = args[1]  # the currency that the above refers to
             start_currency = start_currency.upper()  # uppercase dat
 
+            if start_currency not in self.rates_table:
+                caller.respond("Unknown currency: %s" % start_currency)
+                return
+
             end_currencies = None  # list of currencies to convert to
             if len(args) == 2:  # create the list of end currencies.
                 if "default-currs" in self.config:
@@ -88,6 +92,9 @@ class MoneyPlugin(PluginObject):
             for i in end_currencies:  # convert each currency in turn
                 if start_currency != i:  # exclude the start currency from the
                 # end currencies because it's redundant.
+                    if i not in self.rates_table:
+                        caller.respond("Unknown currency: %s" % i.upper())
+                        return
                     rate = self.rates_table[i] / \
                         self.rates_table[start_currency]  # calculate the
                         # conversion rate
