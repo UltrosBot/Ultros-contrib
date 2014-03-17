@@ -6,7 +6,7 @@ import random
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
 from utils.config import YamlConfig
-from utils.data import JsonData, SqliteData
+from utils.data import JSONData, SqliteData
 
 
 class ItemsPlugin(PluginObject):
@@ -43,7 +43,7 @@ class ItemsPlugin(PluginObject):
                 c.execute("""CREATE TABLE IF NOT EXISTS items
                           (item TEXT, owner TEXT)""")
         else:
-            self.data = JsonData("plugins/items/items.json")
+            self.data = JSONData("plugins/items/items.json")
 
             if not "items" in self.data:
                 self.data["items"] = []
