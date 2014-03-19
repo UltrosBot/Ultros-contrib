@@ -17,8 +17,8 @@ class Plugin(PluginObject):
 
     def setup(self):
         ### Grab important shit
-        self.commands = CommandManager.instance()
-        self.events = EventManager.instance()
+        self.commands = CommandManager()
+        self.events = EventManager()
 
         ### Initial config load
         try:

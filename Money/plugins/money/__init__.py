@@ -23,7 +23,7 @@ class MoneyPlugin(PluginObject):
     def setup(self):
         self.config = YamlConfig("plugins/money.yml")
 
-        self.commands = command_manager.CommandManager.instance()
+        self.commands = command_manager.CommandManager()
         self.commands.register_command("money", self.money_command_called,
                                        self, "money.main")
 

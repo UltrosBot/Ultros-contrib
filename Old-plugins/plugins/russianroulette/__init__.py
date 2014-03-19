@@ -17,7 +17,7 @@ class Plugin(PluginObject):
     users = {}
 
     def setup(self):
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
         self.commands.register_command("rroulette", self.play, self,
                                        "russianroulette.rroulette")
 

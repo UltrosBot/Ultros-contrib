@@ -20,8 +20,8 @@ class LastseenPlugin(PluginObject):
     data = None  # SQLite for a change
 
     def setup(self):
-        self.commands = CommandManager.instance()
-        self.events = EventManager.instance()
+        self.commands = CommandManager()
+        self.events = EventManager()
         self.data = SqliteData("plugins/lastseen/users.sqlite")
 
         with self.data as c:

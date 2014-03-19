@@ -47,10 +47,10 @@ class DictPlugin(PluginObject):
         self.word_api = WordApi(self.api_client)
         self.words_api = WordsApi(self.api_client)
 
-        self.plugman = YamlPluginManagerSingleton.instance()
+        self.plugman = YamlPluginManagerSingleton()
         self.urls = self.plugman.getPluginByName("URLs").plugin_object
 
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
 
         self.commands.register_command("dict", self.dict_command,
                                        self, "wordnik.dict")

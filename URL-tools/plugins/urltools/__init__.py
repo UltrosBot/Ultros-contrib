@@ -57,7 +57,7 @@ class Plugin(PluginObject):
         self.shorteners["v.gd"] = self.shortener_vgd
         self.shorteners["waa.ai"] = self.shortener_waaai
 
-        self.plugman = YamlPluginManagerSingleton.instance()
+        self.plugman = YamlPluginManagerSingleton()
 
         shorteners = self.config["shorteners"]
         sites = self.config["sites"]

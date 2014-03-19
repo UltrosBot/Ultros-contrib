@@ -68,7 +68,7 @@ class Plugin(PluginObject):
                              "Disabling status relaying.")
             self.do_relay = False
 
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
         self.commands.register_command("mcquery", self.query_command, self,
                                        "minecraft.query")
 

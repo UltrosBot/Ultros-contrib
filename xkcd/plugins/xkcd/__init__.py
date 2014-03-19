@@ -42,7 +42,7 @@ class Plugin(PluginObject):
 
     def setup(self):
         ### Grab important shit
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
 
         ### Open the data file (comic data cache)
         try:

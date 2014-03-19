@@ -14,7 +14,7 @@ class GeoIPPlugin(PluginObject):
     api_url = "http://freegeoip.net/json/%s"
 
     def setup(self):
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
         self.commands.register_command("geoip", self.command, self,
                                        "geoip.command")
 

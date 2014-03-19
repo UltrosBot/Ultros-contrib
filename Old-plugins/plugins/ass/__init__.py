@@ -13,7 +13,7 @@ class Plugin(PluginObject):
     regex = None
 
     def setup(self):
-        self.events = EventManager.instance()
+        self.events = EventManager()
         self.regex = re.compile(r"(\w+)-ass (\w+)")
 
         self.events.add_callback("MessageReceived", self, self.ass_swap, 1)

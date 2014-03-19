@@ -42,8 +42,8 @@ class Plugin(PluginObject):
             self._disable_self()
             return
 
-        self.events = EventManager.instance()
-        self.plugman = YamlPluginManagerSingleton.instance()
+        self.events = EventManager()
+        self.plugman = YamlPluginManagerSingleton()
         self.urls = self.plugman.getPluginByName("URLs").plugin_object
 
         self.logger.info("Waiting 30 seconds to set up.")

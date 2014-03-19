@@ -19,7 +19,7 @@ class ItemsPlugin(PluginObject):
     storage_type = "sqlite"
 
     def setup(self):
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
 
         self.logger.debug("Entered setup method.")
         try:

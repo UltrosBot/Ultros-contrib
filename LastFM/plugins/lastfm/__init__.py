@@ -15,7 +15,7 @@ class Plugin(PluginObject):
 
     def setup(self):
         ### Grab important shit
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
 
         ### Initial config load
         try:

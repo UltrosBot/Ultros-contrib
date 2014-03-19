@@ -15,7 +15,7 @@ class Plugin(PluginObject):
     timeout = 100
 
     def setup(self):
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
 
         try:
             self.config = YamlConfig("plugins/brainfuck.yml")
