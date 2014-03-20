@@ -6,8 +6,6 @@ import time
 
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
-from system.events.general import PreMessageReceived, PreCommand
-from system.events.general import NameChanged, UserDisconnected
 from system.plugin import PluginObject
 from utils.data import SqliteData
 
@@ -32,14 +30,41 @@ class LastseenPlugin(PluginObject):
         self.commands.register_command("seen", self.seen_command, self,
                                        "seen.seen")
 
+        # General events
+
         self.events.add_callback("PreMessageReceived", self,
-                                 self.message_received, 0, cancelled=True)
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_source_caller])
         self.events.add_callback("PreCommand", self,
-                                 self.pre_command, 0, cancelled=True)
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_source_caller])
         self.events.add_callback("NameChanged", self,
-                                 self.name_changed, 0, cancelled=True)
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
         self.events.add_callback("UserDisconnected", self,
-                                 self.user_disconnected, 0, cancelled=True)
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
+
+        # Mumble events
+
+        self.events.add_callback("Mumble/UserRemove", self,
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
+        self.events.add_callback("Mumble/UserJoined", self,
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
+        self.events.add_callback("Mumble/UserMoved", self,
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
+        self.events.add_callback("Mumble/UserSelfMuteToggle", self,
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
+        self.events.add_callback("Mumble/UserSelfDeafToggle", self,
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
+        self.events.add_callback("Mumble/UserRecordingToggle", self,
+                                 self.event_handler, 0, cancelled=True,
+                                 extra_args=[self.event_user_caller])
 
     def get_user(self, user, protocol):
         user = user.lower()
@@ -131,42 +156,40 @@ class LastseenPlugin(PluginObject):
 
                     source.respond(constructed)
 
-    def message_received(self, event=PreMessageReceived):
+    def event_handler(self, event, handler):
+        """
+        This is a generic function so that other plugins can catch events
+        and cause a user's last seen value to update.
+
+        The handler should return (username, protocol name) as a tuple,
+        or a list of tuples if it needs to do more than one update.
+        """
+        data = handler(event)
+        if not isinstance(data, list):
+            data = [data]
+
+        for element in data:
+            user, proto = element
+            self.update(user, proto)
+
+    def update(self, user, proto):
+        entry = self.get_user(user, proto)
+
+        if not entry:
+            self.insert_user(user, proto)
+            self.logger.debug("Inserted %s@%s into the table." % user, proto)
+        else:
+            self.update_user(user, proto)
+            self.logger.debug("Updated entry for %s@%s." % user, proto)
+
+    def event_source_caller(self, event):
         user = event.source.nickname
         proto = event.caller.name
-        entry = self.get_user(user, proto)
 
-        if not entry:
-            self.insert_user(user, proto)
-        else:
-            self.update_user(user, proto)
+        return user, proto
 
-    def pre_command(self, event=PreCommand):
-        user = event.source.nickname
-        proto = event.caller.name
-        entry = self.get_user(user, proto)
-
-        if not entry:
-            self.insert_user(user, proto)
-        else:
-            self.update_user(user, proto)
-
-    def name_changed(self, event=NameChanged):
+    def event_user_caller(self, event):
         user = event.user.nickname
         proto = event.caller.name
-        entry = self.get_user(user, proto)
 
-        if not entry:
-            self.insert_user(user, proto)
-        else:
-            self.update_user(user, proto)
-
-    def user_disconnected(self, event=UserDisconnected):
-        user = event.user.nickname
-        proto = event.caller.name
-        entry = self.get_user(user, proto)
-
-        if not entry:
-            self.insert_user(user, proto)
-        else:
-            self.update_user(user, proto)
+        return [(user, proto), (event.old_name, proto)]
