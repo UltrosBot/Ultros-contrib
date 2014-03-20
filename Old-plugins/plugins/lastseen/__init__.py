@@ -192,4 +192,4 @@ class LastseenPlugin(PluginObject):
         user = event.user.nickname
         proto = event.caller.name
 
-        return [(user, proto), (event.old_name, proto)]
+        return user, proto
