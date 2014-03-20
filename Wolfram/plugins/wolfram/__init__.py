@@ -31,7 +31,7 @@ class AuthPlugin(PluginObject):
             self._disable_self()
             return
 
-        self.commands = CommandManager.instance()
+        self.commands = CommandManager()
 
         self.app = wolframalpha.Client(self.config["app_id"])
 

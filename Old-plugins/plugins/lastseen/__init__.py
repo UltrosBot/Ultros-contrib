@@ -177,10 +177,10 @@ class LastseenPlugin(PluginObject):
 
         if not entry:
             self.insert_user(user, proto)
-            self.logger.debug("Inserted %s@%s into the table." % user, proto)
+            self.logger.debug("Inserted %s@%s into the table." % (user, proto))
         else:
             self.update_user(user, proto)
-            self.logger.debug("Updated entry for %s@%s." % user, proto)
+            self.logger.debug("Updated entry for %s@%s." % (user, proto))
 
     def event_source_caller(self, event):
         user = event.source.nickname
