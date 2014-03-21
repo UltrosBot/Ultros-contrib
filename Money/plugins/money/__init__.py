@@ -33,6 +33,8 @@ class MoneyPlugin(PluginObject):
     def decode_rates_table(self, data):
         rates_json = json.loads(data)
         rates_table = rates_json['rates']
+        rates_table["PHTLR"] = 2.43
+        rates_table["HTLR"] = (2.43 * 0.000000000001)
         return rates_table
 
     def get_rates_table(self, ignore_time=False):
@@ -68,7 +70,7 @@ class MoneyPlugin(PluginObject):
                 "> <end currency 2>...] i.e: money 15 GBP USD")
         else:  # 2 args or more:
             self.rates_table = self.get_rates_table()
-              # update the rates table if we need to.
+            # update the rates table if we need to.
 
             start_val = args[0]  # the amount of money to convert from
             start_currency = args[1]  # the currency that the above refers to
@@ -90,6 +92,7 @@ class MoneyPlugin(PluginObject):
                 end_currencies = args[2:]  # get what the user specified
             done = []
             for i in end_currencies:  # convert each currency in turn
+                i = i.upper()
                 if start_currency != i:  # exclude the start currency from the
                 # end currencies because it's redundant.
                     if i not in self.rates_table:
@@ -97,7 +100,7 @@ class MoneyPlugin(PluginObject):
                         return
                     rate = self.rates_table[i] / \
                         self.rates_table[start_currency]  # calculate the
-                        # conversion rate
+                    # conversion rate
 
                     done.append("%0.2f %s" % (float(start_val) * rate, i))
             output = "%s %s = %s" % (start_val, start_currency,
