@@ -1,9 +1,9 @@
 name: Web interface
 current_version:
-    number: 0.1.2
+    number: 0.1.3
     info: >
-        Display some information on the index page (packages, plugins and protocols),
-        could also be used to demonstrate how to access global data from within templates.
+        Added a function for other plugins to add routes, and some events relating to server
+      starting and stopping.
 description: >
     Provides a full web interface and REST API for Ultros.
      
@@ -21,6 +21,7 @@ files:
 - plugins/web.plug
 - plugins/web/
 - plugins/web/__init__.py
+- plugins/web/events.py
 # Web files
 - web/
 - web/static/  # Yes, it's perfectly capable of serving whatever files you want

@@ -16,3 +16,6 @@
 0.1.2: >
     Display some information on the index page (packages, plugins and protocols),
     could also be used to demonstrate how to access global data from within templates.
+0.1.3: >
+    Added a function for other plugins to add routes, and some events relating to server
+    starting and stopping.

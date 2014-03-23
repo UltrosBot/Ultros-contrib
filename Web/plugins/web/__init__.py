@@ -9,7 +9,10 @@ import webassets
 from bottle import default_app, request, hook, abort, static_file
 from bottle import mako_template as template
 
+from .events import ServerStartedEvent, ServerStoppedEvent, ServerStoppingEvent
+
 from system.decorators import run_async_daemon
+from system.event_manager import EventManager
 from system.plugin import PluginObject
 from utils.config import YamlConfig
 from utils.packages import packages
@@ -30,6 +33,7 @@ class BottlePlugin(PluginObject):
     env = None
 
     packs = None
+    events = None
 
     # region Internal
 
@@ -100,6 +104,7 @@ class BottlePlugin(PluginObject):
             self.logger.info("No CSS files were found. Nothing to do.")
 
         self.app = default_app()
+        self.events = EventManager()
 
         @hook('after_request')
         def log_all():
@@ -124,7 +129,15 @@ class BottlePlugin(PluginObject):
 
     def deactivate(self):
         if self.app:
+            event = ServerStoppingEvent(self, self.app)
+            self.events.run_callback("Web/ServerStopping", event)
+
             self.app.close()
+            del self.app
+            self.app = None
+
+            event = ServerStoppedEvent(self)
+            self.events.run_callback("Web/ServerStopped", event)
         super(PluginObject, self).deactivate()
 
     @run_async_daemon
@@ -132,6 +145,9 @@ class BottlePlugin(PluginObject):
         try:
             self.app.run(host=self.host, port=self.port, server='cherrypy',
                          quiet=True)
+
+            event = ServerStartedEvent(self, self.app)
+            self.events.run_callback("Web/ServerStartedEvent", event)
         except Exception:
             self.logger.exception("Exception while running the Bottle app!")
 
@@ -162,6 +178,16 @@ class BottlePlugin(PluginObject):
     def add_header(self, header):
         self.logger.debug("Adding header: %s" % header)
         self.additional_headers.append(header)
+
+    def add_route(self, path, *args, **kwargs):
+        if path in self.api_routes_list:
+            return False
+        self.api_routes_list.append(path)
+
+        self.logger.debug("Adding route: %s" % path)
+        self.app.route(path, *args, **kwargs)
+
+        return True
 
     # endregion
 
