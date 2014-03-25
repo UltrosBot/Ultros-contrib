@@ -116,16 +116,16 @@ class BottlePlugin(PluginObject):
 
             self.logger.log(level, "[%s] %s %s" % (ip, method, fullpath))
 
-        self.app.route("/static/<path:path>", ["GET", "POST"], self.static)
-        self.app.route("/static/", ["GET", "POST"], self.static_403)
-        self.app.route("/static", ["GET", "POST"], self.static_403)
-        self.app.route("/", ["GET", "POST"], self.index)
-
         self.logger.info("Starting Bottle app..")
+        if self._start_bottle():
+            self.app.route("/static/<path:path>", ["GET", "POST"], self.static)
+            self.app.route("/static/", ["GET", "POST"], self.static_403)
+            self.app.route("/static", ["GET", "POST"], self.static_403)
 
-        self._start_bottle()
-        self.app.route("/index", ["GET", "POST"], self.index)
-        self.add_navbar_entry("Home", "/")
+            self.app.route("/", ["GET", "POST"], self.index)
+            self.app.route("/index", ["GET", "POST"], self.index)
+
+            self.add_navbar_entry("Home", "/")
 
     def deactivate(self):
         if self.app:
@@ -148,8 +148,10 @@ class BottlePlugin(PluginObject):
 
             event = ServerStartedEvent(self, self.app)
             self.events.run_callback("Web/ServerStartedEvent", event)
+            return True
         except Exception:
             self.logger.exception("Exception while running the Bottle app!")
+            return False
 
     def _log_request(self, rq, level=logging.DEBUG):
         ip = rq.remote_addr
