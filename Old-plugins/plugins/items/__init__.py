@@ -45,7 +45,7 @@ class ItemsPlugin(PluginObject):
         else:
             self.data = JSONData("plugins/items/items.json")
 
-            if not "items" in self.data:
+            if "items" not in self.data:
                 self.data["items"] = []
 
         self.commands.register_command("give", self.give_command, self,

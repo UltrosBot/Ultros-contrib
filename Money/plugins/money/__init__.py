@@ -63,8 +63,9 @@ class MoneyPlugin(PluginObject):
                              parsed_args):
         args = raw_args.split()  # Quick fix for new command handler signature
         # This is called when a user types .money in chat
-        if len(args) < 2:  # at least 2 arguments are needed, if the user has
-        # entered one or none:
+        if len(args) < 2:
+            # at least 2 arguments are needed, if the user has
+            # entered one or none:
             caller.respond(
                 "Usage: {CHARS}money <value> <start currency> [<end currency 1"
                 "> <end currency 2>...] i.e: money 15 GBP USD")
@@ -93,8 +94,9 @@ class MoneyPlugin(PluginObject):
             done = []
             for i in end_currencies:  # convert each currency in turn
                 i = i.upper()
-                if start_currency != i:  # exclude the start currency from the
-                # end currencies because it's redundant.
+                if start_currency != i:
+                    # exclude the start currency from the
+                    # end currencies because it's redundant.
                     if i not in self.rates_table:
                         caller.respond("Unknown currency: %s" % i.upper())
                         return

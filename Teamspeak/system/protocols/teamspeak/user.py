@@ -1,4 +1,4 @@
-    # coding=utf-8
+# coding=utf-8
 __author__ = 'Sean'
 
 from system.protocols.generic import user
@@ -12,7 +12,7 @@ class User(user.User):
         self.channels = set()
 
     def __str__(self):
-        return self.name
+        return self.nickname
 
     def add_channel(self, channel):
         self.channels.add(channel)

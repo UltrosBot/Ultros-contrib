@@ -36,7 +36,7 @@ class DictPlugin(PluginObject):
                               "config/plugins/wordnik.yml - Did you fill "
                               "it out?")
             return self._disable_self()
-        if not "apikey" in self.config or not self.config["apikey"]:
+        if "apikey" not in self.config or not self.config["apikey"]:
             self.logger.error("Unable to find an API key; did you fill out the"
                               " config?")
             return self._disable_self()
