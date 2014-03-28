@@ -6,7 +6,7 @@
 0.1.0: >
     Web classes are working, with a default index page and the ability to serve static files.
     This appears to be /FAST/, which is obviously a really good thing. More work needs done on it
-      before we can have a proper JSON API, but it's getting there.
+    before we can have a proper JSON API, but it''s getting there.
 0.1.1: >
     Add a couple API functions to allow adding headers and modifying the navbar.
 

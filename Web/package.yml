@@ -3,7 +3,7 @@ current_version:
     number: 0.1.3
     info: >
         Added a function for other plugins to add routes, and some events relating to server
-      starting and stopping.
+        starting and stopping.
 description: >
     Provides a full web interface and REST API for Ultros.
      
