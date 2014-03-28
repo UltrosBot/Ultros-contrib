@@ -118,12 +118,12 @@ class BottlePlugin(PluginObject):
 
         self.logger.info("Starting Bottle app..")
         if self._start_bottle():
-            self.app.route("/static/<path:path>", ["GET", "POST"], self.static)
-            self.app.route("/static/", ["GET", "POST"], self.static_403)
-            self.app.route("/static", ["GET", "POST"], self.static_403)
+            self.add_route("/static/<path:path>", ["GET", "POST"], self.static)
+            self.add_route("/static/", ["GET", "POST"], self.static_403)
+            self.add_route("/static", ["GET", "POST"], self.static_403)
 
-            self.app.route("/", ["GET", "POST"], self.index)
-            self.app.route("/index", ["GET", "POST"], self.index)
+            self.add_route("/", ["GET", "POST"], self.index)
+            self.add_route("/index", ["GET", "POST"], self.index)
 
             self.add_navbar_entry("Home", "/")
 
