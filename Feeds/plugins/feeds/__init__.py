@@ -86,7 +86,7 @@ class Plugin(PluginObject):
 
             if self.failures[name] > 5:
                 self.logger.warn("Disabling update task for feed '%s' as "
-                                 "there has too many errors." % name)
+                                 "there has been too many errors." % name)
                 return
 
             d = feedparser.parse(feed["url"])
@@ -105,8 +105,6 @@ class Plugin(PluginObject):
                 if not feed["instantly-relay"]:
                     reactor.callLater(feed["frequency"], self.check_feed, feed)
                     return
-
-            self.logger.info("Feed updated: '%s'" % name)
 
             entry = d.entries[0]
             entry["name"] = name

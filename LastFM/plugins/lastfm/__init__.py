@@ -45,12 +45,8 @@ class Plugin(PluginObject):
         self.commands.register_command("nowplaying",
                                        self.nowplaying_cmd,
                                        self,
-                                       "lastfm.nowplaying")
-        # TODO: Replace np command with nowplaying alias when implemented
-        self.commands.register_command("np",
-                                       self.nowplaying_cmd,
-                                       self,
-                                       "lastfm.nowplaying")
+                                       "lastfm.nowplaying",
+                                       aliases=["np"])
         self.commands.register_command("lastfmnick",
                                        self.lastfmnick_cmd,
                                        self,
