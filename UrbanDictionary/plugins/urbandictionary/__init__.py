@@ -22,12 +22,8 @@ class Plugin(PluginObject):
         self.commands.register_command("urbandictionary",
                                        self.urbandictionary_cmd,
                                        self,
-                                       "urbandictionary.definition")
-        # TODO: Replace ud command with urbandictionary alias when implemented
-        self.commands.register_command("ud",
-                                       self.urbandictionary_cmd,
-                                       self,
-                                       "urbandictionary.definition")
+                                       "urbandictionary.definition",
+                                       aliases=["ud"])
 
     def urbandictionary_cmd(self, protocol, caller, source, command, raw_args,
                             parsed_args):

@@ -87,11 +87,14 @@ class Plugin(PluginObject):
         for site in sites_enabled:
             urls.plugin_object.add_handler(site, self.sites[site])
 
+        self.logger.info("Enabled support for %s site(s)."
+                         % len(sites_enabled))
+
         for shortener in shorteners_enabled:
             urls.plugin_object.add_shortener(shortener,
                                              self.shorteners[shortener])
 
-        self.logger.info("Enabled support for %s shorteners."
+        self.logger.info("Enabled support for %s shortener(s)."
                          % len(shorteners_enabled))
 
     def do_get(self, url, params):
@@ -248,7 +251,7 @@ class Plugin(PluginObject):
                                                           description)
                 except:
                     self.logger.exception('Could not get title for "%s"' % url)
-            # If we get to here, then it's either a part of youtube we don't
+        # If we get to here, then it's either a part of youtube we don't
         # handle, or an exception was thrown (and caught) above, so let the
         # regular title fetcher try.
         return None
@@ -272,9 +275,6 @@ class Plugin(PluginObject):
         description = description.strip()
         description = description.replace("\r\n", " ").replace("\r", " ") \
             .replace("\n", " ")
-        if max_length > 0 and len(description) > max_length:
+        if 0 < max_length < len(description):
             description = description[:max_length - 3] + "..."
         return description
-
-    def _disable_self(self):
-        self.factory_manager.plugman.deactivatePluginByName(self.info.name)
