@@ -9,12 +9,16 @@ import webassets
 from bottle import default_app, request, hook, abort, static_file
 from bottle import mako_template as template
 
+from twisted.internet.error import ReactorAlreadyRunning
+
 from .events import ServerStartedEvent, ServerStoppedEvent, ServerStoppingEvent
 
 from system.decorators import run_async_daemon
 from system.event_manager import EventManager
+from system.events.general import ReactorStartedEvent
 from system.plugin import PluginObject
-from utils.config import YamlConfig
+from system.storage.manager import StorageManager
+from system.storage.formats import *
 from utils.packages import packages
 
 
@@ -34,13 +38,19 @@ class BottlePlugin(PluginObject):
 
     packs = None
     events = None
+    storage = None
 
     # region Internal
 
     def setup(self):
         self.logger.debug("Entered setup method.")
+
+        self.packs = packages.Packages()
+        self.storage = StorageManager()
+
         try:
-            self.config = YamlConfig("plugins/web.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/web.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.warn("Using the default configuration --> "
@@ -54,8 +64,6 @@ class BottlePlugin(PluginObject):
                 self.host = self.config["hostname"]
                 self.port = self.config["port"]
                 self.output_requests = self.config["output_requests"]
-
-        self.packs = packages.Packages()
 
         base_path = "web/static"
 
@@ -116,16 +124,9 @@ class BottlePlugin(PluginObject):
 
             self.logger.log(level, "[%s] %s %s" % (ip, method, fullpath))
 
-        self.logger.info("Starting Bottle app..")
-        if self._start_bottle():
-            self.add_route("/static/<path:path>", ["GET", "POST"], self.static)
-            self.add_route("/static/", ["GET", "POST"], self.static_403)
-            self.add_route("/static", ["GET", "POST"], self.static_403)
-
-            self.add_route("/", ["GET", "POST"], self.index)
-            self.add_route("/index", ["GET", "POST"], self.index)
-
-            self.add_navbar_entry("Home", "/")
+        self.events.add_callback("ReactorStarted", self,
+                                 self.start_callback,
+                                 0)
 
     def deactivate(self):
         if self.app:
@@ -140,12 +141,28 @@ class BottlePlugin(PluginObject):
             self.events.run_callback("Web/ServerStopped", event)
         super(PluginObject, self).deactivate()
 
+    def start_callback(self, event=ReactorStartedEvent):
+        self.logger.info("Starting Bottle app..")
+        if self._start_bottle():
+            self.add_route("/static/<path:path>", ["GET", "POST"], self.static)
+            self.add_route("/static/", ["GET", "POST"], self.static_403)
+            self.add_route("/static", ["GET", "POST"], self.static_403)
+
+            self.add_route("/", ["GET", "POST"], self.index)
+            self.add_route("/index", ["GET", "POST"], self.index)
+
+            self.add_navbar_entry("Home", "/")
+
     @run_async_daemon
     def _start_bottle(self):
         try:
-            self.app.run(host=self.host, port=self.port, server='cherrypy',
-                         quiet=True)
+            try:
+                self.app.run(host=self.host, port=self.port, server='twisted',
+                             quiet=True)
+            except ReactorAlreadyRunning:
+                self.logger.debug("Caught ReactorAlreadyRunning error.")
 
+            self.logger.debug("Throwing event..")
             event = ServerStartedEvent(self, self.app)
             self.events.run_callback("Web/ServerStartedEvent", event)
             return True

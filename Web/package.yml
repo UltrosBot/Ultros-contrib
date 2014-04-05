@@ -33,7 +33,6 @@ files:
 requires:
     modules:
     - "bottle"
-    - "cherrypy"
     - "cssmin"
     - "mako"
     - "webassets"
