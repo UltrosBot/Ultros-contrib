@@ -18,7 +18,7 @@ from system.event_manager import EventManager
 from system.events.general import ReactorStartedEvent
 from system.plugin import PluginObject
 from system.storage.manager import StorageManager
-from system.storage.formats import *
+from system.storage.formats import YAML
 from utils.packages import packages
 
 
