@@ -19,7 +19,8 @@ class Plugin(PluginObject):
     def setup(self):
         self.commands = CommandManager()
         self.commands.register_command("rroulette", self.play, self,
-                                       "russianroulette.rroulette")
+                                       "russianroulette.rroulette",
+                                       aliases=["roulette"])
 
     def addChannel(self, channel):
         if channel not in self.channels.keys():
