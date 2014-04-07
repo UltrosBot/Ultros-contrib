@@ -28,7 +28,7 @@ class Plugin(PluginObject):
 
     plugman = None
 
-    YOUTUBE_LOGO = "YOUTUBE"  # Separated for colouring
+    YOUTUBE_LOGO = "YouTube"  # Separated for colouring
     OUTPUT_YOUTUBE_VIDEO = "[" + YOUTUBE_LOGO + " Video] %s (%s) by %s, %s l" \
                                                 "ikes, %s dislikes, %s views"
     OUTPUT_YOUTUBE_PLAYLIST = "[" + YOUTUBE_LOGO + " Playlist] %s (%s videos" \
@@ -39,6 +39,13 @@ class Plugin(PluginObject):
     # PEP MOTHERFUCKING 8 ^
 
     YOUTUBE_DESCRIPTION_LENGTH = 75
+
+    OSU_LOGO = "Osu!"
+    OSU_S_STR = "[" + OSU_LOGO + " mapset] %s - %s (by %s) - %s"
+    OSU_B_STR = "[" + OSU_LOGO + " %s beatmap] %s - %s [%s] (by %s) " \
+                                 "[%d BPM] - Difficulty: %.2f | Leader: %s " \
+                                 "with %s (%s/%s/%s/%s)"
+    OSU_U_STR = "[" + OSU_LOGO + " user] %s"
 
     def setup(self):
         try:
@@ -72,15 +79,14 @@ class Plugin(PluginObject):
                                      " configured. You'll need to add one if "
                                      "you want Osu! support.")
                     continue
+                self.api_details["osu"] = sites["apikeys"]["osu"]
             sites_enabled.append(site)
-        self.logger.info("Enabled support for %s sites."
-                         % len(sites_enabled))
 
         for shortener in shorteners["enabled"]:
             # This is for checking API keys and settings
             shorteners_enabled.append(shortener)
 
-        self.logger.debug("Setting up shorteners with the URLs plugin..")
+        self.logger.debug("Registering with the URLs plugin..")
 
         urls = self.plugman.getPluginByName("URLs")
 
@@ -165,7 +171,22 @@ class Plugin(PluginObject):
         return data
 
     def site_osu(self, url):
-        return url
+        domain = "https://osu.ppy.sh"
+        # /api/get_user
+        # /api/get_scores
+        # /api/get_beatmaps
+
+        parsed = urlparse.urlparse(url)
+        split = parsed.path.lower().split("/")
+
+        if split[0] == "u":  # User
+            pass
+        elif split[0] == "s":  # Beatmap set
+            pass
+        elif split[0] == "b":  # Beatmap
+            pass
+
+        return None
 
     def site_youtube(self, url):
         parsed = urlparse.urlparse(url)
