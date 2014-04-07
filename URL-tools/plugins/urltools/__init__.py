@@ -45,7 +45,7 @@ class Plugin(PluginObject):
     OSU_B_STR = "[" + OSU_LOGO + " %s beatmap] (%s) %s - %s [%s] by %s " \
                                  "[%s BPM] - Difficulty: %.2f | Leader: %s " \
                                  "with %s (%s/%s/%s/%s)"
-    OSU_B_STR_NO_SCORE = "[" + OSU_LOGO + " %s Beatmap] (%s) %s - %s [%s] " \
+    OSU_B_STR_NO_SCORE = "[" + OSU_LOGO + " %s beatmap] (%s) %s - %s [%s] " \
                                           "by %s [%s BPM] - Difficulty: %.2f" \
                                           " - Mode '%s' doesn't apply to " \
                                           "this map."
