@@ -176,6 +176,12 @@ class Plugin(PluginObject):
         # /api/get_scores
         # /api/get_beatmaps
 
+        # /u/<user>
+        # /b/<beatmap id>[?m=<mode>]
+        # /s/<set id>
+        # /p/beatmap?b=<beatmap id>[&m=<mode>]
+
+
         parsed = urlparse.urlparse(url)
         split = parsed.path.lower().split("/")
 
