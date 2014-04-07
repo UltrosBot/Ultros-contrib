@@ -379,7 +379,8 @@ class Plugin(PluginObject):
                         self.OSU_APPROVALS[_map["approved"]], _map["artist"],
                         _map["title"], _map["version"], _map["creator"],
                         float(_map["bpm"]),
-                        round(float(_map["difficultyrating"]), 2)
+                        round(float(_map["difficultyrating"]), 2),
+                        self.OSU_MODES[params["m"]]
                     )
 
                 return self.OSU_B_STR % (
