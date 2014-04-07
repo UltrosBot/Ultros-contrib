@@ -181,7 +181,6 @@ class Plugin(PluginObject):
         # /s/<set id>
         # /p/beatmap?b=<beatmap id>[&m=<mode>]
 
-
         parsed = urlparse.urlparse(url)
         split = parsed.path.lower().split("/")
 
