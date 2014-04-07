@@ -2,8 +2,7 @@ sites:
   apikeys:
     osu: "" # Required for this handler
   enabled:
-# Disabled because it's not done yet
-#  - osu.ppy.sh
+  - osu.ppy.sh
   - youtube.com
 
 shorteners:
