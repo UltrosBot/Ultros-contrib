@@ -22,6 +22,7 @@ files:
 - plugins/web/
 - plugins/web/__init__.py
 - plugins/web/events.py
+- plugins/web/yielder.py
 # Web files
 - web/
 - web/static/  # Yes, it's perfectly capable of serving whatever files you want
