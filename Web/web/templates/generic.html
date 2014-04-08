@@ -1,0 +1,14 @@
+<%inherit file="base.html"/>
+        <div class="container">
+            <%include file="navbar.html" args="items=nav_items"/>
+
+            ${content}
+
+        </div>
+
+<%block name="title">Ultros | ${title}}</%block>
+<%block name="header">
+% for item in headers:
+    ${item}
+% endfor
+</%block>

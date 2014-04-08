@@ -1,6 +1,7 @@
 # coding=utf-8
 __author__ = 'Gareth Coles'
 
+import copy
 import logging
 import os
 import sys
@@ -12,6 +13,7 @@ from bottle import mako_template as template
 from twisted.internet.error import ReactorAlreadyRunning
 
 from .events import ServerStartedEvent, ServerStoppedEvent, ServerStoppingEvent
+from .yielder import Yielder
 
 from system.decorators import run_async_daemon
 from system.event_manager import EventManager
@@ -208,12 +210,25 @@ class BottlePlugin(PluginObject):
 
         return True
 
+    def get_yielder(self):
+        return Yielder()
+
+    def wrap_template(self, content, title, nav="Home"):
+        nav_items = copy.deepcopy(self.navbar_items)
+        if nav in nav_items:
+            nav_items[nav]["active"] = True
+        return template("web/templates/generic.html",
+                        nav_items=nav_items,
+                        headers=self.additional_headers,
+                        content=content,
+                        title=title)
+
     # endregion
 
     # region Routes
 
     def index(self):
-        nav_items = self.navbar_items
+        nav_items = copy.deepcopy(self.navbar_items)
         nav_items["Home"]["active"] = True
         return template("web/templates/index.html",
                         nav_items=nav_items,

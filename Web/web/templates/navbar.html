@@ -10,8 +10,6 @@
                         % if entry["active"]:
                             <li class="active"><a href="#">${title}</a></li>
                         % endif
-                    % endfor
-                    % for title, entry in items.items():
                         % if not entry["active"]:
                             <li><a href="${entry['url']}">${title}</a></li>
                         % endif
