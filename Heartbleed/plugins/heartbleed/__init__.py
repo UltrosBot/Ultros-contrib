@@ -37,7 +37,7 @@ class Plugin(PluginObject):
                     source.respond("Port '%s' is invalid, trying on port "
                                    "443." % port)
             try:
-                source("Checking %s:%s" % (host, port))
+                source.respond("Checking %s:%s" % (host, port))
                 result = hb.try_host(host, port)
                 if result:
                     source.respond("Host %s is vulnerable!" % host)
