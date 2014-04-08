@@ -29,6 +29,7 @@ files:
 - web/templates/
 - web/templates/base.html
 - web/templates/index.html
+- web/templates/generic.html
 - web/templates/navbar.html
 requires:
     modules:
