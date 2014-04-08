@@ -1,0 +1,16 @@
+name: Heartbleed
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version
+description: >
+    Allows you to check hosts for the Heartbleed vulnerability
+files:
+- plugins/heartbleed/
+- plugins/heartbleed/__init__.py
+- plugins/heartbleed/hb.py
+- plugins/heartbleed.plug
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/DrunkOctopus/README.md

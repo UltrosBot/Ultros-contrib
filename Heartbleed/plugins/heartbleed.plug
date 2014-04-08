@@ -1,0 +1,10 @@
+core:
+  name: Heartbleed
+  module: heartbleed
+  dependencies: []
+info:
+  description: "Checks if a host is vulnerable to the Heartbleed vulnerability."
+  author: Gareth Coles
+  version: 0.0.1
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Heartbleed
+  copyright: Public Domain
