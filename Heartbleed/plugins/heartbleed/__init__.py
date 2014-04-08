@@ -3,6 +3,7 @@ __author__ = 'Gareth Coles'
 from . import hb
 
 from system.command_manager import CommandManager
+from system.decorators import run_async_threadpool
 from system.plugin import PluginObject
 
 
@@ -17,8 +18,9 @@ class Plugin(PluginObject):
                                        self,
                                        "hb.hb")
 
+    @run_async_threadpool
     def hb_command(self, protocol, caller, source, command, raw_args,
-                            parsed_args):
+                   parsed_args):
         args = raw_args.split()  # Quick fix for new command handler signature
         if len(args) < 1:
             caller.respond("Usage: {CHARS}hb <address> [port]")

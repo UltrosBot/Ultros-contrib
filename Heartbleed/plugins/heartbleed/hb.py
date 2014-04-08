@@ -86,7 +86,7 @@ def try_host(host, port=443):
 
     while True:
         typ, ver, pay = recvmsg(s)
-        if typ == None:
+        if typ is None:
             # print 'Server closed connection without sending Server Hello.'
             return
         # Look for server hello done message.
