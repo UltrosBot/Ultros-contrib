@@ -17,15 +17,23 @@
 
                 % endif
 
+                % if missing:
+
+                <div class="alert alert-danger alert-dismissable">
+                    Please enter both a username and a password.
+                </div>
+
+                % endif
+
                 <form role="form" action="/login" method="post">
                     <div class="input-group input-group-lg">
                         <span class="input-group-addon">Username</span>
-                        <input type="text" class="form-control" name="username">
+                        <input type="text" class="form-control" name="username" required>
                     </div>
                     <br />
                     <div class="input-group input-group-lg">
                         <span class="input-group-addon">Password</span>
-                        <input type="password" class="form-control" name="password">
+                        <input type="password" class="form-control" name="password" required>
                     </div>
                     <br />
                     <button type="submit" class="btn btn-lg btn-block btn-primary">Submit</button>

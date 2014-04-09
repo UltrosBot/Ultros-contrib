@@ -345,7 +345,8 @@ class BottlePlugin(PluginObject):
                             nav_items=nav_items,
                             headers=self.additional_headers,
                             auth=auth,
-                            failed=False)
+                            failed=False,
+                            missing=False)
         return redirect("/", 307)
 
     def login_post(self):
@@ -353,10 +354,20 @@ class BottlePlugin(PluginObject):
         if not self.is_authorized():
             s = self.get_session()
 
-            username = request.forms.get("username")
-            password = request.forms.get("password")
+            nav_items = copy.deepcopy(self.navbar_items)
+
+            username = request.forms.get("username", None)
+            password = request.forms.get("password", None)
 
             result = False
+
+            if not (username or password):
+                return template("web/templates/login.html",
+                                nav_items=nav_items,
+                                headers=self.additional_headers,
+                                auth=auth,
+                                failed=False,
+                                missing=True)
 
             for handler in self.commands.auth_handlers:
                 result = handler.check_login(username, password)
@@ -368,13 +379,12 @@ class BottlePlugin(PluginObject):
                 s["auth_name"] = username
                 s.save()
             else:
-                nav_items = copy.deepcopy(self.navbar_items)
-                nav_items["Login"]["active"] = True
                 return template("web/templates/login.html",
                                 nav_items=nav_items,
                                 headers=self.additional_headers,
                                 auth=auth,
-                                failed=True)
+                                failed=True,
+                                missing=False)
         return redirect("/", 303)
 
     def logout(self):
