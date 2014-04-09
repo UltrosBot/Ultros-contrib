@@ -1,0 +1,43 @@
+<%inherit file="base.html"/>
+        <div class="container">
+            <%include file="navbar.html" args="items=nav_items,auth=auth"/>
+
+            <div class="jumbotron">
+                <h1>Login</h1>
+
+                <p>This uses your bot account. If you don't have one, find the bot on one of its networks
+                   and message it with the register command - For example, <code>.register username password</code>.
+                </p>
+
+                % if failed:
+
+                <div class="alert alert-danger alert-dismissable">
+                    Incorrect username or password.
+                </div>
+
+                % endif
+
+                <form role="form" action="/login" method="post">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon">Username</span>
+                        <input type="text" class="form-control" name="username">
+                    </div>
+                    <br />
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon">Password</span>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                    <br />
+                    <button type="submit" class="btn btn-lg btn-block btn-primary">Submit</button>
+                </form>
+
+            </div>
+
+        </div>
+
+<%block name="title">Ultros | Index</%block>
+<%block name="header">
+% for item in headers:
+    ${item}
+% endfor
+</%block>

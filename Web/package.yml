@@ -31,9 +31,11 @@ files:
 - web/templates/base.html
 - web/templates/index.html
 - web/templates/generic.html
+- web/templates/login.html
 - web/templates/navbar.html
 requires:
     modules:
+    - "beaker"
     - "bottle"
     - "cssmin"
     - "mako"
