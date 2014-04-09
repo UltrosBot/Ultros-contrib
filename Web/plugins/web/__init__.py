@@ -296,7 +296,7 @@ class BottlePlugin(PluginObject):
 
         return self.commands.perm_handler.check(perm, caller, "web", "web")
 
-    def wrap_template(self, content, title, nav="Home", r=None,
+    def wrap_template(self, content, _title, nav="Home", r=None,
                       tpl="web/templates/generic.html", **kwargs):
         auth = self.get_authorization(r)
         nav_items = copy.deepcopy(self.navbar_items)
@@ -306,7 +306,7 @@ class BottlePlugin(PluginObject):
                         nav_items=nav_items,
                         headers=self.additional_headers,
                         content=content,
-                        title=title,
+                        _title=_title,
                         auth=auth,
                         **kwargs)
 
