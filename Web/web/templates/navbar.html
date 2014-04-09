@@ -17,7 +17,7 @@
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             % if auth.authorized:
-                                <li><a href="/logout">Logout</a></li>
+                                <li><a href="/logout">Logout (${auth.auth_name})</a></li>
                             % else:
                                 <li><a href="/login">Login</a></li>
                             % endif
