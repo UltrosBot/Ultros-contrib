@@ -176,7 +176,7 @@ class BottlePlugin(PluginObject):
             event = ServerStoppingEvent(self, self.app)
             self.events.run_callback("Web/ServerStopping", event)
 
-            self.app.close()
+            default_app().close()
             del self.app
             self.app = None
 
