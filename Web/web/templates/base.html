@@ -16,7 +16,7 @@
         ${self.body()}
 
         <script>
-            $("table").bind("sortEnd", function(e, table) {
+            $(".table-sortable").bind("sortEnd", function(e, table) {
                 $(".tablesorter-headerRow").find(".tablesorter-icon")
                         .removeClass("glyphicon")
                         .removeClass("glyphicon-sort")
@@ -59,7 +59,7 @@
             });
 
             $(function(){
-                $("table").tablesorter({theme: 'bootstrap', headerTemplate: "{content} {icon}"});
+                $(".table-sortable").tablesorter({theme: 'bootstrap', headerTemplate: "{content} {icon}"});
             });
         </script>
     </body>
