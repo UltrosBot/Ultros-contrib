@@ -27,7 +27,6 @@ files:
 - web/
 - web/static/  # Yes, it's perfectly capable of serving whatever files you want
 - web/static/custom.css
-- web/static/jquery.tablesorter.min.js
 - web/templates/
 - web/templates/base.html
 - web/templates/index.html
