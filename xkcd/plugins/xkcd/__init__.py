@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from utils.data import YamlData
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 __author__ = 'Sean'
 
@@ -39,20 +40,24 @@ class Plugin(PluginObject):
 
     commands = None
     config = None
+    storage = None
 
     def setup(self):
         ### Grab important shit
         self.commands = CommandManager()
+        self.storage = StorageManager()
 
         ### Open the data file (comic data cache)
         try:
-            self.comic_cache = YamlData("plugins/xkcd/comic-cache.yml")
+            self.comic_cache = self.storage.get_file(self, "data", YAML,
+                                                     "plugins/xkcd/comic-cache.yml")
         except Exception:
             self.logger.exception("Error loading comic-cache!")
             self.logger.error("Disabling...")
             self._disable_self()
         try:
-            self.archive = YamlData("plugins/xkcd/archive.yml")
+            self.archive = self.storage.get_file(self, "data", YAML,
+                                                 "plugins/xkcd/archive.yml")
         except Exception:
             self.logger.exception("Error loading archive!")
             self.logger.error("Disabling...")
