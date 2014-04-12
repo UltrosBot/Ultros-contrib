@@ -11,7 +11,9 @@ import urllib
 import urllib2
 
 from system.plugin import PluginObject
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
+
 from utils.misc import output_exception
 
 # Attempt to guess the locale.
@@ -21,8 +23,9 @@ locale.setlocale(locale.LC_ALL, "")
 class Plugin(PluginObject):
 
     config = None
-    api_details = {}
+    storage = None
 
+    api_details = {}
     sites = {}
     shorteners = {}
 
@@ -88,8 +91,10 @@ class Plugin(PluginObject):
     }
 
     def setup(self):
+        self.storage = StorageManager()
         try:
-            self.config = YamlConfig("plugins/urltools.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/urltools.yml")
         except Exception:
             self.logger.error("Unable to load the configuration!")
             output_exception(self.logger, logging.ERROR)

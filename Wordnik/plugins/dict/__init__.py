@@ -9,7 +9,8 @@ from system.command_manager import CommandManager
 from system.plugin import PluginObject
 from system.plugin_manager import YamlPluginManagerSingleton
 from system.protocols.generic.user import User
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 
 class DictPlugin(PluginObject):
@@ -22,12 +23,15 @@ class DictPlugin(PluginObject):
     commands = None
     config = None
     plugman = None
+    storage = None
 
     urls = None
 
     def setup(self):
+        self.storage = StorageManager()
         try:
-            self.config = YamlConfig("plugins/wordnik.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/wordnik.yml")
         except Exception:
             self.logger.exception("Unable to load the configuration!")
             return self._disable_self()

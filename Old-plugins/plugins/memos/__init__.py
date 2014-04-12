@@ -6,20 +6,24 @@ from system.event_manager import EventManager
 from system.events.general import PreMessageReceived
 from system.plugin import PluginObject
 from system.protocols.generic.channel import Channel
-from utils.data import SqliteData
+from system.storage.formats import SQLITE
+from system.storage.manager import StorageManager
 
 
 class MemosPlugin(PluginObject):
 
     commands = None
     events = None
+    storage = None
 
     data = None  # SQLite for a change
 
     def setup(self):
         self.commands = CommandManager()
         self.events = EventManager()
-        self.data = SqliteData("plugins/memos/memos.sqlite")
+        self.storage = StorageManager()
+        self.data = self.storage.get_file(self, "data", SQLITE,
+                                          "plugins/memos/memos.sqlite")
 
         with self.data as c:
             # Multiline strings because of an IDE bug

@@ -11,13 +11,15 @@ from system.command_manager import CommandManager
 from system.decorators import run_async_daemon
 from system.plugin import PluginObject
 from system.protocols.generic.user import User
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 
 class Plugin(PluginObject):
 
     config = None
     commands = None
+    storage = None
 
     do_relay = False
     relay_targets = []
@@ -48,8 +50,10 @@ class Plugin(PluginObject):
 
     def setup(self):
         self.logger.debug("Entered setup method.")
+        self.storage = StorageManager()
         try:
-            self.config = YamlConfig("plugins/minecraft.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/minecraft.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self._disable_self()

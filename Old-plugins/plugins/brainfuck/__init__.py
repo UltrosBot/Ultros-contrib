@@ -5,20 +5,24 @@ from datetime import datetime
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
 from system.protocols.generic.channel import Channel
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 
 class Plugin(PluginObject):
 
     commands = None
     config = None
+    storage = None
     timeout = 100
 
     def setup(self):
         self.commands = CommandManager()
+        self.storage = StorageManager()
 
         try:
-            self.config = YamlConfig("plugins/brainfuck.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/brainfuck.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling..")

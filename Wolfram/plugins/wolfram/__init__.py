@@ -6,7 +6,8 @@ from system.command_manager import CommandManager
 from system.decorators import run_async
 from system.plugin import PluginObject
 from system.protocols.generic.channel import Channel
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 
 class AuthPlugin(PluginObject):
@@ -15,11 +16,14 @@ class AuthPlugin(PluginObject):
 
     config = None
     commands = None
+    storage = None
 
     def setup(self):
         self.logger.debug("Entered setup method.")
+        self.storage = StorageManager()
         try:
-            self.config = YamlConfig("plugins/wolfram.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/wolfram.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling..")

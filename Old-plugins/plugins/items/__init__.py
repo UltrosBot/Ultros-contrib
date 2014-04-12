@@ -5,8 +5,8 @@ import random
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from utils.config import YamlConfig
-from utils.data import JSONData, SqliteData
+from system.storage.formats import YAML, SQLITE, JSON
+from system.storage.manager import StorageManager
 
 
 class ItemsPlugin(PluginObject):
@@ -14,16 +14,19 @@ class ItemsPlugin(PluginObject):
     commands = None
 
     config = None
-    data = None  # SQLite for a change
+    data = None
+    storage = None
 
     storage_type = "sqlite"
 
     def setup(self):
         self.commands = CommandManager()
+        self.storage = StorageManager()
 
         self.logger.debug("Entered setup method.")
         try:
-            self.config = YamlConfig("plugins/items.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/items.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.warn("Defaulting to SQLite for storage.")
@@ -36,14 +39,16 @@ class ItemsPlugin(PluginObject):
                     self.storage_type = "json"
 
         if self.storage_type == "sqlite":
-            self.data = SqliteData("plugins/items/items.sqlite")
+            self.data = self.storage.get_file(self, "data", SQLITE,
+                                              "plugins/items/items.sqlite")
 
             with self.data as c:
                 # Multiline strings because of an IDE bug
                 c.execute("""CREATE TABLE IF NOT EXISTS items
                           (item TEXT, owner TEXT)""")
         else:
-            self.data = JSONData("plugins/items/items.json")
+            self.data = self.storage.get_file(self, "data", JSON,
+                                              "plugins/items/items.json")
 
             if "items" not in self.data:
                 self.data["items"] = []

@@ -7,20 +7,24 @@ import time
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
 from system.plugin import PluginObject
-from utils.data import SqliteData
+from system.storage.formats import SQLITE
+from system.storage.manager import StorageManager
 
 
 class LastseenPlugin(PluginObject):
 
     commands = None
     events = None
+    storage = None
 
     data = None  # SQLite for a change
 
     def setup(self):
         self.commands = CommandManager()
         self.events = EventManager()
-        self.data = SqliteData("plugins/lastseen/users.sqlite")
+        self.storage = StorageManager()
+        self.data = self.storage.get_file(self, "data", SQLITE,
+                                          "plugins/lastseen/users.sqlite")
 
         with self.data as c:
             # Multiline strings because of an IDE bug

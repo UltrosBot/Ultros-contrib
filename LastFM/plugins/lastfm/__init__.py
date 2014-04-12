@@ -4,22 +4,25 @@ import requests
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from utils.config import YamlConfig
-from utils.data import YamlData
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 
 class Plugin(PluginObject):
 
     commands = None
     config = None
+    storage = None
 
     def setup(self):
         ### Grab important shit
         self.commands = CommandManager()
+        self.storage = StorageManager()
 
         ### Initial config load
         try:
-            self.config = YamlConfig("plugins/lastfm.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/lastfm.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
@@ -32,7 +35,8 @@ class Plugin(PluginObject):
             return
             ### Same for the data file (nickname=>lastfmusername map)
         try:
-            self.nickmap = YamlData("plugins/lastfm-nickmap.yml")
+            self.nickmap = self.storage.get_file(self, "data", YAML,
+                                                 "plugins/lastfm-nickmap.yml")
         except Exception:
             self.logger.exception("Error loading nickmap!")
             self.logger.error("Disabling...")

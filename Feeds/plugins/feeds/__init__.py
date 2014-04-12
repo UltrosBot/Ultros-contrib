@@ -9,8 +9,8 @@ from system.decorators import run_async_daemon
 from system.plugin import PluginObject
 from system.plugin_manager import YamlPluginManagerSingleton
 from system.event_manager import EventManager
-
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 
 class Plugin(PluginObject):
@@ -19,6 +19,7 @@ class Plugin(PluginObject):
     events = None
     manager = None
     plugman = None
+    storage = None
     urls = None
 
     feeds = []
@@ -29,8 +30,10 @@ class Plugin(PluginObject):
 
     def setup(self):
         self.logger.debug("Entered setup method.")
+        self.storage = StorageManager()
         try:
-            self.config = YamlConfig("plugins/feeds.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/feeds.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling..")

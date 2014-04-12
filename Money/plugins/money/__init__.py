@@ -7,7 +7,8 @@ import json
 
 from system.plugin import PluginObject
 from system import command_manager
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 from datetime import datetime, timedelta
 #from japan import loli_maids
 
@@ -19,9 +20,12 @@ class MoneyPlugin(PluginObject):
 
     config = None
     commands = None
+    storage = None
 
     def setup(self):
-        self.config = YamlConfig("plugins/money.yml")
+        self.storage = StorageManager()
+        self.config = self.storage.get_file(self, "config", YAML,
+                                            "plugins/money.yml")
 
         self.commands = command_manager.CommandManager()
         self.commands.register_command("money", self.money_command_called,

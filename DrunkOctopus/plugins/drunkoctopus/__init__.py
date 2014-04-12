@@ -5,7 +5,8 @@ from twisted.internet import reactor
 from system.event_manager import EventManager
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from utils.config import YamlConfig
+from system.storage.formats import YAML
+from system.storage.manager import StorageManager
 
 __author__ = 'Sean'
 
@@ -14,15 +15,18 @@ class Plugin(PluginObject):
 
     commands = None
     config = None
+    storage = None
 
     def setup(self):
         ### Grab important shit
         self.commands = CommandManager()
         self.events = EventManager()
+        self.storage = StorageManager()
 
         ### Initial config load
         try:
-            self.config = YamlConfig("plugins/drunkoctopus.yml")
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/drunkoctopus.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
