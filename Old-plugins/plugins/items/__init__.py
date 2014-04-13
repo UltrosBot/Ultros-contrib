@@ -1,12 +1,13 @@
 # coding=utf-8
 __author__ = "Gareth Coles"
 
-import random
-
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
-from system.storage.formats import YAML, SQLITE, JSON
+from system.storage.formats import YAML
 from system.storage.manager import StorageManager
+
+from .json_type import Type as JSONType
+from .sqlite_type import Type as SQLiteType
 
 
 class ItemsPlugin(PluginObject):
@@ -18,6 +19,7 @@ class ItemsPlugin(PluginObject):
     storage = None
 
     storage_type = "sqlite"
+    handler = None
 
     def setup(self):
         self.commands = CommandManager()
@@ -38,107 +40,20 @@ class ItemsPlugin(PluginObject):
                 if self.config["storage"].lower() == "json":
                     self.storage_type = "json"
 
+                self.logger.info("Using storage type: %s" % self.storage_type)
+
         if self.storage_type == "sqlite":
-            self.data = self.storage.get_file(self, "data", SQLITE,
-                                              "plugins/items/items.sqlite")
-
-            with self.data as c:
-                # Multiline strings because of an IDE bug
-                c.execute("""CREATE TABLE IF NOT EXISTS items
-                          (item TEXT, owner TEXT)""")
+            self.handler = SQLiteType(self, self.storage, self.logger)
         else:
-            self.data = self.storage.get_file(self, "data", JSON,
-                                              "plugins/items/items.json")
-
-            if "items" not in self.data:
-                self.data["items"] = []
+            self.handler = JSONType(self, self.storage, self.logger)
 
         self.commands.register_command("give", self.give_command, self,
                                        "items.give")
         self.commands.register_command("get", self.get_command, self,
                                        "items.get")
 
-    def number_of_items(self):
-        if self.storage_type == "sqlite":
-            with self.data as c:
-                c.execute("""SELECT COUNT(*) FROM items""")
-                d = c.fetchone()
-                return d[0]
-        else:
-            return len(self.data["items"])
+    def give_command(self, *args, **kwargs):
+        return self.handler.give_command(*args, **kwargs)
 
-    def add_item(self, item, owner):
-        item = item.lower()
-        if self.storage_type == "sqlite":
-            if not self.has_item(item):
-                with self.data as c:
-                    c.execute("""INSERT INTO items VALUES (?, ?)""", (item,
-                                                                      owner))
-        else:
-            with self.data:
-                self.data["items"].append([item, owner])
-
-    def remove_item(self, item):
-        item = item.lower()
-        if self.storage_type == "sqlite":
-            if self.has_item(item):
-                with self.data as c:
-                    c.execute("""DELETE FROM items WHERE item=?""", (item,))
-        else:
-            with self.data:
-                items = self.data["items"]
-                for item_ in items:
-                    if item == item_[0]:
-                        self.data["items"].remove(item_)
-
-    def retrieve_random_item(self):
-        if self.storage_type == "sqlite":
-            with self.data as c:
-                c.execute("""SELECT * FROM items ORDER BY RANDOM() LIMIT 1""")
-                d = c.fetchone()
-                return d
-        else:
-            return random.choice(self.data["items"])
-
-    def has_item(self, item):
-        item = item.lower()
-        if self.storage_type == "sqlite":
-            with self.data as c:
-                c.execute("""SELECT item FROM items WHERE item=?""", (item,))
-                d = c.fetchone()
-                return bool(d)
-        else:
-            for item_ in self.data["items"]:
-                if item == item_[0]:
-                    return True
-            return False
-
-    def give_command(self, protocol, caller, source, command, raw_args,
-                     parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
-        if len(args) == 0:
-            caller.respond("Usage: {CHARS}give <item>")
-        item = " ".join(args)
-        if not self.has_item(item):
-            self.add_item(item, caller.nickname)
-            protocol.send_action(source, "takes the '%s' and puts it in her "
-                                         "bag" % item)
-        else:
-            protocol.send_action(source, "ignores the '%s' as the one she has "
-                                         "is better." % item)
-
-    def get_command(self, protocol, caller, source, command, raw_args,
-                    parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
-        if self.number_of_items() > 0:
-            item = self.retrieve_random_item()
-            item_name = item[0]
-            item_owner = item[1]
-            self.remove_item(item_name)
-            protocol.send_action(source, "retrieves %s%s '%s' and hands it to "
-                                         "%s" % (item_owner,
-                                                 "'" if item_owner[-1] == "s"
-                                                 else "'s",
-                                                 item_name, caller.nickname))
-        else:
-            protocol.send_action(source, "doesn't have any items right now.")
+    def get_command(self, *args, **kwargs):
+        return self.handler.get_command(*args, **kwargs)

@@ -29,6 +29,8 @@ files:
 - plugins/geoip/__init__.py
 - plugins/geoip.plug
 - plugins/items/__init__.py
+- plugins/items/json_type.py
+- plugins/items/sqlite_type.py
 - plugins/items.plug
 - plugins/lastseen/__init__.py
 - plugins/lastseen.plug
