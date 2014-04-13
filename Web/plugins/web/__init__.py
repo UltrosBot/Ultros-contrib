@@ -35,8 +35,9 @@ from utils.misc import AttrDict
 class BottlePlugin(PluginObject):
 
     app = None
-    host = "127.0.0.1"
+    host = ""
     port = 8080
+    address = ""
     output_requests = True
     session_opts = {}
     _secret = ""
@@ -67,17 +68,16 @@ class BottlePlugin(PluginObject):
                                                 "plugins/web.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
-            self.logger.warn("Using the default configuration --> "
-                             "http://127.0.0.1:8080")
+            return self._disable_self()
         else:
             if not self.config.exists:
                 self.logger.error("Unable to find config/plugins/web.yml")
-                self.logger.warn("Using the default configuration --> "
-                                 "http://127.0.0.1:8080")
+                return self._disable_self()
             else:
                 self.host = self.config["hostname"]
                 self.port = self.config["port"]
                 self.output_requests = self.config["output_requests"]
+                self.address = self.config["public_address"]
 
         try:
             self.data = self.storage.get_file(self, "data", JSON,
@@ -85,8 +85,7 @@ class BottlePlugin(PluginObject):
         except Exception:
             self.logger.exception("Error loading data!")
             self.logger.error("This data file is required. Shutting down...")
-            self._disable_self()
-            return
+            return self._disable_self()
 
         base_path = "web/static"
 

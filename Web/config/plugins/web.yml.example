@@ -4,3 +4,8 @@
 hostname: 0.0.0.0  # Interface to listen on
 port: 8080  # Port to listen on
 output_requests: yes  # Whether to output requests or not
+
+# Public-facing address. Be sure to set this!
+# When you've set up your Web plugin for the first time, type this into
+# a browser to make sure it works. If it doesn't, correct it!
+public_address: "http://localhost:8080"
