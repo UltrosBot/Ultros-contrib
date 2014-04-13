@@ -49,8 +49,9 @@ class Plugin(PluginObject):
 
         ### Open the data file (comic data cache)
         try:
-            self.comic_cache = self.storage.get_file(self, "data", YAML,
-                                                     "plugins/xkcd/comic-cache.yml")
+            self.comic_cache = self.storage.get_file(
+                self, "data", YAML,
+                "plugins/xkcd/comic-cache.yml")
         except Exception:
             self.logger.exception("Error loading comic-cache!")
             self.logger.error("Disabling...")
