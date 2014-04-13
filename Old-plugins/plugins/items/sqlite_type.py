@@ -15,7 +15,8 @@ class Type(object):
             "data",
             DBAPI,
             "sqlite3:data/plugins/items/items.sqlite",
-            "data/plugins/items/items.sqlite"
+            "data/plugins/items/items.sqlite",
+            check_same_thread=False
         )
 
         self.data.runQuery("CREATE TABLE IF NOT EXISTS items"

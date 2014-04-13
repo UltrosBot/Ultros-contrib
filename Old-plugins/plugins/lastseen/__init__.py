@@ -28,7 +28,8 @@ class LastseenPlugin(PluginObject):
             "data",
             DBAPI,
             "sqlite3:data/plugins/lastseen/users.sqlite",
-            "data/plugins/lastseen/users.sqlite"
+            "data/plugins/lastseen/users.sqlite",
+            check_same_thread=False
         )
 
         self.data.runQuery("CREATE TABLE IF NOT EXISTS users ("
