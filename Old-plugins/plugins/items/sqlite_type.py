@@ -67,7 +67,7 @@ class Type(object):
         txn.execute("SELECT * FROM items ORDER BY RANDOM() LIMIT 1")
         r = txn.fetchone()
 
-        txn.execute("DELETE FROM items WHERE item=?", r[0])
+        txn.execute("DELETE FROM items WHERE item=?", (r[0],))
 
         return r
 
@@ -90,8 +90,8 @@ class Type(object):
             )
 
     def _get_callback_fail(self, failure, source, protocol):
-        protocol.send_action(source, "attempts to retrieve an item from her"
-                                     "bag but is startled by a loud voice:"
+        protocol.send_action(source, "attempts to retrieve an item from her "
+                                     "bag but is startled by a loud voice: "
                                      "\"%s\"" % failure)
 
     def get_command(self, protocol, caller, source, command, raw_args,
