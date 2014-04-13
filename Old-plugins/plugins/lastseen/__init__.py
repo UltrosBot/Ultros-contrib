@@ -77,7 +77,7 @@ class LastseenPlugin(PluginObject):
 
     def _get_user_txn(self, txn, user, protocol):
         user = user.lower()
-        txn.execute("SELECT * FROM users WHERE user=? AND protocol=?,",
+        txn.execute("SELECT * FROM users WHERE user=? AND protocol=?",
                     (user, protocol))
         r = txn.fetchone()
         return r
@@ -133,7 +133,7 @@ class LastseenPlugin(PluginObject):
                 source.respond(constructed)
 
     def _get_user_callback_fail(self, failure, user, protocol, source):
-        source.respond("Error while finding user %s: %s" % user, failure)
+        source.respond("Error while finding user %s: %s" % (user, failure))
 
     def get_user(self, user, protocol):
         return self.data.runInteraction(self._get_user_txn, user, protocol)
