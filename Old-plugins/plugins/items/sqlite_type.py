@@ -42,7 +42,7 @@ class Type(object):
     def _give_callback_fail(self, failure, item, source, protocol):
         protocol.send_action(source, "attempts to take the '%s' but is "
                                      "startled by a loud voice: \"%s\""
-                                     % (item, failure))
+                                     % (item, failure.getErrorMessage()))
 
     def give_command(self, protocol, caller, source, command, raw_args,
                      parsed_args):
@@ -92,7 +92,7 @@ class Type(object):
     def _get_callback_fail(self, failure, source, protocol):
         protocol.send_action(source, "attempts to retrieve an item from her "
                                      "bag but is startled by a loud voice: "
-                                     "\"%s\"" % failure)
+                                     "\"%s\"" % failure.getErrorMessage())
 
     def get_command(self, protocol, caller, source, command, raw_args,
                     parsed_args):
