@@ -7,7 +7,7 @@ import time
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
 from system.plugin import PluginObject
-from system.storage.formats import SQLITE
+from system.storage.formats import SQLITE, DBAPI
 from system.storage.manager import StorageManager
 
 
@@ -23,13 +23,18 @@ class LastseenPlugin(PluginObject):
         self.commands = CommandManager()
         self.events = EventManager()
         self.storage = StorageManager()
-        self.data = self.storage.get_file(self, "data", SQLITE,
-                                          "plugins/lastseen/users.sqlite")
+        self.data = self.storage.get_file(
+            self,
+            "data",
+            DBAPI,
+            "sqlite3:data/plugins/lastseen/users.sqlite",
+            "data/plugins/lastseen/users.sqlite"
+        )
 
-        with self.data as c:
-            # Multiline strings because of an IDE bug
-            c.execute("""CREATE TABLE IF NOT EXISTS users
-                      (user TEXT, protocol TEXT, at INTEGER)""")
+        self.data.runQuery("CREATE TABLE IF NOT EXISTS users ("
+                           "user TEXT, "
+                           "protocol TEXT, "
+                           "at INTEGER)")
 
         self.commands.register_command("seen", self.seen_command, self,
                                        "seen.seen")
@@ -70,28 +75,96 @@ class LastseenPlugin(PluginObject):
                                  self.event_handler, 0, cancelled=True,
                                  extra_args=[self.event_user_caller])
 
+    def _get_user_txn(self, txn, user, protocol):
+        user = user.lower()
+        txn.execute("SELECT * FROM users WHERE user=? AND protocol=?,",
+                    (user, protocol))
+        r = txn.fetchone()
+        return r
+
+    def _get_user_callback(self, result, user, protocol, source):
+        if result is None:
+            source.respond("User '%s' not found." % user)
+        else:
+            then = math.floor(result[2])
+            now = math.floor(time.time())
+            seconds = now - then
+
+            m, s = divmod(seconds, 60)
+            h, m = divmod(m, 60)
+            d, h = divmod(h, 24)
+
+            s = int(s)
+            m = int(m)
+            h = int(h)
+            d = int(d)
+
+            if (s + m + h + d) == 0:
+                source.respond("'%s' was seen just now!" % user)
+            else:
+                constructed = "'%s' was seen" % user
+                to_append = []
+                if d > 0:
+                    to_append.append("%s days" % d)
+                if h > 0:
+                    to_append.append("%s hours" % h)
+                if m > 0:
+                    to_append.append("%s minutes" % m)
+                if s > 0:
+                    to_append.append("%s seconds" % s)
+
+                length = len(to_append)
+                i = 1
+
+                for x in to_append:
+                    if length - i == 0:
+                        if i != 1:
+                            constructed += " and %s" % x
+                            i += 1
+                            continue
+                    if i != 1:
+                        constructed += ", %s" % x
+                    else:
+                        constructed += " %s" % x
+                    i += 1
+
+                constructed += " ago."
+
+                source.respond(constructed)
+
+    def _get_user_callback_fail(self, failure, user, protocol, source):
+        source.respond("Error while finding user %s: %s" % user, failure)
+
     def get_user(self, user, protocol):
-        user = user.lower()
-        with self.data as c:
-            c.execute("""SELECT * FROM users WHERE user=? AND protocol=?""",
-                      (user, protocol))
-            d = c.fetchone()
-            return d
+        return self.data.runInteraction(self._get_user_txn, user, protocol)
 
-    def insert_user(self, user, protocol):
+    def _insert_or_update_user(self, txn, user, protocol):
         user = user.lower()
-        with self.data as c:
-            now = time.time()
-            c.execute("""INSERT INTO users VALUES (?, ?, ?)""", (user,
-                                                                 protocol,
-                                                                 now))
+        txn.execute("SELECT * FROM users WHERE user=? AND protocol=?,",
+                    (user, protocol))
+        r = txn.fetchone()
 
-    def update_user(self, user, protocol):
-        user = user.lower()
-        with self.data as c:
-            now = time.time()
-            c.execute("""UPDATE users SET at=? WHERE user=? AND protocol=?""",
-                      (now, user, protocol))
+        now = time.time()
+
+        if r is None:
+            txn.execute(
+                "INSERT INTO users VALUES (?, ?, ?)",
+                (user,
+                 protocol,
+                 now)
+            )
+            return False
+        else:
+            txn.execute(
+                "UPDATE users SET at=? WHERE user=? AND protocol=?",
+                (now,
+                 user,
+                 protocol)
+            )
+            return True
+
+    def insert_or_update_user(self, user, protocol):
+        self.data.runInteraction(self._insert_or_update_user, user, protocol)
 
     def seen_command(self, protocol, caller, source, command, raw_args,
                      parsed_args):
@@ -110,55 +183,12 @@ class LastseenPlugin(PluginObject):
                                "%s?" % caller.nickname)
                 return
 
-            data = self.get_user(user, protocol.name)
-            if not data:
-                source.respond("User '%s' not found." % user)
-            else:
-                then = math.floor(data[2])
-                now = math.floor(time.time())
-                seconds = now - then
+            d = self.get_user(user, protocol.name)
 
-                m, s = divmod(seconds, 60)
-                h, m = divmod(m, 60)
-                d, h = divmod(h, 24)
-
-                s = int(s)
-                m = int(m)
-                h = int(h)
-                d = int(d)
-
-                if (s + m + h + d) == 0:
-                    source.respond("'%s' was seen just now!" % user)
-                else:
-                    constructed = "'%s' was seen" % user
-                    to_append = []
-                    if d > 0:
-                        to_append.append("%s days" % d)
-                    if h > 0:
-                        to_append.append("%s hours" % h)
-                    if m > 0:
-                        to_append.append("%s minutes" % m)
-                    if s > 0:
-                        to_append.append("%s seconds" % s)
-
-                    length = len(to_append)
-                    i = 1
-
-                    for x in to_append:
-                        if length - i == 0:
-                            if i != 1:
-                                constructed += " and %s" % x
-                                i += 1
-                                continue
-                        if i != 1:
-                            constructed += ", %s" % x
-                        else:
-                            constructed += " %s" % x
-                        i += 1
-
-                    constructed += " ago."
-
-                    source.respond(constructed)
+            d.addCallbacks(self._get_user_callback,
+                           self._get_user_callback_fail,
+                           callbackArgs=(user.lower(), protocol.name, source),
+                           errbackArgs=(user.lower(), protocol.name, source))
 
     def event_handler(self, event, handler):
         """
@@ -174,17 +204,7 @@ class LastseenPlugin(PluginObject):
 
         for element in data:
             user, proto = element
-            self.update(user, proto)
-
-    def update(self, user, proto):
-        entry = self.get_user(user, proto)
-
-        if not entry:
-            self.insert_user(user, proto)
-            self.logger.debug("Inserted %s@%s into the table." % (user, proto))
-        else:
-            self.update_user(user, proto)
-            self.logger.debug("Updated entry for %s@%s." % (user, proto))
+            self.insert_or_update_user(user, proto)
 
     def event_source_caller(self, event):
         user = event.source.nickname
