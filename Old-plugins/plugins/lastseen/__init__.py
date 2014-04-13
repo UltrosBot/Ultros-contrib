@@ -7,7 +7,7 @@ import time
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
 from system.plugin import PluginObject
-from system.storage.formats import SQLITE, DBAPI
+from system.storage.formats import DBAPI
 from system.storage.manager import StorageManager
 
 

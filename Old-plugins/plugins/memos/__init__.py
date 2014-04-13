@@ -6,7 +6,6 @@ from system.event_manager import EventManager
 from system.events.general import PreMessageReceived
 from system.plugin import PluginObject
 from system.protocols.generic.channel import Channel
-from system.storage.formats import SQLITE
 from system.storage.manager import StorageManager
 
 
@@ -16,19 +15,19 @@ class MemosPlugin(PluginObject):
     events = None
     storage = None
 
-    data = None  # SQLite for a change
+    # data = None  # SQLite for a change
 
     def setup(self):
         self.commands = CommandManager()
         self.events = EventManager()
         self.storage = StorageManager()
-        self.data = self.storage.get_file(self, "data", SQLITE,
-                                          "plugins/memos/memos.sqlite")
+        # self.data = self.storage.get_file(self, "data", SQLITE,
+        #                                   "plugins/memos/memos.sqlite")
 
-        with self.data as c:
-            # Multiline strings because of an IDE bug
-            c.execute("""CREATE TABLE IF NOT EXISTS memos
-                      (to TEXT, from TEXT, memo TEXT)""")
+        # with self.data as c:
+        #     # Multiline strings because of an IDE bug
+        #     c.execute("""CREATE TABLE IF NOT EXISTS memos
+        #               (to TEXT, from TEXT, memo TEXT)""")
 
         self.events.add_callback("PreMessageReceived", self,
                                  self.message_received, 0)
@@ -37,16 +36,16 @@ class MemosPlugin(PluginObject):
 
     def save_memo(self, sender, recipient, memo):
         recipient = recipient.lower()
-        with self.data as c:
-            c.execute("""INSERT INTO memos VALUES (?, ?, ?)""",
-                      (recipient, sender, memo))
+        # with self.data as c:
+        #     c.execute("""INSERT INTO memos VALUES (?, ?, ?)""",
+        #               (recipient, sender, memo))
 
     def get_memos(self, recipient):
         recipient = recipient.lower()
-        with self.data as c:
-            c.execute("""SELECT * FROM memos WHERE from=?""", (recipient,))
-            d = c.fetchall()
-            return d
+        # with self.data as c:
+        #     c.execute("""SELECT * FROM memos WHERE from=?""", (recipient,))
+        #     d = c.fetchall()
+        #     return d
 
     def message_received(self, event=PreMessageReceived):
         user = event.source
