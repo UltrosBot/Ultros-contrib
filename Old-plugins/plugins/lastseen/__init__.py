@@ -140,7 +140,7 @@ class LastseenPlugin(PluginObject):
 
     def _insert_or_update_user(self, txn, user, protocol):
         user = user.lower()
-        txn.execute("SELECT * FROM users WHERE user=? AND protocol=?,",
+        txn.execute("SELECT * FROM users WHERE user=? AND protocol=?",
                     (user, protocol))
         r = txn.fetchone()
 
