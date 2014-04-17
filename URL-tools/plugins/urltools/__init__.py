@@ -333,7 +333,7 @@ class Plugin(PluginObject):
                 _score = self.do_get(domain + "get_scores", params)
                 _score = json.loads(_score)[0]
             except:
-                if _map["approved"].lower() == "wip":
+                if self.OSU_APPROVALS[_map["approved"]] == "WIP":
                     return self.OSU_B_STR_WIP % (
                         self.OSU_MODES[_map["mode"]],
                         self.OSU_APPROVALS[_map["approved"]], _map["artist"],
@@ -389,7 +389,7 @@ class Plugin(PluginObject):
                     _score = self.do_get(domain + "get_scores", params)
                     _score = json.loads(_score)[0]
                 except:
-                    if _map["approved"].lower() == "wip":
+                    if self.OSU_APPROVALS[_map["approved"]] == "WIP":
                         return self.OSU_B_STR_WIP % (
                             self.OSU_MODES[_map["mode"]],
                             self.OSU_APPROVALS[_map["approved"]],
