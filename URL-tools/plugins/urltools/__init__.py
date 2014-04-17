@@ -52,6 +52,8 @@ class Plugin(PluginObject):
                                           "by %s [%s BPM] - Difficulty: %.2f" \
                                           " - Mode '%s' doesn't apply to " \
                                           "this map."
+    OSU_B_STR_WIP = "[" + OSU_LOGO + " %s beatmap] (%s) %s - %s [%s] " \
+                                     "by %s [%s BPM] - Difficulty: %.2f"
     OSU_U_STR = "[" + OSU_LOGO + " user] %s (L%d) %s/%s/%s - Rank %s | " \
                                  "Ranked score: %s | PP: %s"
 
@@ -331,6 +333,14 @@ class Plugin(PluginObject):
                 _score = self.do_get(domain + "get_scores", params)
                 _score = json.loads(_score)[0]
             except:
+                if _map["approved"].lower() == "wip":
+                    return self.OSU_B_STR_WIP % (
+                        self.OSU_MODES[_map["mode"]],
+                        self.OSU_APPROVALS[_map["approved"]], _map["artist"],
+                        _map["title"], _map["version"], _map["creator"],
+                        float(_map["bpm"]),
+                        round(float(_map["difficultyrating"]), 2)
+                    )
                 return self.OSU_B_STR_NO_SCORE % (
                     self.OSU_MODES[_map["mode"]],
                     self.OSU_APPROVALS[_map["approved"]], _map["artist"],
@@ -379,6 +389,14 @@ class Plugin(PluginObject):
                     _score = self.do_get(domain + "get_scores", params)
                     _score = json.loads(_score)[0]
                 except:
+                    if _map["approved"].lower() == "wip":
+                        return self.OSU_B_STR_WIP % (
+                            self.OSU_MODES[_map["mode"]],
+                            self.OSU_APPROVALS[_map["approved"]],
+                            _map["artist"], _map["title"], _map["version"],
+                            _map["creator"], float(_map["bpm"]),
+                            round(float(_map["difficultyrating"]), 2)
+                        )
                     return self.OSU_B_STR_NO_SCORE % (
                         self.OSU_MODES[_map["mode"]],
                         self.OSU_APPROVALS[_map["approved"]], _map["artist"],
