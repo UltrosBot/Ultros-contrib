@@ -11,6 +11,7 @@ files:
 - plugins/money/__init__.py
 - config/plugins/money.yml.example
 requires:
-    modules: []
+    modules:
+    - mpmath
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Money/README.md

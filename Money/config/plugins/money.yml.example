@@ -12,4 +12,5 @@ default-currs: # List the default currencies to be displayed if the user does no
 # These are the six most traded currencies as of the time of writing.
 
 curr-separator: " | " # the string used to separate the different currencies in the output, i.e: 15 USD | 87 GBP | 7800 JPY
- 
+
+precision: 2  # How many digits after the decimal point to use, can be as big as you like.

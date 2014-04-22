@@ -1,9 +1,9 @@
-import urllib
-
 __author__ = 'Jim'
 
 
 import json
+import mpmath
+import urllib
 
 from system.plugin import PluginObject
 from system import command_manager
@@ -22,6 +22,8 @@ class MoneyPlugin(PluginObject):
     commands = None
     storage = None
 
+    precision = 2
+
     def setup(self):
         self.storage = StorageManager()
         self.config = self.storage.get_file(self, "config", YAML,
@@ -30,6 +32,9 @@ class MoneyPlugin(PluginObject):
         self.commands = command_manager.CommandManager()
         self.commands.register_command("money", self.money_command_called,
                                        self, "money.main")
+
+        self.precision = self.config.get("precision", 2)
+        mpmath.mp.dps = self.precision
 
         self.rates_table_updated = datetime.now()
         self.rates_table = self.get_rates_table(ignore_time=True)
@@ -108,7 +113,7 @@ class MoneyPlugin(PluginObject):
                         self.rates_table[start_currency]  # calculate the
                     # conversion rate
 
-                    done.append("%0.2f %s" % (float(start_val) * rate, i))
+                    done.append("%s %s" % (mpmath.mpf(start_val) * rate, i))
             output = "%s %s = %s" % (start_val, start_currency,
                                      self.config["curr-separator"].join(done))
             source.respond(output)
