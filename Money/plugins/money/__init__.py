@@ -113,7 +113,10 @@ class MoneyPlugin(PluginObject):
                         self.rates_table[start_currency]  # calculate the
                     # conversion rate
 
-                    done.append("%s %s" % (mpmath.mpf(start_val) * rate, i))
+                    r = mpmath.mpf(start_val) * rate
+                    formatted = format(float(r), "0.%sf" % self.precision)
+
+                    done.append("%s %s" % (formatted, i))
             output = "%s %s = %s" % (start_val, start_currency,
                                      self.config["curr-separator"].join(done))
             source.respond(output)
