@@ -9,8 +9,8 @@ import webassets
 
 from beaker.middleware import SessionMiddleware
 
-from bottle import default_app, request, hook, abort, static_file, redirect
-from bottle import run, route
+from bottle import default_app, request, hook, abort, static_file, redirect, \
+    run, route
 from bottle import mako_template as template
 
 from twisted.internet.error import ReactorAlreadyRunning

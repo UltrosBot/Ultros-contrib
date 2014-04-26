@@ -44,10 +44,10 @@ class Plugin(PluginObject):
                 # TODO: Limit definition length
                 source.respond('[UD] "%s" - %s - (%s)' %
                                (term,
-                                str(definition)
-                                .replace('\r', ' ')
+                                unicode(definition)
+                                .replace('\r', '')
                                 .replace('\n', ' '),
-                                str(permalink)))
+                                unicode(permalink)))
         except:
             self.logger.exception("Cannot get definition for '%s'" % term)
             source.respond("There was an error while fetching the definition -"
