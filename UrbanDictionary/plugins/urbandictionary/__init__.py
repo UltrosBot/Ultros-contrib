@@ -2,7 +2,7 @@ import json
 import urllib
 import urllib2
 
-from kitchen.text.converters import to_unicode
+from kitchen.text.converters import to_bytes
 
 from system.command_manager import CommandManager
 from system.plugin import PluginObject
@@ -46,10 +46,10 @@ class Plugin(PluginObject):
                 # TODO: Limit definition length
                 source.respond('[UD] "%s" - %s - (%s)' %
                                (term,
-                                to_unicode(definition)
+                                to_bytes(definition)
                                 .replace('\r', '')
                                 .replace('\n', ' '),
-                                to_unicode(permalink)))
+                                to_bytes(permalink)))
         except:
             self.logger.exception("Cannot get definition for '%s'" % term)
             source.respond("There was an error while fetching the definition -"
