@@ -15,6 +15,8 @@ from bottle import mako_template as template
 
 from twisted.internet.error import ReactorAlreadyRunning
 
+from .admin import Admin
+from .api import API
 from .events import ServerStartedEvent, ServerStoppedEvent, ServerStoppingEvent
 from .yielder import Yielder
 
@@ -55,6 +57,9 @@ class BottlePlugin(PluginObject):
     events = None
     storage = None
 
+    api = None
+    admin = None
+
     # region Internal
 
     def setup(self):
@@ -62,6 +67,7 @@ class BottlePlugin(PluginObject):
 
         self.packs = packages.Packages()
         self.storage = StorageManager()
+        self.storage.register_editor(self)
 
         try:
             self.config = self.storage.get_file(self, "config", YAML,
@@ -198,6 +204,9 @@ class BottlePlugin(PluginObject):
             self.add_route("/logout", ["GET", "POST"], self.logout)
 
             self.add_navbar_entry("Home", "/")
+
+            self.api = API(self)
+            self.admin = Admin(self)
 
     @run_async_daemon
     def _start_bottle(self):
