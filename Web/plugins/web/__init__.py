@@ -17,6 +17,7 @@ from twisted.internet.error import ReactorAlreadyRunning
 
 from .admin import Admin
 from .api import API
+from .errors import Errors
 from .events import ServerStartedEvent, ServerStoppedEvent, ServerStoppingEvent
 from .yielder import Yielder
 
@@ -59,6 +60,7 @@ class BottlePlugin(PluginObject):
 
     api = None
     admin = None
+    errors = None
 
     # region Internal
 
@@ -207,6 +209,7 @@ class BottlePlugin(PluginObject):
 
             self.api = API(self)
             self.admin = Admin(self)
+            self.errors = Errors(self)
 
     @run_async_daemon
     def _start_bottle(self):
