@@ -1,0 +1,30 @@
+<%inherit file="../base.html"/>
+        <div class="container" style="height: 100% !important">
+            <%include file="../navbar.html" args="items=nav_items"/>
+
+            <form>
+                <label for="input">${filename}</label>
+                <textarea id="input">
+${content}
+                </textarea>
+            </form>
+
+        </div>
+
+        <script>
+            var myCodeMirror = CodeMirror.fromTextArea(
+                document.getElementById("input"), {
+                    mode: "${mode}",
+                    theme: "monokai",
+                    indentUnit: 4,
+                    lineNumbers: true
+                }
+            );
+        </script>
+
+<%block name="title">Ultros | File: ${_title}</%block>
+<%block name="header">
+% for item in headers:
+    ${item}
+% endfor
+</%block>
