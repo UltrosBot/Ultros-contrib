@@ -94,17 +94,29 @@ class TwilioPlugin(plugin.PluginObject):
                    parsed_args):
 
         args = raw_args.split(" ")
-        if len(args) < 3:
-            caller.respond("Usage: {CHARS}tw contact <set/del/get> "
-                           "<[name] [number]>")
+        if len(args) < 1:
+            caller.respond("Usage: {CHARS}tw <contact/reload> [<set/del/get> "
+                           "<[name] [number]>]")
             return
 
         action = args[0].lower()
         operation = args[1].lower()
         target = args[2]
 
+        if action == "reload":
+            self.config.reload()
+            self.data.reload()
+
+            source.respond("Files reloaded.")
+            return
+
         if action != "contact":
             caller.respond("Unknown action: %s" % action)
+            return
+
+        if len(args) < 3:
+            caller.respond("Usage: {CHARS}tw contact <set/del/get> "
+                           "<[name] [number]>")
             return
 
         for case in Switch(operation):  # I was bored, okay?
