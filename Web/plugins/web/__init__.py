@@ -10,7 +10,7 @@ import webassets
 from beaker.middleware import SessionMiddleware
 
 from bottle import default_app, request, hook, abort, static_file, redirect, \
-    run, route
+    run, route, response
 from bottle import mako_template as template
 
 from twisted.internet.error import ReactorAlreadyRunning
@@ -280,6 +280,7 @@ class BottlePlugin(PluginObject):
     def get_objects(self):
         return AttrDict(
             request=request,
+            response=response,
             abort=abort,
             hook=hook,
             static_file=static_file,
