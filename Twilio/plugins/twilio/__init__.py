@@ -100,8 +100,6 @@ class TwilioPlugin(plugin.PluginObject):
             return
 
         action = args[0].lower()
-        operation = args[1].lower()
-        target = args[2]
 
         if action == "reload":
             self.config.reload()
@@ -118,6 +116,9 @@ class TwilioPlugin(plugin.PluginObject):
             caller.respond("Usage: {CHARS}tw contact <set/del/get> "
                            "<[name] [number]>")
             return
+
+        operation = args[1].lower()
+        target = args[2]
 
         for case in Switch(operation):  # I was bored, okay?
             if case("set"):
