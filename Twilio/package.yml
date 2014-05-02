@@ -1,0 +1,21 @@
+name: Twilio
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version.
+description: >
+    Provides an interface with Twilio for sending and receiving text and MMS messages.
+files:
+# Configuration
+- config/plugins/twilio.yml.example
+# Plugin
+- plugins/twilio.plug
+- plugins/twilio/
+- plugins/twilio/__init__.py
+- plugins/twilio/events.py
+requires:
+    modules:
+    - "twilio"
+    packages:
+    - "Web"
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Twilio/README.md

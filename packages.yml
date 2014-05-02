@@ -50,6 +50,14 @@ Teamspeak:
     requires:
         modules: []
         packages: []
+Twilio:
+    version: 0.0.1
+    description: "Provides an interface with Twilio for sending and receiving text and MMS messages."
+    requires:
+        modules:
+        - twilio
+        packages:
+        - Web
 UrbanDictionary:
     version: 0.1.1
     description: "Provides definition lookup from UrbanDictionary.com"

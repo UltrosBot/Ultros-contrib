@@ -11,3 +11,4 @@ gitpython==0.1.7
 gitdb
 async
 pyopenssl
+twilio

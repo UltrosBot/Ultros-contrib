@@ -1,0 +1,11 @@
+core:
+  name: Twilio
+  module: twilio
+  dependencies:
+  - "Web"
+info:
+  description: A plugin which provides an interface with Twilio for sending and receiving text messages.
+  author: Gareth Coles
+  version: 0.0.1
+  website: https://github.com/UltrosBot/Ultros-contrib/blob/master/Twilio
+  copyright: See Ultros' license

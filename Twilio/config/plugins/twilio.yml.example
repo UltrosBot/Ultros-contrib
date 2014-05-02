@@ -1,0 +1,46 @@
+# Configuration for the Twilio plugin.
+
+identification:
+  sid: ""  # Your account SID
+  token: ""  # Your auth token
+  number: ""  # Your Twilio number
+
+security:
+  # Make this a random string. We'll use this to validate that requests are actually coming from Twilio.
+  # When you set your callback URL, it needs to include this - For example, something like this:
+  # http://domain:port/twilio/<api_key>
+  # You can generate random strings using the tool over at http://random.org.
+  api_key: ""
+
+formatting:
+  sms: "SMS | {FROM} | {MESSAGE}"  # SMS | Xcode | Dick too big!
+  sms-error: "SMS | ERROR | {ERROR}" # SMS | ERROR | Needs more cowbell.
+  sms-sent: "SMS | {TO} | Message sent." # SMS | Xcode | Message sent.
+
+  mms-error: "MMS | ERROR | {ERROR}" # MMS | ERROR | Needs more cowbell.
+  mms-sent: "MMS | {TO} | Message sent." # MMS | Xcode | Message sent.
+
+targetting:
+  default:  # Messages from people that don't have defined targets below go here
+    -  # Notice the indent below!
+      protocol: "irc-esper"
+      target: "#sms"
+      target-type: "channel"
+    -
+      protocol: "irc-other"
+      target: "me"
+      target-type: "user"
+  # Targets that aren't the default target need you to create a contact.
+  # The name of the contact is used here.
+  boss: [  # This is another way of defining targets that some people may find easier to understand
+    {
+      protocol: "irc-esper",
+      target: "#work",
+      target-type: "channel"
+    },
+    {
+      protocol: "irc-other",
+      target: "me",
+      target-type: "user"
+    }
+  ]
