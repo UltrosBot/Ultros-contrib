@@ -311,6 +311,7 @@ class TwilioPlugin(plugin.PluginObject):
                 source.respond(sent)
 
     def do_targets(self, sender, message):
+        sender = str(sender).strip()
         c = self.load_contact(number=sender)
         name = "default"
 
@@ -332,7 +333,10 @@ class TwilioPlugin(plugin.PluginObject):
         )
 
         from_ = name
-        if from_ == "default":
+
+        if c is not None:
+            from_ = c.name
+        elif from_ == "default":
             from_ = sender
 
         message = message.replace("\r", "")
