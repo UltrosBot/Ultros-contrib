@@ -166,6 +166,7 @@ class TwilioPlugin(plugin.PluginObject):
         args = raw_args.split(" ")
         if len(args) < 2:
             caller.respond("Usage: {CHARS}sms <name/number> <message>")
+            return
 
         sent = self.config["formatting"].get("sms-sent",
                                              "SMS | {TO} | Message sent.")
@@ -239,6 +240,7 @@ class TwilioPlugin(plugin.PluginObject):
         args = raw_args.split(" ")
         if len(args) < 3:
             caller.respond("Usage: {CHARS}mms <name/number> <url> <message>")
+            return
 
         sent = self.config["formatting"].get("mms-sent",
                                              "MMS | {TO} | Message sent.")
