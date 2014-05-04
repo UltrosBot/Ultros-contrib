@@ -17,8 +17,13 @@ class Plugin(PluginObject):
     commands = None
     storage = None
 
-    _STEAM_PLAYERS_REGEX = re.compile(r'apphub_NumInApp">(?P<players>.+) In-Game')
-    _IP_REGEX = re.compile(r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$')
+    _STEAM_PLAYERS_REGEX = re.compile(
+        r'apphub_NumInApp">(?P<players>.+) In-Game'
+    )
+    _IP_REGEX = re.compile(
+        r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9]'
+        r'[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$'
+    )
 
     def setup(self):
         ### Grab important shit
@@ -27,7 +32,10 @@ class Plugin(PluginObject):
 
         ### Initial config load
         try:
-            self._config = self.storage.get_file(self, "config", YAML, "plugins/aoshelper.yml")
+            self._config = self.storage.get_file(self,
+                                                 "config",
+                                                 YAML,
+                                                 "plugins/aoshelper.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
@@ -123,9 +131,11 @@ class Plugin(PluginObject):
         if len(parsed_args) == 1:
             result = self.convert_ip_to_aos_address(parsed_args[0])
             if not result:
-                source.respond("Could not get AoS address for %s" % parsed_args[0])
+                source.respond("Could not get AoS address for %s" %
+                               parsed_args[0])
             else:
-                source.respond("AoS address for %s is %s" % (parsed_args[0], result))
+                source.respond("AoS address for %s is %s" % (
+                    parsed_args[0], result))
         else:
             caller.respond("Usage: {CHARS}%s <IP address>" % command)
 
@@ -185,7 +195,9 @@ class Plugin(PluginObject):
             address = int(address)
         except:
             return False
-        ip = "%i.%i.%i.%i" % tuple((address>>(i*8))&255 for i in xrange(4))
+        ip = "%i.%i.%i.%i" % tuple(
+            (address >> (i * 8)) & 255 for i in xrange(4)
+        )
         if port > -1:
             ip += ":" + port
         return ip
