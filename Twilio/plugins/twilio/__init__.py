@@ -232,6 +232,11 @@ class TwilioPlugin(plugin.PluginObject):
             try:
                 self.send_sms(c, message)
             except TwilioRestException as e:
+                if "has not been enabled for MMS" in e.msg:
+                    e.msg = "Twilio number has not been enabled for MMS."
+                elif "Please use only valid http and https urls" in e.msg:
+                    e.msg = "Media URL is invalid - please use a link to a " \
+                            "media file."
                 source.respond(
                     error.replace(
                         "{ERROR}",
@@ -292,6 +297,11 @@ class TwilioPlugin(plugin.PluginObject):
             try:
                 self.send_sms(name, message, media_url=url)
             except TwilioRestException as e:
+                if "has not been enabled for MMS" in e.msg:
+                    e.msg = "Twilio number has not been enabled for MMS."
+                elif "Please use only valid http and https urls" in e.msg:
+                    e.msg = "Media URL is invalid - please use a link to a " \
+                            "media file."
                 source.respond(
                     error.replace(
                         "{ERROR}",
