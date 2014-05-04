@@ -242,9 +242,16 @@ class TwilioPlugin(plugin.PluginObject):
                 source.respond(
                     error.replace(
                         "{ERROR}",
-                        str(e)
+                        str(e).replace(
+                            "\r", ""
+                        ).replace(
+                            "\n", " "
+                        ).replace(
+                            "  ", " "
+                        )
                     )
                 )
+                self.logger.exception("Error sending SMS")
             else:
                 source.respond(sent)
 
@@ -295,9 +302,16 @@ class TwilioPlugin(plugin.PluginObject):
                 source.respond(
                     error.replace(
                         "{ERROR}",
-                        str(e)
+                        str(e).replace(
+                            "\r", ""
+                        ).replace(
+                            "\n", " "
+                        ).replace(
+                            "  ", " "
+                        )
                     )
                 )
+                self.logger.exception("Error sending MMS")
             else:
                 source.respond(sent)
         else:
