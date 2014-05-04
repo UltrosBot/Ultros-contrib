@@ -1,0 +1,16 @@
+name: AoS-Helper
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version
+description: >
+    Ace of Spades utils
+files:
+- plugins/aoshelper/
+- plugins/aoshelper/__init__.py
+- plugins/aoshelper.plug
+- config/plugins/aoshelper.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/AoS-Helper/README.md

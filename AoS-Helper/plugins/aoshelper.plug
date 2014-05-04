@@ -1,0 +1,10 @@
+core:
+  name: AoS-Helper
+  module: aoshelper
+  dependencies: []
+info:
+  description: "Ace of Spades utils"
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/AoS-Helper
+  copyright: BSD 3-Clause
