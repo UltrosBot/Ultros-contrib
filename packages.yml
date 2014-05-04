@@ -1,5 +1,11 @@
 # Packages list and a small amount of information goes here.
 
+AoS-Helper:
+    version: 0.1.0
+    description: "Ace of Spades utils"
+    requires:
+        modules: []
+        packages: []
 DrunkOctopus:
     version: 0.2.2
     description: "Gives your squidopus shots of vodka and rum."
