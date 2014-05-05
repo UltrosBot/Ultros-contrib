@@ -42,7 +42,7 @@ class Plugin(PluginObject):
             self._disable_self()
             return
         if not self._config.exists:
-            self.logger.error("Unable to find config/plugins/google.yml")
+            self.logger.error("Unable to find config/plugins/aoshelper.yml")
             self.logger.error("Disabling...")
             self._disable_self()
             return

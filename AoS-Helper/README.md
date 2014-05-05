@@ -13,7 +13,7 @@ Ace of Spades utils
 * `aosplayercount`
     * Description: Fetch the current number of players in Ace of Spades
     * Aliases: `playercount`
-    * Permissions: `aoshelper.aosplayercount`
+    * Permissions: `aoshelper.playercount`
 * `aostoip <AoS address>`
     * Description: Converts an AoS format address to a regular IP address
     * Aliases: `aos2ip`
