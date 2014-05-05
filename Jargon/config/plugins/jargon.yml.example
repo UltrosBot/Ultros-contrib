@@ -1,0 +1,41 @@
+formats:
+- format: If we can just %s the %s %s, we can %s the %s %s %s!
+  types: [verb, adjective, noun, verb, adjective, abbreviation, noun]
+- format: I'll %s the %s %s %s - that should %s the %s %s.
+  types: [verb, adjective, abbreviation, noun, verb, abbreviation, noun]
+- format: Use the %s %s %s to %s the %s, then you can %s the %s %s.
+  types: [adjective, abbreviation, noun, verb, noun, verb, adjective, noun]
+- format: He's %s the %s with a %s %s! Stop him by %s the %s %s %s.
+  types: [verbing, noun, adjective, noun, verbing, adjective, abbreviation, noun]
+- format: The %s %s is down! Hurry and %s the %s %s so we can %s the %s %s!
+  types: [abbreviation, noun, verb, adjective, noun, verb, abbreviation, noun]
+- format: You %s the %s %s while I'm %s the %s %s %s, then we can %s the %s %s.
+  types: [verb, adjective, noun, verbing, adjective, abbreviation, noun, verb, abbreviation,
+    noun]
+- format: Hey, %s the %s %s won't do anything until we can %s the %s %s %s.
+  types: [verbing, adjective, noun, verb, adjective, abbreviation, noun]
+- format: If I %s the %s %s %s then that should %s the %s %s.
+  types: [verb, adjective, abbreviation, noun, verb, abbreviation, noun]
+- format: You can't %s the %s without %s the %s %s %s!
+  types: [verb, noun, verbing, adjective, abbreviation, noun]
+- format: Quick, we need to %s the %s %s before he can %s the %s %s %s!
+  types: [verb, adjective, noun, verb, adjective, abbreviation, noun]
+abbreviations: [TCP, UDP, HTTP, SSL, FTP, SQL, XML, RSS, IRC, EXE, COM, SMTP, USB,
+  CSS, PCI, AGP, API, UNIX, BASIC, DDOS, DNS, SSH, MAC]
+adjectives: [primary, auxiliary, virtual, digital, wireless, encrypted, open-source,
+  neural, optical, bluetooth, peer-to-peer, binary]
+nouns: [protocol, microchip, port, socket, interface, firewall, system, application,
+  bus, capacitor, matrix, driver, program, array, motherboard, processor, backdoor,
+  handshake, server]
+verbs:
+- {plain: hack}
+- {plain: bypass}
+- {plain: compress}
+- {plain: connect}
+- {plain: copy}
+- {plain: connect}
+- {plain: overclock}
+- {ing: overriding, plain: override}
+- {ing: calculating, plain: calculate}
+- {ing: programming, plain: program}
+- {ing: parsing, plain: parse}
