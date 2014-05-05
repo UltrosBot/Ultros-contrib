@@ -191,7 +191,7 @@ class BottlePlugin(plugin.PluginObject):
 
             event = ServerStoppedEvent(self)
             self.events.run_callback("Web/ServerStopped", event)
-        super(PluginObject, self).deactivate()
+        super(BottlePlugin, self).deactivate()
 
     def start_callback(self, event=ReactorStartedEvent):
         self.logger.info("Starting Bottle app..")

@@ -8,7 +8,7 @@ from system.decorators import run_async_threadpool
 import system.plugin as plugin
 
 
-class HeartbleedPlugin(pluginPluginObject):
+class HeartbleedPlugin(plugin.PluginObject):
     commands = None
 
     def setup(self):
