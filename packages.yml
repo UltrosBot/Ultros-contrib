@@ -25,6 +25,12 @@ Heartbleed:
     requires:
         modules: []
         packages: []
+Jargon:
+    version: 0.1.0
+    description: "Generates jargon sentences."
+    requires:
+        modules: []
+        packages: []
 LastFM:
     version: 0.1.1
     description: "LastFM API integration."
