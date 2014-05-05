@@ -6,14 +6,16 @@ import feedparser
 from twisted.internet import reactor
 
 from system.decorators import run_async_daemon
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.plugin_manager import YamlPluginManagerSingleton
 from system.event_manager import EventManager
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 
-class Plugin(PluginObject):
+class FeedsPlugin(plugin.PluginObject):
 
     config = None
     events = None

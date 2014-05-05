@@ -10,7 +10,8 @@ import logging
 import urllib
 import urllib2
 
-from system.plugin import PluginObject
+import system.plugin as plugin
+
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
@@ -20,7 +21,7 @@ from utils.misc import output_exception
 locale.setlocale(locale.LC_ALL, "")
 
 
-class Plugin(PluginObject):
+class URLToolsPlugin(plugin.PluginObject):
 
     config = None
     storage = None

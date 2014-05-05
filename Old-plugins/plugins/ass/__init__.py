@@ -4,10 +4,11 @@ import re
 
 from system.event_manager import EventManager
 from system.events.general import MessageReceived
-from system.plugin import PluginObject
+
+import system.plugin as plugin
 
 
-class Plugin(PluginObject):
+class AssPlugin(plugin.PluginObject):
 
     events = None
     regex = None

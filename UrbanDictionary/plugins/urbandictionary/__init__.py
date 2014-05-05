@@ -5,13 +5,14 @@ import urllib2
 from kitchen.text.converters import to_bytes
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
 
 
 __author__ = 'Sean'
 
 
-class Plugin(PluginObject):
+class UrbanDictionaryPlugin(plugin.PluginObject):
 
     commands = None
     config = None

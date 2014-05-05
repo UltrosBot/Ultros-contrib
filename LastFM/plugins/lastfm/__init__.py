@@ -3,12 +3,14 @@ __author__ = 'Sean'
 import requests
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 
-class Plugin(PluginObject):
+class LastFMPlugin(plugin.PluginObject):
 
     commands = None
     config = None

@@ -6,14 +6,16 @@ from wordnik.WordApi import WordApi
 from wordnik.WordsApi import WordsApi
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.plugin_manager import YamlPluginManagerSingleton
 from system.protocols.generic.user import User
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 
-class DictPlugin(PluginObject):
+class DictPlugin(plugin.PluginObject):
 
     api_key = ""
     api_client = None

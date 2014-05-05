@@ -4,7 +4,9 @@ import urllib2
 import time
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
@@ -12,7 +14,7 @@ from system.storage.manager import StorageManager
 __author__ = 'Sean'
 
 
-class Plugin(PluginObject):
+class AoSPlugin(plugin.PluginObject):
 
     commands = None
     storage = None

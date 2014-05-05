@@ -4,14 +4,16 @@ import string
 from twisted.internet import reactor
 from system.event_manager import EventManager
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 __author__ = 'Sean'
 
 
-class Plugin(PluginObject):
+class DrunkPlugin(plugin.PluginObject):
 
     commands = None
     config = None

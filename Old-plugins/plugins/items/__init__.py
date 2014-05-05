@@ -2,7 +2,9 @@
 __author__ = "Gareth Coles"
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
@@ -10,7 +12,7 @@ from .json_type import Type as JSONType
 from .sqlite_type import Type as SQLiteType
 
 
-class ItemsPlugin(PluginObject):
+class ItemsPlugin(plugin.PluginObject):
 
     commands = None
 

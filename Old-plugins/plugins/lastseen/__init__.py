@@ -6,12 +6,14 @@ import time
 
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.storage.formats import DBAPI
 from system.storage.manager import StorageManager
 
 
-class LastseenPlugin(PluginObject):
+class LastseenPlugin(plugin.PluginObject):
 
     commands = None
     events = None

@@ -1,11 +1,11 @@
 # coding=utf-8
 __author__ = 'Gareth Coles'
 
+# from .events import SMSReceivedEvent
 from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
 
 from .contact import Contact
-# from .events import SMSReceivedEvent
 
 import system.plugin as plugin
 

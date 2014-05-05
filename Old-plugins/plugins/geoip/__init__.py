@@ -5,10 +5,11 @@ import json
 import urllib
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
 
 
-class GeoIPPlugin(PluginObject):
+class GeoIPPlugin(plugin.PluginObject):
 
     commands = None
     api_url = "http://freegeoip.net/json/%s"

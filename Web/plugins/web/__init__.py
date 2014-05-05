@@ -21,11 +21,12 @@ from .errors import Errors
 from .events import ServerStartedEvent, ServerStoppedEvent, ServerStoppingEvent
 from .yielder import Yielder
 
+import system.plugin as plugin
+
 from system.command_manager import CommandManager
 from system.decorators import run_async_daemon
 from system.event_manager import EventManager
 from system.events.general import ReactorStartedEvent
-from system.plugin import PluginObject
 from system.protocols.generic.user import User
 from system.storage.manager import StorageManager
 from system.storage.formats import YAML, JSON
@@ -35,7 +36,7 @@ from utils.password import mkpasswd
 from utils.misc import AttrDict
 
 
-class BottlePlugin(PluginObject):
+class BottlePlugin(plugin.PluginObject):
 
     app = None
     host = ""

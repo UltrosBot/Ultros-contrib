@@ -4,12 +4,14 @@ __author__ = "Gareth Coles"
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
 from system.events.general import PreMessageReceived
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.protocols.generic.channel import Channel
 from system.storage.manager import StorageManager
 
 
-class MemosPlugin(PluginObject):
+class MemosPlugin(plugin.PluginObject):
 
     commands = None
     events = None

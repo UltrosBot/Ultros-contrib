@@ -6,10 +6,11 @@ import random
 
 from system.protocols.generic.channel import Channel
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
 
 
-class Plugin(PluginObject):
+class RoulettePlugin(plugin.PluginObject):
 
     commands = None
 

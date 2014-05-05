@@ -9,13 +9,15 @@ from twisted.internet import reactor
 
 from system.command_manager import CommandManager
 from system.decorators import run_async_daemon
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.protocols.generic.user import User
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 
-class Plugin(PluginObject):
+class MinecraftPlugin(plugin.PluginObject):
 
     config = None
     commands = None

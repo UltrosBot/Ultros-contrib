@@ -4,10 +4,11 @@ from . import hb
 
 from system.command_manager import CommandManager
 from system.decorators import run_async_threadpool
-from system.plugin import PluginObject
+
+import system.plugin as plugin
 
 
-class Plugin(PluginObject):
+class HeartbleedPlugin(pluginPluginObject):
     commands = None
 
     def setup(self):

@@ -3,13 +3,15 @@ __author__ = 'Gareth Coles'
 from datetime import datetime
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.protocols.generic.channel import Channel
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 
-class Plugin(PluginObject):
+class BrainfuckPlugin(plugin.PluginObject):
 
     commands = None
     config = None

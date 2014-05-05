@@ -5,7 +5,8 @@ import json
 import mpmath
 import urllib
 
-from system.plugin import PluginObject
+import system.plugin as plugin
+
 from system import command_manager
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
@@ -13,7 +14,7 @@ from datetime import datetime, timedelta
 #from japan import loli_maids
 
 
-class MoneyPlugin(PluginObject):
+class MoneyPlugin(plugin.PluginObject):
 
     rates_table = None
     rates_table_updated = datetime.now()

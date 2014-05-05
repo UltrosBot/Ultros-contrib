@@ -4,13 +4,15 @@ import wolframalpha
 
 from system.command_manager import CommandManager
 from system.decorators import run_async
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.protocols.generic.channel import Channel
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 
-class AuthPlugin(PluginObject):
+class WolframPlugin(plugin.PluginObject):
 
     app = None
 

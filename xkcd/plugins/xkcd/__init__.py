@@ -4,7 +4,9 @@ import time
 from bs4 import BeautifulSoup
 
 from system.command_manager import CommandManager
-from system.plugin import PluginObject
+
+import system.plugin as plugin
+
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
@@ -34,7 +36,7 @@ class ConnectionError(xkcdError):
     pass
 
 
-class Plugin(PluginObject):
+class xkcdPlugin(plugin.PluginObject):
 
     ARCHIVE_TIME = 60 * 12  # Update archive every 12 hours
 
