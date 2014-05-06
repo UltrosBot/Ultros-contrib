@@ -1,8 +1,4 @@
-import json
 import random
-import re
-import urllib2
-import time
 
 from system.command_manager import CommandManager
 
@@ -73,7 +69,7 @@ class AoSPlugin(plugin.PluginObject):
         source.respond("[8ball] " + self.get_response())
 
     def get_response(self):
-        choice = random.randint(1,100)
+        choice = random.randint(1, 100)
         reply_type = "maybe"
         if choice <= self.yes_chance:
             reply_type = "yes"
