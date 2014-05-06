@@ -5,6 +5,6 @@ core:
 info:
   description: "If I can just overclock the Unix Django, I can BASIC the DDOS root,. Damn. But wait... If I can disencrypt their kilobytes with a backdoor handshake then... JACKPOT!"
   author: Sean Gordon
-  version: 0.1.0
+  version: 0.1.1
   website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Jargon
   copyright: BSD 3-Clause

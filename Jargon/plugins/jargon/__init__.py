@@ -40,7 +40,7 @@ class JargonPlugin(plugin.PluginObject):
 
         ### Register commands
         self.commands.register_command("jargon",
-                                       self.playercount_cmd,
+                                       self.jargon_cmd,
                                        self,
                                        "jargon.jargon")
 
@@ -52,8 +52,8 @@ class JargonPlugin(plugin.PluginObject):
             return False
         return True
 
-    def playercount_cmd(self, protocol, caller, source, command, raw_args,
-                        parsed_args):
+    def jargon_cmd(self, protocol, caller, source, command, raw_args,
+                   parsed_args):
         source.respond(self.generate_sentence())
 
     def get_word(self, word_type):
