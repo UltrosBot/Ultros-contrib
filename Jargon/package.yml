@@ -1,8 +1,8 @@
 name: Jargon
 current_version:
-    number: 0.1.1
+    number: 0.1.2
     info: >
-        Initial version + bug fixes
+        Initial version, bugfixes and an expanded default vocabulary.
 description: >
     If I can just overclock the Unix Django, I can BASIC the DDOS root,. Damn. But wait... If I can disencrypt their kilobytes with a backdoor handshake then... JACKPOT!
 files:

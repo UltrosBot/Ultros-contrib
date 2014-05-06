@@ -20,21 +20,49 @@ formats:
   types: [verb, noun, verbing, adjective, abbreviation, noun]
 - format: Quick, we need to %s the %s %s before he can %s the %s %s %s!
   types: [verb, adjective, noun, verb, adjective, abbreviation, noun]
+- format: If I can just %s the %s %s, I can %s the %s %s. Damn. But wait... If I can %s their %s with a %s %s then... JACKPOT!
+  types: [verb, adjective, noun, abbreviation, abbreviation, noun, verb, noun, adjective, noun]
 abbreviations: [TCP, UDP, HTTP, SSL, FTP, SQL, XML, RSS, IRC, EXE, COM, SMTP, USB,
-  CSS, PCI, AGP, API, UNIX, BASIC, DDOS, DNS, SSH, MAC]
+  CSS, PCI, AGP, API, UNIX, BASIC, DDOS, DNS, SSH, MAC, DOS, DNS, HTML, IP, CORS,
+  CRUD, SOAP, SAAS, ASIC, BSD, GNU, CSI, CLR, CLI, JS, CGI, DVD, EFI, BIOS, CMOS,
+  EOF, EOL, EULA, FLAC, GDI, HDD, SSD, RAM, JPEG, KVM, LILO, GRUB, MSB, NTP, OOP,
+  PGP, RSA, NSA, PPI, PPC, PCRE, RIP, RTSP, SCSI, SMS, SVG, TLS, UX, VM, VPN, WYSIWIG,
+  XMPP, XUL, ZIF]
 adjectives: [primary, auxiliary, virtual, digital, wireless, encrypted, open-source,
-  neural, optical, bluetooth, peer-to-peer, binary]
+  neural, optical, bluetooth, peer-to-peer, binary, secondary, proprietary, functional,
+  progressive, ethernet, tertiary, portable, infected, broken, extraneous, random,
+  cabled, autonomous, obnoxious, syntactical, anecdotal, juxtaposed, object-oriented,
+  assembly, compiled, concurrent, declarative, esoteric, interactive, multiparadigm,
+  scripted, visual, flux]
 nouns: [protocol, microchip, port, socket, interface, firewall, system, application,
   bus, capacitor, matrix, driver, program, array, motherboard, processor, backdoor,
-  handshake, server]
+  handshake, server, virus, bug, worm, mouse potato, spam, agile, linux, firefox,
+  rootkit, microprocessor, wiretap, wi-fi, compiler, data, tranceiver, dispatch,
+  spyware, malware, magnetron, robot, transformer, collider, zetaflop, kilobyte,
+  nibble, megahertz, teraflop, gigahertz, python, C++]
 verbs:
 - {plain: hack}
 - {plain: bypass}
 - {plain: compress}
+- {plain: extract}
 - {plain: connect}
+- {plain: disconnect}
 - {plain: copy}
 - {plain: connect}
 - {plain: overclock}
+- {plain: spool}
+- {plain: install}
+- {plain: read}
+- {ing: shredding, plain: shred}
+- {ing: deleting, plain: delete}
+- {ing: writing, plain: write}
+- {ing: overwriting, plain: overwrite}
+- {ing: simulating, plain: simulate}
+- {ing: executing, plain: execute}
+- {ing: programming, plain: program}
+- {ing: formatting, plain: format}
+- {ing: tabbing, plain: tab}
+- {ing: wiring up, plain: wire up}
 - {ing: overriding, plain: override}
 - {ing: calculating, plain: calculate}
 - {ing: programming, plain: program}
