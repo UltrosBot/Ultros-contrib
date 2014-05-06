@@ -11,7 +11,7 @@ from system.storage.manager import StorageManager
 __author__ = 'Sean'
 
 
-class AoSPlugin(plugin.PluginObject):
+class EightBallPlugin(plugin.PluginObject):
 
     commands = None
     storage = None
