@@ -1,0 +1,10 @@
+core:
+  name: 8-Ball
+  module: 8ball
+  dependencies: []
+info:
+  description: "8 ball command"
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/8-Ball
+  copyright: BSD 3-Clause

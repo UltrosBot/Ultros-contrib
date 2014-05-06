@@ -1,0 +1,37 @@
+# Godamnit YAML, oh how I hate you... "yes" and "no" are boolean values
+responses:
+  "yes":
+    - "I guess so"
+    - "Well, yeah, obviously..."
+    - "Well duh!"
+    - "Of course! How insecure are you?"
+    - "Yup!"
+    - "I'd say so"
+    - "An unequivocal yes"
+    - "Odds are 9001%"
+  "no":
+    - "LOLNO"
+    - "As if"
+    - "Absolutely 100% no"
+    - "You're kidding, right?"
+    - "You wish"
+    - "HAH!"
+    - "Yes. Wait, no! I meant to say no...!"
+    - "Not a chance in hell"
+    - "In your dreams"
+    - "*pfft* Oh please..."
+    - "BAHAHAHAHA! HAHA! Hahaha... haha... *wipes tear from eye* No..."
+    - "Lol, yeah right..."
+    - "Ask again later. It might not be a no then."
+    - "I wouldn't bet on it..."
+  "maybe":
+    - "Meh, maybe"
+    - "Ask me if I care"
+    - "Hmm, not sure... What do you think?"
+    - "42"
+    - "ZZZzzz..."
+    - "Ask again later."
+    - "Get lost, I'm busy."
+chances:
+  "yes": 42
+  "no": 42

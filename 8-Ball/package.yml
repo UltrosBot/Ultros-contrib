@@ -1,0 +1,16 @@
+name: 8-Ball
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version
+description: >
+    8 ball command
+files:
+- plugins/8ball/
+- plugins/8ball/__init__.py
+- plugins/8ball.plug
+- config/plugins/8ball.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/8-Ball/README.md
