@@ -1,5 +1,11 @@
 # Packages list and a small amount of information goes here.
 
+8-Ball:
+    version: 0.1.0
+    description: "8 ball command"
+    requires:
+        modules: []
+        packages: []
 AoS-Helper:
     version: 0.1.0
     description: "Ace of Spades utils"
@@ -26,7 +32,7 @@ Heartbleed:
         modules: []
         packages: []
 Jargon:
-    version: 0.1.0
+    version: 0.1.1
     description: "Generates jargon sentences."
     requires:
         modules: []
