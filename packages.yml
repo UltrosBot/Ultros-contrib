@@ -6,6 +6,13 @@
     requires:
         modules: []
         packages: []
+Anti-Mibbit:
+    version: 0.0.1
+    description: "Make people using terrible IRC clients less unbearable."
+    requires:
+        modules:
+        - requests
+        packages: []
 AoS-Helper:
     version: 0.1.0
     description: "Ace of Spades utils"

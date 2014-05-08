@@ -1,0 +1,16 @@
+name: Anti-Mibbit
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version.
+description: >
+    Make people using terrible IRC clients less unbearable.
+files:
+- plugins/antimibbit/
+- plugins/antimibbit/__init__.py
+- plugins/antimibbit.plug
+requires:
+    modules:
+    - requests
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Anti-Mibbit/README.md

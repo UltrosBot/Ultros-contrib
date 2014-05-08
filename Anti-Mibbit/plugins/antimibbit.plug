@@ -1,0 +1,11 @@
+core:
+  name: Anti-Mibbit
+  module: antimibbit
+  dependencies:
+  - URLs
+info:
+  description: "Make people using terrible IRC clients less unbearable."
+  author: Gareth Coles
+  version: 0.0.1
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Anti-Mibbit
+  copyright: See Ultros' license
