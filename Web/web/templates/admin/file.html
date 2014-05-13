@@ -2,11 +2,26 @@
         <div class="container" style="height: 100% !important">
             <%include file="../navbar.html" args="items=nav_items"/>
 
-            <form>
-                <label for="input">${filename}</label>
-                <textarea id="input">
+            <h1 class="text-center">
+                <small>${filename}</small>
+            </h1>
+
+            % if error:
+
+            <div class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                ${error}
+            </div>
+
+            % endif
+
+            <form method="post" target="/admin/file/${filetype}/${filename}">
+                <textarea id="input" name="input">
 ${content}
                 </textarea>
+                <br />
+                <button type="submit" class="btn btn-success btn-lg btn-block">Save</button>
+
             </form>
 
         </div>

@@ -23,6 +23,9 @@ class Admin(object):
         self.plugin.add_route("/admin/file/<filetype>/<filename:path>",
                               ["GET"], self.get_file)
 
+        self.plugin.add_route("/admin/file/<filetype>/<filename:path>",
+                              ["POST"], self.post_file)
+
         self.plugin.add_navbar_entry("Admin", "/admin")
 
     def has_admin(self, r=None):
@@ -34,6 +37,78 @@ class Admin(object):
                   "    %s" \
                   "</div>" % message
         return self.plugin.wrap_template(message, "Admin | Error", "Admin", r)
+
+    def post_file(self, filetype, filename):
+        r = self.plugin.get_objects()
+        x = self.plugin.require_login(r)
+
+        if not x[0]:
+            return x[1]
+
+        if not self.has_admin(r):
+            return self.error(
+                "You do not have permission to use the admin section.",
+                r
+            )
+
+        files = {
+            "config": self.plugin.storage.config_files,
+            "data": self.plugin.storage.data_files
+        }
+
+        filetype = filetype.lower()
+
+        if filetype not in files:
+            return self.error("Unknown filetype: %s" % filetype)
+
+        files = files[filetype]
+
+        if filename not in files:
+            return self.error("File '%s' does not exist or isn't loaded."
+                              % filename)
+
+        fh = files[filename].get()
+
+        if fh.representation is None:
+            return self.error("File '%s' cannot be viewed as it has no "
+                              "conventional representation." % filename)
+
+        error = False
+
+        data = r.request.forms.get("input", None)
+
+        if data is None:
+            return self.error("Invalid request: Missing input data")
+
+        result = fh.validate(data)
+
+        if result[0] is False:
+            error = result[1]
+        elif isinstance(result[0], list):
+            error = []
+
+            for element in result:
+                error.append("Line %s: %s" % (element[0], element[1]))
+
+            error = "<br />\n".join(error)
+
+        if error is False:
+            # Continue processing
+            result = fh.write(data)
+
+            if not result:
+                error = "Unable to write file."
+
+        representation = fh.representation
+
+        if representation == "json":
+            representation = "javascript"
+
+        return self.plugin.wrap_template(
+            data.strip().rstrip("\n").rstrip("\r"), filename, "Admin", r,
+            "web/templates/admin/file.html", filename=filename,
+            mode=representation, error=error, filetype=filetype
+        )
 
     def get_file(self, filetype, filename):
         r = self.plugin.get_objects()
@@ -78,7 +153,7 @@ class Admin(object):
         return self.plugin.wrap_template(
             fh.read()[1].rstrip("\n").rstrip("\r"), filename, "Admin", r,
             "web/templates/admin/file.html", filename=filename,
-            mode=representation
+            mode=representation, error=False, filetype=filetype
         )
 
     def get_files(self):
