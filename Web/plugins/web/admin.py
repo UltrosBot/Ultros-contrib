@@ -1,5 +1,7 @@
 __author__ = 'Gareth Coles'
 
+from collections import OrderedDict
+
 from utils.log import getLogger
 
 
@@ -170,8 +172,16 @@ class Admin(object):
             )
 
         files = {
-            "config": self.plugin.storage.config_files,
-            "data": self.plugin.storage.data_files
+            "config": OrderedDict(
+                sorted(
+                    self.plugin.storage.config_files.items()
+                )
+            ),
+            "data": OrderedDict(
+                sorted(
+                    self.plugin.storage.data_files.items()
+                )
+            )
         }
 
         content = ""
