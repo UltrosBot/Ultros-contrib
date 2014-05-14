@@ -69,6 +69,9 @@ class xkcdPlugin(plugin.PluginObject):
         ### Initial config/data setup stuff
         self._load()
 
+        self.comic_cache.add_callback(self._load())
+        self.archive.add_callback(self._load())
+
         ### Register commands
         self.commands.register_command("xkcd",
                                        self.xkcd_cmd,
@@ -82,7 +85,6 @@ class xkcdPlugin(plugin.PluginObject):
         except Exception:
             self.logger.exception("Error reloading data files!")
             return False
-        self._load()
         return True
 
     def _load(self):

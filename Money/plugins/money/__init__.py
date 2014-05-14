@@ -23,7 +23,9 @@ class MoneyPlugin(plugin.PluginObject):
     commands = None
     storage = None
 
-    precision = 2
+    @property
+    def precision(self):
+        return self.config.get("precision", 2)
 
     def setup(self):
         self.storage = StorageManager()
@@ -34,7 +36,11 @@ class MoneyPlugin(plugin.PluginObject):
         self.commands.register_command("money", self.money_command_called,
                                        self, "money.main")
 
-        self.precision = self.config.get("precision", 2)
+        self._load()
+
+        self.config.add_callback(self._load)
+
+    def _load(self):
         mpmath.mp.dps = self.precision
 
         self.rates_table_updated = datetime.now()

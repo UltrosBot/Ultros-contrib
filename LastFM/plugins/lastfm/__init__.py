@@ -47,6 +47,8 @@ class LastFMPlugin(plugin.PluginObject):
         ### Load options from config and nick map from data
         self._load()
 
+        self.config.add_callback(self._load())
+
         ### Register commands
         self.commands.register_command("nowplaying",
                                        self.nowplaying_cmd,
@@ -64,7 +66,6 @@ class LastFMPlugin(plugin.PluginObject):
         except Exception:
             self.logger.exception("Error reloading configuration!")
             return False
-        self._load()
         return True
 
     def _load(self):
@@ -89,7 +90,6 @@ class LastFMPlugin(plugin.PluginObject):
                        parsed_args):
         args = raw_args.split()  # Quick fix for new command handler signature
         ### Get LastFM username to use
-        username = None
         if len(args) == 0:
             username = self._get_username(caller.nickname)
         elif len(args) == 1:
@@ -99,7 +99,6 @@ class LastFMPlugin(plugin.PluginObject):
             return
 
         ### Query LastFM
-        response = None
         try:
             response = self.api.user_get_recent_tracks(username, 1)
         except LastFMError as ex:
@@ -154,7 +153,7 @@ class LastFM(object):
     part of User.getRecentTracks(), and it used the XML API, so I didn't fancy
     forking it. I'll build on this as necessary, and if it gets to the point
     where it has decent coverage of the LastFM API, I'll split it off into its
-    own module and stick it on pypi. That's alsow hy it's in this file and not
+    own module and stick it on pypi. That's also why it's in this file and not
     in its own - not sure if the package manager can deal with files being
     removed in updates.
     """

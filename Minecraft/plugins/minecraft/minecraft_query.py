@@ -4,24 +4,25 @@
 import socket
 import struct
 
+
 class MinecraftQuery:
     MAGIC_PREFIX = '\xFE\xFD'
     PACKET_TYPE_CHALLENGE = 9
     PACKET_TYPE_QUERY = 0
     HUMAN_READABLE_NAMES = dict(
-        game_id     = "Game Name",
-        gametype    = "Game Type",
-        motd        = "Message of the Day",
-        hostname    = "Server Address",
-        hostport    = "Server Port",
-        map         = "Main World Name",
-        maxplayers  = "Maximum Players",
-        numplayers  = "Players Online",
-        players     = "List of Players",
-        plugins     = "List of Plugins",
-        raw_plugins = "Raw Plugin Info",
-        software    = "Server Software",
-        version     = "Game Version",
+        game_id="Game Name",
+        gametype="Game Type",
+        motd="Message of the Day",
+        hostname="Server Address",
+        hostport="Server Port",
+        map="Main World Name",
+        maxplayers="Maximum Players",
+        numplayers="Players Online",
+        players="List of Players",
+        plugins="List of Plugins",
+        raw_plugins="Raw Plugin Info",
+        software="Server Software",
+        version="Game Version",
     )
     
     def __init__(self, host, port, timeout=10, id=0, retries=2):

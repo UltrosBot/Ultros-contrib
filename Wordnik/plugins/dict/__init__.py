@@ -47,11 +47,8 @@ class DictPlugin(plugin.PluginObject):
                               " config?")
             return self._disable_self()
 
-        self.api_key = self.config["apikey"]
-        self.api_client = swagger.ApiClient(self.api_key,
-                                            "http://api.wordnik.com/v4")
-        self.word_api = WordApi(self.api_client)
-        self.words_api = WordsApi(self.api_client)
+        self._load()
+        self.config.add_callback(self._load)
 
         self.plugman = YamlPluginManagerSingleton()
         self.urls = self.plugman.getPluginByName("URLs").plugin_object
@@ -62,6 +59,13 @@ class DictPlugin(plugin.PluginObject):
                                        self, "wordnik.dict")
         self.commands.register_command("wotd", self.wotd_command,
                                        self, "wordnik.wotd")
+
+    def _load(self):
+        self.api_key = self.config["apikey"]
+        self.api_client = swagger.ApiClient(self.api_key,
+                                            "http://api.wordnik.com/v4")
+        self.word_api = WordApi(self.api_client)
+        self.words_api = WordsApi(self.api_client)
 
     def dict_command(self, protocol, caller, source, command, raw_args,
                      parsed_args):

@@ -52,6 +52,8 @@ class AoSPlugin(plugin.PluginObject):
         ### Load options from config
         self._load()
 
+        self._config.add_callback(self._load)
+
         ### Register commands
         self.commands.register_command("aosplayercount",
                                        self.playercount_cmd,
@@ -87,7 +89,6 @@ class AoSPlugin(plugin.PluginObject):
         except Exception:
             self.logger.exception("Error reloading configuration!")
             return False
-        self._load()
         return True
 
     def _load(self):

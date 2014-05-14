@@ -47,6 +47,8 @@ class FeedsPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
+        self.config.add_callback(self.delayed_setup)
+
         self.events = EventManager()
         self.plugman = YamlPluginManagerSingleton()
         self.urls = self.plugman.getPluginByName("URLs").plugin_object
@@ -56,6 +58,11 @@ class FeedsPlugin(plugin.PluginObject):
         reactor.callLater(30, self.delayed_setup)
 
     def delayed_setup(self):
+        self.targets = {}
+        self.feeds = []
+        self.feed_times = {}
+        self.failures = {}
+
         for name, target in self.config["targets"].items():
             proto = target["protocol"]
             if proto in self.factory_manager.factories:

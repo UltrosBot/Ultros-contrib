@@ -114,6 +114,10 @@ class URLToolsPlugin(plugin.PluginObject):
 
         self.plugman = YamlPluginManagerSingleton()
 
+        self._load()
+        self.config.add_callback(self._load)
+
+    def _load(self):
         shorteners = self.config["shorteners"]
         sites = self.config["sites"]
 

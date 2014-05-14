@@ -39,10 +39,14 @@ class WolframPlugin(plugin.PluginObject):
 
         self.commands = CommandManager()
 
-        self.app = wolframalpha.Client(self.config["app_id"])
+        self._load()
+        self.config.add_callback(self._load)
 
         self.commands.register_command("wolfram", self.wolfram_command, self,
                                        "wolfram.wolfram")
+
+    def _load(self):
+        self.app = wolframalpha.Client(self.config["app_id"])
 
     @run_async
     def wolfram_command(self, protocol, caller, source, command, raw_args,

@@ -23,9 +23,6 @@ class MinecraftPlugin(plugin.PluginObject):
     commands = None
     storage = None
 
-    do_relay = False
-    relay_targets = []
-
     status_url = "http://status.mojang.com/check"
     status_refresh_rate = 600
 
@@ -50,6 +47,17 @@ class MinecraftPlugin(plugin.PluginObject):
         "sessionserver.mojang.com": "Session server"
     }
 
+    @property
+    def do_relay(self):
+        if not self.relay_targets:
+            return False
+
+        return self.config["relay_status"]
+
+    @property
+    def relay_targets(self):
+        return self.config["targets"]
+
     def setup(self):
         self.logger.debug("Entered setup method.")
         self.storage = StorageManager()
@@ -66,13 +74,9 @@ class MinecraftPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        self.do_relay = self.config["relay_status"]
-        self.relay_targets = self.config["targets"]
-
         if not self.relay_targets:
             self.logger.warn("No valid target protocols found. "
                              "Disabling status relaying.")
-            self.do_relay = False
 
         self.commands = CommandManager()
         self.commands.register_command("mcquery", self.query_command, self,

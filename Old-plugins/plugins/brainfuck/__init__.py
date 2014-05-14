@@ -16,7 +16,10 @@ class BrainfuckPlugin(plugin.PluginObject):
     commands = None
     config = None
     storage = None
-    timeout = 100
+
+    @property
+    def timeout(self):
+        return self.config["timeout"]
 
     def setup(self):
         self.commands = CommandManager()
@@ -36,7 +39,6 @@ class BrainfuckPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        self.timeout = self.config["timeout"]
         self.commands.register_command("bf", self.bf_command, self,
                                        "brainfuck.exec")
 
@@ -46,7 +48,6 @@ class BrainfuckPlugin(plugin.PluginObject):
         except Exception:
             self.logger.exception("Error reloading configuration!")
             return False
-        self.timeout = self.config["timeout"]
         return True
 
     def bf_command(self, protocol, caller, source, command, raw_args,

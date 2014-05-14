@@ -20,8 +20,13 @@ class ItemsPlugin(plugin.PluginObject):
     data = None
     storage = None
 
-    storage_type = "sqlite"
     handler = None
+
+    @property
+    def storage_type(self):
+        if self.config["storage"].lower() == "json":
+            return "json"
+        return "sqlite"
 
     def setup(self):
         self.commands = CommandManager()
@@ -39,20 +44,21 @@ class ItemsPlugin(plugin.PluginObject):
                 self.logger.warn("Unable to find config/plugins/items.yml")
                 self.logger.warn("Defaulting to SQLite for storage.")
             else:
-                if self.config["storage"].lower() == "json":
-                    self.storage_type = "json"
-
                 self.logger.info("Using storage type: %s" % self.storage_type)
 
-        if self.storage_type == "sqlite":
-            self.handler = SQLiteType(self, self.storage, self.logger)
-        else:
-            self.handler = JSONType(self, self.storage, self.logger)
+        self._load()
+        self.config.add_callback(self._load)
 
         self.commands.register_command("give", self.give_command, self,
                                        "items.give")
         self.commands.register_command("get", self.get_command, self,
                                        "items.get")
+
+    def _load(self):
+        if self.storage_type == "json":
+            self.handler = JSONType(self, self.storage, self.logger)
+        else:
+            self.handler = SQLiteType(self, self.storage, self.logger)
 
     def give_command(self, *args, **kwargs):
         return self.handler.give_command(*args, **kwargs)

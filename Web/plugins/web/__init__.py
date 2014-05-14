@@ -63,6 +63,8 @@ class BottlePlugin(plugin.PluginObject):
     admin = None
     errors = None
 
+    started = False
+
     # region Internal
 
     def setup(self):
@@ -82,11 +84,6 @@ class BottlePlugin(plugin.PluginObject):
             if not self.config.exists:
                 self.logger.error("Unable to find config/plugins/web.yml")
                 return self._disable_self()
-            else:
-                self.host = self.config["hostname"]
-                self.port = self.config["port"]
-                self.output_requests = self.config["output_requests"]
-                self.address = self.config["public_address"]
 
         try:
             self.data = self.storage.get_file(self, "data", JSON,
@@ -96,7 +93,21 @@ class BottlePlugin(plugin.PluginObject):
             self.logger.error("This data file is required. Shutting down...")
             return self._disable_self()
 
+        self._load(start_now=False)
+        self.config.add_callback(self._load)
+        self.data.add_callback(self._load)
+
+        self.events.add_callback("ReactorStarted", self,
+                                 self.start_callback,
+                                 0)
+
+    def _load(self, start_now=True):
         base_path = "web/static"
+
+        self.host = self.config["hostname"]
+        self.port = self.config["port"]
+        self.output_requests = self.config["output_requests"]
+        self.address = self.config["public_address"]
 
         if "secret" not in self.data:
             self.logger.warn("Generating secret. DO NOT SHARE IT WITH ANYONE!")
@@ -160,6 +171,8 @@ class BottlePlugin(plugin.PluginObject):
             "secret": self._secret
         }
 
+        self.stop()
+
         self.app = default_app()
         self.app = SessionMiddleware(self.app, self.session_opts)
         self.events = EventManager()
@@ -176,12 +189,12 @@ class BottlePlugin(plugin.PluginObject):
 
         hook("before_request")(log_all)
 
-        self.events.add_callback("ReactorStarted", self,
-                                 self.start_callback,
-                                 0)
+        if start_now:
+            self.start_callback()
 
-    def deactivate(self):
+    def stop(self):
         if self.app:
+            self.logger.info("Stopping bottle app..")
             event = ServerStoppingEvent(self, self.app)
             self.events.run_callback("Web/ServerStopping", event)
 
@@ -191,6 +204,9 @@ class BottlePlugin(plugin.PluginObject):
 
             event = ServerStoppedEvent(self)
             self.events.run_callback("Web/ServerStopped", event)
+
+    def deactivate(self):
+        self.stop()
         super(BottlePlugin, self).deactivate()
 
     def start_callback(self, event=ReactorStartedEvent):

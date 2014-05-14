@@ -1,7 +1,7 @@
 # coding=utf-8
 __author__ = 'Gareth Coles'
 
-# from .events import SMSReceivedEvent
+from bottle import abort
 from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
 
@@ -61,17 +61,8 @@ class TwilioPlugin(plugin.PluginObject):
             self.logger.error("This data file is required. Shutting down...")
             return self._disable_self()
 
-        self.twilio = TwilioRestClient(
-            self.config["identification"]["sid"],
-            self.config["identification"]["token"]
-        )
-
-        account = self.twilio.accounts.get(
-            self.config["identification"]["sid"]
-        )
-
-        self.logger.info("Logged in as [%s] %s." % (account.type,
-                                                    account.friendly_name))
+        self._load()
+        self.config.add_callback(self._load)
 
         self.events.add_callback("Web/ServerStartedEvent", self,
                                  self.add_routes,
@@ -84,11 +75,46 @@ class TwilioPlugin(plugin.PluginObject):
         self.commands.register_command("tw", self.tw_command, self,
                                        "twilio.tw")
 
+    def _load(self):
+        self.twilio = TwilioRestClient(
+            self.config["identification"]["sid"],
+            self.config["identification"]["token"]
+        )
+
+        account = self.twilio.accounts.get(
+            self.config["identification"]["sid"]
+        )
+
+        self.logger.info("Logged in as [%s] %s." % (account.type,
+                                                    account.friendly_name))
+
     def add_routes(self, event):
-        self.web.add_route("/twilio/%s" % self.config["security"]["api_key"],
+        self.web.add_route("/twilio/<apikey>",
                            ["POST"], self.route)
-        self.logger.info("Registered route: /twilio/%s"
-                         % self.config["security"]["api_key"], )
+        self.logger.info("Registered route: /twilio/<apikey>")
+
+    def route(self, apikey):
+        if apikey != self.config["security"]["api_key"]:
+            return abort(404)
+
+        r = self.web.get_objects()
+        request = r.request
+        response = r.response
+
+        from_ = request.forms.From
+        message = request.forms.Body
+
+        if not (len(from_) and len(message)):
+            return r.abort(400, "No data!")
+
+        response.content_type = "text/xml"
+
+        try:
+            self.do_targets(from_, message)
+        except Exception:
+            self.logger.exception("Error in SMS message handler!")
+        finally:
+            return "<Response></Response>"
 
     def tw_command(self, protocol, caller, source, command, raw_args,
                    parsed_args):
@@ -464,25 +490,5 @@ class TwilioPlugin(plugin.PluginObject):
 
         raise ValueError("You need to give either a contact, name or "
                          "number to delete.")
-
-    def route(self):
-        r = self.web.get_objects()
-        request = r.request
-        response = r.response
-
-        from_ = request.forms.From
-        message = request.forms.Body
-
-        if not (len(from_) and len(message)):
-            return r.abort(400, "No data!")
-
-        response.content_type = "text/xml"
-
-        try:
-            self.do_targets(from_, message)
-        except Exception:
-            self.logger.exception("Error in SMS message handler!")
-        finally:
-            return "<Response></Response>"
 
     pass  # So the regions work in PyCharm

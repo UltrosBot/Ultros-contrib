@@ -47,6 +47,8 @@ class DrunkPlugin(plugin.PluginObject):
         ### Load options from config
         self._load()
 
+        self.config.add_callback(self._load)
+
         ### Register events and commands
 
         self.events.add_callback("MessageSent",
@@ -68,7 +70,6 @@ class DrunkPlugin(plugin.PluginObject):
         except Exception:
             self.logger.exception("Error reloading configuration!")
             return False
-        self._load()
         return True
 
     def _load(self):
