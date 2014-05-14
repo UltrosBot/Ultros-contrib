@@ -47,7 +47,7 @@ class LastFMPlugin(plugin.PluginObject):
         ### Load options from config and nick map from data
         self._load()
 
-        self.config.add_callback(self._load())
+        self.config.add_callback(self._load)
 
         ### Register commands
         self.commands.register_command("nowplaying",
