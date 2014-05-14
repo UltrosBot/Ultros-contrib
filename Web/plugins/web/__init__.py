@@ -193,7 +193,7 @@ class BottlePlugin(plugin.PluginObject):
             self.start_callback()
 
     def stop(self):
-        if self.app:
+        if self.app is not None:
             self.logger.info("Stopping bottle app..")
             event = ServerStoppingEvent(self, self.app)
             self.events.run_callback("Web/ServerStopping", event)
