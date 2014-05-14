@@ -109,7 +109,8 @@ class Admin(object):
         return self.plugin.wrap_template(
             data.strip().rstrip("\n").rstrip("\r"), filename, "Admin", r,
             "web/templates/admin/file.html", filename=filename,
-            mode=representation, error=error, filetype=filetype
+            mode=representation, error=error, filetype=filetype,
+            success=(True if not error else False)
         )
 
     def get_file(self, filetype, filename):
@@ -155,7 +156,8 @@ class Admin(object):
         return self.plugin.wrap_template(
             fh.read()[1].rstrip("\n").rstrip("\r"), filename, "Admin", r,
             "web/templates/admin/file.html", filename=filename,
-            mode=representation, error=False, filetype=filetype
+            mode=representation, error=False, filetype=filetype,
+            success=False
         )
 
     def get_files(self):
@@ -216,7 +218,15 @@ class Admin(object):
                 rows += row % (k, d, d, f.get().format)
             content += table % (k.title(), rows)
 
-        return self.plugin.wrap_template(content, "Files", "Admin", r)
+        crumbs = [
+            ["Home", "/"],
+            ["Admin", "/admin"]
+        ]
+
+        return self.plugin.wrap_template(content, "Files", "Admin", r,
+                                         breadcrumbs=crumbs,
+                                         current_breadcrumb="Files",
+                                         use_breadcrumbs=True)
 
     def admin(self):
         r = self.plugin.get_objects()

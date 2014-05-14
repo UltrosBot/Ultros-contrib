@@ -2,6 +2,13 @@
         <div class="container" style="height: 100% !important">
             <%include file="../navbar.html" args="items=nav_items"/>
 
+            <ol class="breadcrumb">
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin">Admin</a></li>
+                <li><a href="/admin/files">Files</a></li>
+                <li class="active">${filename}</li>
+            </ol>
+
             <h1 class="text-center">
                 <small>${filename}</small>
             </h1>
@@ -11,6 +18,15 @@
             <div class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                 ${error}
+            </div>
+
+            % endif
+
+            % if success:
+
+            <div class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                File saved successfully.
             </div>
 
             % endif

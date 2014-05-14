@@ -2,6 +2,20 @@
         <div class="container">
             <%include file="navbar.html" args="items=nav_items"/>
 
+            % if show_breadcrumbs:
+                <ol class="breadcrumb">
+                    % for element in breadcrumbs:
+                        <li>
+                            <a href="${element[1]}">
+                                ${element[0]}
+                            </a>
+                        </li>
+                    % endfor
+
+                    <li class="active">${current_breadcrumb}</li>
+                </ol>
+            % endif
+
             ${content}
 
         </div>

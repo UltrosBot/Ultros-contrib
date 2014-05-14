@@ -327,7 +327,12 @@ class BottlePlugin(plugin.PluginObject):
         return self.commands.perm_handler.check(perm, caller, "web", "web")
 
     def wrap_template(self, content, _title, nav="Home", r=None,
-                      tpl="web/templates/generic.html", **kwargs):
+                      tpl="web/templates/generic.html", breadcrumbs=None,
+                      current_breadcrumb="Home", use_breadcrumbs=False,
+                      ** kwargs):
+        if not breadcrumbs:
+            breadcrumbs = []
+
         auth = self.get_authorization(r)
         nav_items = copy.deepcopy(self.navbar_items)
         if nav in nav_items:
@@ -335,9 +340,10 @@ class BottlePlugin(plugin.PluginObject):
         return template(tpl,
                         nav_items=nav_items,
                         headers=self.additional_headers,
-                        content=content,
-                        _title=_title,
-                        auth=auth,
+                        content=content, _title=_title,
+                        auth=auth, breadcrumbs=breadcrumbs,
+                        current_breadcrumb=current_breadcrumb,
+                        show_breadcrumbs=use_breadcrumbs,
                         **kwargs)
 
     def require_login(self, r=None):
