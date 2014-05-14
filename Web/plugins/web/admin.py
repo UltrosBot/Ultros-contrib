@@ -259,5 +259,11 @@ class Admin(object):
             </p>
         """
 
+        crumbs = [
+            ["Home", "/"]
+        ]
+
         return self.plugin.wrap_template(content, "Admin interface", "Admin",
-                                         r)
+                                         r, breadcrumbs=crumbs,
+                                         current_breadcrumb="Admin",
+                                         use_breadcrumbs=True)
