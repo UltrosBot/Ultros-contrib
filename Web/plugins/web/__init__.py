@@ -15,6 +15,7 @@ from bottle import mako_template as template
 
 from twisted.internet.error import ReactorAlreadyRunning
 
+from .adapter import Server
 from .admin import Admin
 from .api import API
 from .errors import Errors
@@ -49,6 +50,8 @@ class BottlePlugin(plugin.PluginObject):
     api_routes_list = []
     navbar_items = {}
     additional_headers = []
+
+    adapter = None
 
     config = None
     commands = None
@@ -96,6 +99,8 @@ class BottlePlugin(plugin.PluginObject):
         self._load(start_now=False)
         self.config.add_callback(self._load)
         self.data.add_callback(self._load)
+
+        self.adapter = Server()
 
         self.events.add_callback("ReactorStarted", self,
                                  self.start_callback,
@@ -171,7 +176,7 @@ class BottlePlugin(plugin.PluginObject):
             "secret": self._secret
         }
 
-        self.stop()
+        ds = self.stop()
 
         self.app = default_app()
         self.app = SessionMiddleware(self.app, self.session_opts)
@@ -190,7 +195,8 @@ class BottlePlugin(plugin.PluginObject):
         hook("before_request")(log_all)
 
         if start_now:
-            self.start_callback()
+            if ds:
+                ds.addCallback(self.start_callback)
 
     def stop(self):
         if self.app is not None:
@@ -198,12 +204,14 @@ class BottlePlugin(plugin.PluginObject):
             event = ServerStoppingEvent(self, self.app)
             self.events.run_callback("Web/ServerStopping", event)
 
-            default_app().close()
-            del self.app
-            self.app = None
+            default_app().reset()
+            ds = self.adapter.stop()
 
             event = ServerStoppedEvent(self)
             self.events.run_callback("Web/ServerStopped", event)
+
+            return ds
+        return None
 
     def deactivate(self):
         self.stop()
@@ -228,12 +236,12 @@ class BottlePlugin(plugin.PluginObject):
             self.admin = Admin(self)
             self.errors = Errors(self)
 
-    @run_async_daemon
     def _start_bottle(self):
         try:
             try:
+                self.adapter(host=self.host, port=self.port, quiet=True)
                 run(app=self.app, host=self.host, port=self.port,
-                    server='twisted', quiet=True)
+                    server=self.adapter, quiet=True)
             except ReactorAlreadyRunning:
                 self.logger.debug("Caught ReactorAlreadyRunning error.")
 
