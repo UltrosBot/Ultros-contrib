@@ -25,7 +25,6 @@ from .yielder import Yielder
 import system.plugin as plugin
 
 from system.command_manager import CommandManager
-from system.decorators import run_async_daemon
 from system.event_manager import EventManager
 from system.events.general import ReactorStartedEvent
 from system.protocols.generic.user import User
