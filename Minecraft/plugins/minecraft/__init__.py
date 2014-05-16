@@ -34,7 +34,9 @@ class MinecraftPlugin(plugin.PluginObject):
         "auth.mojang.com": "???",
         "skins.minecraft.net": "???",
         "authserver.mojang.com": "???",
-        "sessionserver.mojang.com": "???"
+        "sessionserver.mojang.com": "???",
+        "api.mojang.com": "???",
+        "textures.minecraft.net": "???"
     }
     status_friendly_names = {
         "minecraft.net": "Website",
@@ -44,7 +46,9 @@ class MinecraftPlugin(plugin.PluginObject):
         "auth.mojang.com": "Auth",
         "skins.minecraft.net": "Skins",
         "authserver.mojang.com": "Auth server",
-        "sessionserver.mojang.com": "Session server"
+        "sessionserver.mojang.com": "Session server",
+        "api.mojang.com": "API",
+        "textures.minecraft.net": "Textures"
     }
 
     @property

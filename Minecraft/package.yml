@@ -1,10 +1,8 @@
 name: Minecraft
 current_version:
-    number: 0.0.1
+    number: 0.0.2
     info: >
-        Web classes are working, with a default index page and the ability to serve static files.
-        This appears to be /FAST/, which is obviously a really good thing. More work needs done on it
-          before we can have a proper JSON API, but it's getting there.
+        Added support for Textures and API.
 description: >
     Provides a command for checking the status of a Minecraft server and a Minecraft/Mojang
     server status watcher.
