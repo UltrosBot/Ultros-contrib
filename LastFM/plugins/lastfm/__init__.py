@@ -13,7 +13,7 @@ from system.storage.manager import StorageManager
 class LastFMPlugin(plugin.PluginObject):
 
     commands = None
-    config = None
+    _config = None
     storage = None
 
     def setup(self):
@@ -23,21 +23,21 @@ class LastFMPlugin(plugin.PluginObject):
 
         ### Initial config load
         try:
-            self.config = self.storage.get_file(self, "config", YAML,
+            self._config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/lastfm.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
             self._disable_self()
             return
-        if not self.config.exists:
+        if not self._config.exists:
             self.logger.error("Unable to find config/plugins/lastfm.yml")
             self.logger.error("Disabling...")
             self._disable_self()
             return
             ### Same for the data file (nickname=>lastfmusername map)
         try:
-            self.nickmap = self.storage.get_file(self, "data", YAML,
+            self._nickmap = self.storage.get_file(self, "data", YAML,
                                                  "plugins/lastfm-nickmap.yml")
         except Exception:
             self.logger.exception("Error loading nickmap!")
@@ -47,7 +47,7 @@ class LastFMPlugin(plugin.PluginObject):
         ### Load options from config and nick map from data
         self._load()
 
-        self.config.add_callback(self._load)
+        self._config.add_callback(self._load)
 
         ### Register commands
         self.commands.register_command("nowplaying",
@@ -62,20 +62,25 @@ class LastFMPlugin(plugin.PluginObject):
 
     def reload(self):
         try:
-            self.config.reload()
+            self._config.reload()
+            self._nickmap.reload()
         except Exception:
             self.logger.exception("Error reloading configuration!")
             return False
+        self._load()
         return True
 
     def _load(self):
-        self.apikey = self.config["apikey"]
-        self.api = LastFM(self.apikey)
+        self.api = LastFM(self._apikey)
+
+    @property
+    def _apikey(self):
+        return self._config["apikey"]
 
     def _get_username(self, user, none_if_unset=False):
         user = user.lower()
         try:
-            return self.nickmap[user]
+            return self._nickmap[user]
         except KeyError:
             if none_if_unset:
                 return None
@@ -83,13 +88,14 @@ class LastFMPlugin(plugin.PluginObject):
                 return user
 
     def _set_username(self, user, lastfm_user):
-        with self.nickmap:
-            self.nickmap[user.lower()] = lastfm_user
+        with self._nickmap:
+            self._nickmap[user.lower()] = lastfm_user
 
     def nowplaying_cmd(self, protocol, caller, source, command, raw_args,
                        parsed_args):
         args = raw_args.split()  # Quick fix for new command handler signature
         ### Get LastFM username to use
+        username = None
         if len(args) == 0:
             username = self._get_username(caller.nickname)
         elif len(args) == 1:
@@ -99,6 +105,7 @@ class LastFMPlugin(plugin.PluginObject):
             return
 
         ### Query LastFM
+        response = None
         try:
             response = self.api.user_get_recent_tracks(username, 1)
         except LastFMError as ex:
@@ -113,6 +120,9 @@ class LastFMPlugin(plugin.PluginObject):
 
         ### Parse the info and print it
         try:
+            # TODO: If last song was recent, display anyway (possibly say "just
+            #  - listened to")
+            # TODO: Get track info and display it too
             track = response["recenttracks"]["track"][0]
             if (("nowplaying" in track["@attr"] and
                  bool(track["@attr"]["nowplaying"]))):
@@ -155,7 +165,7 @@ class LastFM(object):
     where it has decent coverage of the LastFM API, I'll split it off into its
     own module and stick it on pypi. That's also why it's in this file and not
     in its own - not sure if the package manager can deal with files being
-    removed in updates.
+    removed in updates yet.
     """
 
     API_URL = "http://ws.audioscrobbler.com/2.0/"
