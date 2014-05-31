@@ -11,6 +11,7 @@ This plugin interacts with the World of Warcraft API and returns information abo
 This package supplies the following command.
 * `armoury [realm] [character name] [region = eu]`: Retrieve data from the API for `character` on `realm`. 
   * Valid regions are `eu`, `us`, `sea`, `kr`, and `tw`.
+  * Supports the American spelling `armory` as well.
   
 ## License
 This plugin is licensed under MIT.
