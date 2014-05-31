@@ -1,5 +1,6 @@
 __author__ = 'Gareth Coles'
 
+import psutil
 from collections import OrderedDict
 
 from utils.log import getLogger
@@ -27,6 +28,8 @@ class Admin(object):
 
         self.plugin.add_route("/admin/file/<filetype>/<filename:path>",
                               ["POST"], self.post_file)
+
+        self.plugin.add_route("/admin/get_mem", ["GET"], self.get_mem)
 
         self.plugin.add_navbar_entry("Admin", "/admin")
 
@@ -228,6 +231,14 @@ class Admin(object):
                                          current_breadcrumb="Files",
                                          use_breadcrumbs=True)
 
+    def get_mem(self):
+        p = psutil.Process()  # This process
+
+        # Memory used by this process
+        proc_used_mb = (float(p.memory_info().rss) / 1024) / 1024
+
+        return '{"y": %0.2f}' % proc_used_mb
+
     def admin(self):
         r = self.plugin.get_objects()
         x = self.plugin.require_login(r)
@@ -241,23 +252,111 @@ class Admin(object):
                 r
             )
 
-        content = """
-            <h2>Admin interface</h2>
+        mem = psutil.virtual_memory()
+        mem_mb = (float(mem.total) / 1024) / 1024  # Total memory
 
-            <p>
-                Welcome to the admin interface. Please note that it is in VERY
-                EARLY BETA, and therefore will have bugs and limited
-                functionality.
-            <p>
+        content = """            <h2>Admin interface</h2>
 
-            <p>
-                So far, the only thing you can do is look at the config and
-                data files. If you want to do that,
-                <a href="/admin/files">
-                    click here
-                </a>.
-            </p>
-        """
+            <ul class="nav nav-pills">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="/admin/files">Manage files</a></li>
+            </ul>
+
+            <hr />
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Memory usage (out of <strong>%0.2fMB</strong>)
+                </div>
+                <div class="panel-body">
+                    <div id="mem_chart" style="width:100%%; height:400px;">
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                var mem_chart;
+
+                function request_mem_data() {
+                    $.ajax({
+                        url: '/admin/get_mem',
+                        success: function(json) {
+
+                            var series = mem_chart.series[0],
+                                point = JSON.parse(json),
+                                shift = series.data.length > 20;
+                                // shift if the series is longer than 20
+
+                            console.log(json);
+                            console.log(point);
+
+            var d = new Date();
+                x = d.getTime(),
+                y = point.y;
+
+                            point = [x, y];
+
+                            console.log(point);
+
+                            // add the point
+                            mem_chart.series[0].addPoint(point, true, shift);
+
+                            // call it again after one second
+                            setTimeout(request_mem_data, 5000);
+                        },
+                        cache: false
+                    });
+                }
+
+                $(document).ready(function() {
+                    mem_chart = new Highcharts.Chart({
+                        chart: {
+                            renderTo: "mem_chart",
+                            type: 'spline'
+                        },
+                        title: "",
+                        tooltip: {
+                            formatter: function () {
+                    return this.series.name + "<br /><b>" + this.y + "MB</b>";
+                            }
+                        },
+                        animation: true,
+                        xAxis: {
+                            labels: {
+                                formatter: function() {
+                                    // Because PEP8
+                                    return Highcharts.dateFormat(
+                                        "%%H:%%M:%%S", this.value, false
+                                    );
+                                }
+                            },
+                            gridLineWidth: 1 //,
+                            //type: "datetime"
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Memory usage'
+                            }, labels: {
+                                formatter: function() {
+                                    return this.value + "MB";
+                                }
+                            },
+                            gridLineWidth: 1,
+                            min: 0
+                        },
+                        series:
+                        [{
+                            name: 'Used by Ultros',
+                            data: []
+                        }]
+                    });
+
+                    request_mem_data();
+                });
+            </script>"""
+
+        # I did not know this was possible.
+        content %= mem_mb
 
         crumbs = [
             ["Home", "/"]

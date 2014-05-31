@@ -96,8 +96,8 @@ URL-tools:
         modules: []
         packages: []
 Web:
-    version: 0.1.4
-    description: "An extensible web interface and REST API built on Bottle and CherryPy."
+    version: 0.2.0
+    description: "An extensible web interface and REST API built on Bottle and Twisted HTTP."
     requires:
         modules:
         - "bottle"
@@ -105,6 +105,7 @@ Web:
         - "cssmin"
         - "mako"
         - "webassets"
+        - "psutil"
         packages: []
 Wolfram:
     version: 0.0.1

@@ -1,8 +1,8 @@
 name: Web interface
 current_version:
-    number: 0.1.4
+    number: 0.2.0
     info: >
-        Beginnings of the API and web interface.
+        Some good progress on the admin interface, as well as a memory usage graph.
 description: >
     Provides a full web interface and REST API for Ultros.
      
@@ -48,5 +48,6 @@ requires:
     - "cssmin"
     - "mako"
     - "webassets"
+    - "psutil"
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Web/README.md
