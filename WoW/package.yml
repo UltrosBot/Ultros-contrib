@@ -8,6 +8,7 @@ description: >
     a character of the specified realm.
     Syntax: armoury [realm] [character name] [region = eu]
 # Plugin
+files:
 - plugins/wow.plug
 - plugins/wow/
 - plugins/wow/__init__.py
