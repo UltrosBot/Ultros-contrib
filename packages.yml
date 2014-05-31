@@ -120,6 +120,13 @@ Wordnik:
         modules:
         - "wordnik"
         packages: []
+WoW:
+    version: 0.0.1
+    description: "World of Warcraft API handler plugin that returns information about a character of the specified realm."
+    requires:
+        modules:
+        - "requests"
+        packages: []
 xkcd:
     version: 0.1.1
     description: "xkcd comic searching"
