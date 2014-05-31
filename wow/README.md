@@ -1,5 +1,5 @@
 World of Warcraft API
-========================
+=====================
 
 This plugin interacts with the World of Warcraft API and returns information about the specified character.
 
