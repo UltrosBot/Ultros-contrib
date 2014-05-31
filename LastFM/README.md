@@ -6,6 +6,7 @@ This plugin allows integration with the Last.FM API. Additional features may be 
 ## Configuration
 
 * `apikey` - Your Last.FM API key, which can be obtained on your [Last.FM API accounts page](http://www.last.fm/api/accounts).
+* `recent_play_limit` - How long ago (in seconds) to allow "recent" played tracks to be shown.
 
 ## Commands and permissions
 

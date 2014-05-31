@@ -1,6 +1,8 @@
+from datetime import datetime
+
 __author__ = 'Sean'
 
-import requests
+import treq
 
 from system.command_manager import CommandManager
 
@@ -77,6 +79,14 @@ class LastFMPlugin(plugin.PluginObject):
     def _apikey(self):
         return self._config["apikey"]
 
+    @property
+    def _recent_play_limit(self):
+        # Allow for old configs without this setting
+        if "recent_play_limit" in self._config:
+            return self._config["recent_play_limit"]
+        else:
+            return 300  # 5 minutes in seconds
+
     def _get_username(self, user, none_if_unset=False):
         user = user.lower()
         try:
@@ -91,7 +101,16 @@ class LastFMPlugin(plugin.PluginObject):
         with self._nickmap:
             self._nickmap[user.lower()] = lastfm_user
 
-    def nowplaying_cmd(self, protocol, caller, source, command, raw_args,
+    def _respond(self, target, msg):
+        """
+        Convenience function for responding to something with a prefix. Not
+        only does this avoid confusion, but it also stops people being able to
+        execute other bot commands in the case that we need to put any
+        user-supplied data at the start of a message.
+        """
+        target.respond("LastFM: " + msg)
+
+    def nowplaying_cmd_old(self, protocol, caller, source, command, raw_args,
                        parsed_args):
         args = raw_args.split()  # Quick fix for new command handler signature
         ### Get LastFM username to use
@@ -156,6 +175,171 @@ class LastFMPlugin(plugin.PluginObject):
         else:
             caller.respond("Usage: {CHARS}lastfmnick [lastfm username]")
 
+    def nowplaying_cmd(self, protocol, caller, source, command, raw_args,
+                       parsed_args):
+        self.logger.debug("Entering nowplaying_cmd()")
+        args = raw_args.split()  # Quick fix for new command handler signature
+        ### Get LastFM username to use
+        username = None
+        if len(args) == 0:
+            username = self._get_username(caller.nickname)
+        elif len(args) == 1:
+            username = self._get_username(args[0])
+        else:
+            caller.respond("Usage: {CHARS}nowplaying [lastfm username]")
+            return
+
+        ### Query LastFM for user's most recent track
+        deferred = self.api.user_get_recent_tracks(username, limit=1)
+        deferred.addCallbacks(
+            lambda r: self._nowplaying_cmd_recent_tracks_result(caller,
+                                                                source,
+                                                                username,
+                                                                r),
+            lambda f: self._nowplaying_cmd_error(caller, f)
+        )
+
+    def _nowplaying_cmd_recent_tracks_result(self, caller, source, username,
+                                             result):
+        """
+        Receives the API response for User.getRecentTracks.
+        """
+        self.logger.debug("Entering _nowplaying_cmd_recent_tracks_result()")
+        # Extract track info
+        try:
+            print __import__("json").dumps(result)
+            tracks = result["recenttracks"]["track"]
+            if len(tracks) == 0:
+                # User has never listened to anything - an extreme edge-case,
+                # I know, but we should really handle it - (untested)
+                self._respond(source,
+                              "%s hasn't listened to anything" % username)
+                return
+            if isinstance(tracks, list):
+                track = tracks[0]
+            else:
+                track = tracks
+            # Check if track is currently playing, or was played recently
+            now_playing = ("@attr" in track and "nowplaying" in track["@attr"]
+                           and bool(track["@attr"]["nowplaying"]))
+            just_played = ("date" in track and (
+                datetime.utcnow() - datetime.utcfromtimestamp(
+                    float(track["date"]["uts"])
+                )).seconds <= self._recent_play_limit)
+            try:
+                self.logger.debug((datetime.utcnow() - datetime.utcfromtimestamp(float(track["date"]["uts"]))).seconds)
+            except:
+                pass
+            if now_playing or just_played:
+                track_artist = track["artist"]["#text"]
+                track_title = track["name"]
+                album = ""
+                if "album" in track:
+                    album = track["album"]["#text"]
+                mbid = None
+                if "mbid" in track:
+                    mbid = track["mbid"]
+                ### Query LastFM for track info, then finally send info to chan
+                deferred = self.api.track_get_info(track_title,
+                                                   track_artist,
+                                                   mbid,
+                                                   username)
+                deferred.addCallbacks(
+                    lambda r: self._nowplaying_cmd_end_result(caller,
+                                                              source,
+                                                              username,
+                                                              now_playing,
+                                                              track_artist,
+                                                              track_title,
+                                                              album,
+                                                              r),
+                    # TODO: If error here, just send the basic info?
+                    lambda f: self._nowplaying_cmd_error(caller, f)
+                )
+            else:
+                self._respond(source,
+                              "%s is not currently listening to anything" %
+                              username)
+        except:
+            self.logger.exception("Please tell the developer about this error")
+
+    def _nowplaying_cmd_end_result(self, caller, source, username, now_playing,
+                                   track_artist, track_title, album, result):
+        self.logger.debug("Entering _nowplaying_cmd_end_result()")
+        try:
+            ### Extract track info
+            user_loved = False
+            user_play_count = 0
+            total_play_count = 0
+            listener_count = 0
+            duration = 0
+            url = ""
+            tags = []
+            track = result["track"]
+            # I don't know if any of these may not exist
+            if "userloved" in track:
+                user_loved = bool(track["userloved"])
+            if "userplaycount" in track:
+                user_play_count = int(track["userplaycount"])
+            if "playcount" in track:
+                total_play_count = int(track["playcount"])
+            if "listeners" in track:
+                listener_count = int(track["listeners"])
+            if "duration" in track:
+                duration = int(track["duration"])
+            if "url" in track:
+                url = track["url"]
+            if "toptags" in track:
+                for tag in track["toptags"]["tag"]:
+                    # TODO: Make these clickable links for protocols that can?
+                    tags.append(tag["name"])
+
+            ### Finally, we send the message
+            # TODO: This could do with a cleanup
+            status_text = u"just listened to"
+            if now_playing:
+                status_text = u"is now playing"
+            output = [u'%s %s: "%s" by %s' % (username,
+                                              status_text,
+                                              track_title,
+                                              track_artist)]
+            if album:
+                output.append(u" [%s]" % album)
+            output.append(u" - ")
+            if user_loved:
+                output.append(u"\u2665 ")  # Heart
+            output.append(u"%s listens by %s, %s listens by %s listeners" % (
+                # Localisation support? What's that?
+                "{:,}".format(user_play_count),
+                username,
+                "{:,}".format(total_play_count),
+                "{:,}".format(listener_count)
+            ))
+            if len(tags) > 0:
+                output.append(u" - Tags: %s" % u", ".join(tags))
+            if url:
+                output.append(u" - %s" % url)
+            self._respond(source, u"".join(output))
+        except:
+            self.logger.exception("Please tell the developer about this error")
+
+    def _nowplaying_cmd_error(self, caller, failure):
+        """
+        :type failure: twisted.python.failure.Failure
+        """
+        # Some errors will be caused by user input
+        if failure.value.err_code in (6,):
+            self._respond(caller, failure.value.message)
+        else:
+            self.logger.debug("Error while fetching nowplaying",
+                              exc_info=(
+                                  failure.type,
+                                  failure.value,
+                                  failure.tb
+                              ))
+            caller.respond("There was an error while contacting LastFM - "
+                           "please alert a bot admin or try again later")
+
 
 class LastFM(object):
     """
@@ -173,7 +357,25 @@ class LastFM(object):
     def __init__(self, api_key):
         self._api_key = api_key
 
+    def _handle_response(self, response):
+        deferred = response.json()
+        deferred.addCallback(self._handle_content)
+        return deferred
+
+    def _handle_content(self, result):
+        if "error" in result:
+            raise LastFMError(result["error"],
+                              result["message"],
+                              result["links"])
+        else:
+            return result
+        # TODO: This return doesn't seem to actually go anywhere
+
     def _make_request(self, method, payload):
+        """
+        Actually make the HTTP request.
+        :rtype : twisted.internet.defer.Deferred
+        """
         # user.getRecentTracks works
         # user.getrecenttracks works
         # User.getRecentTracks doesn't work, but doesn't error sensibly
@@ -185,16 +387,15 @@ class LastFM(object):
             "method": method
         }
         final_payload.update(payload)
-        result = requests.post(self.API_URL, final_payload).json()
-        if "error" in result:
-            raise LastFMError(result["error"],
-                              result["message"],
-                              result["links"])
-        else:
-            return result
+        deferred = treq.post(self.API_URL, final_payload)
+        deferred.addCallback(self._handle_response)
+        return deferred
 
     def user_get_recent_tracks(self, username, limit=None, page=None,
                                from_=None, extended=None, to=None):
+        """
+        :rtype : twisted.internet.defer.Deferred
+        """
         payload = {
             "user": username
         }
@@ -207,8 +408,28 @@ class LastFM(object):
         if extended is not None:
             payload["extended"] = bool(extended)
         if to is not None:
-            payload["to"] = from_
+            payload["to"] = to
         return self._make_request("user.getRecentTracks", payload)
+
+    def track_get_info(self, track=None, artist=None, mbid=None, username=None,
+                       autocorrect=None):
+        """
+        :rtype : twisted.internet.defer.Deferred
+        """
+        if mbid is None and (track is None or artist is None):
+            return ValueError("Must specify either mbid or artist and track")
+        payload = {}
+        if mbid is not None:
+            payload["mbid"] = mbid
+        if track is not None:
+            payload["track"] = track
+        if artist is not None:
+            payload["artist"] = artist
+        if username is not None:
+            payload["username"] = username
+        if autocorrect is not None:
+            payload["autocorrect"] = autocorrect
+        return self._make_request("track.getInfo", payload)
 
 
 class LastFMError(Exception):

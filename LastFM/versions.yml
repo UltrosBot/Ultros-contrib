@@ -2,3 +2,6 @@
     Initial version. Now playing and basic username storing.
 0.1.1: >
     Updated for new command handler signature
+0.2.0: >
+    Shows more stats alongside now-playing info.
+    Is now async.

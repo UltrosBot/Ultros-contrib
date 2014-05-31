@@ -1,11 +1,12 @@
 name: LastFM
 current_version:
-    number: 0.1.1
+    number: 0.2.0
     info: >
-        Updated for new command handler signature
+        Shows more stats alongside now-playing info.
+        Is now async.
 description: >
     LastFM API integration. Current features:
-    - Now Playing
+    - Now Playing, including stats
 files:
 - plugins/lastfm/
 - plugins/lastfm/__init__.py
@@ -13,7 +14,7 @@ files:
 - config/plugins/lastfm.yml.example
 requires:
     modules: [
-        requests
+        treq
     ]
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/LastFM/README.md

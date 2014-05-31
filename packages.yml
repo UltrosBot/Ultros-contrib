@@ -45,11 +45,11 @@ Jargon:
         modules: []
         packages: []
 LastFM:
-    version: 0.1.1
+    version: 0.2.0
     description: "LastFM API integration."
     requires:
         modules:
-        - "requests"
+        - "treq"
         packages: []
 Minecraft:
     version: 0.0.2
