@@ -26,7 +26,7 @@ class LastFMPlugin(plugin.PluginObject):
         ### Initial config load
         try:
             self._config = self.storage.get_file(self, "config", YAML,
-                                                "plugins/lastfm.yml")
+                                                 "plugins/lastfm.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
@@ -40,7 +40,7 @@ class LastFMPlugin(plugin.PluginObject):
             ### Same for the data file (nickname=>lastfmusername map)
         try:
             self._nickmap = self.storage.get_file(self, "data", YAML,
-                                                 "plugins/lastfm-nickmap.yml")
+                                                  "plugins/lastfm-nickmap.yml")
         except Exception:
             self.logger.exception("Error loading nickmap!")
             self.logger.error("Disabling...")
@@ -110,56 +110,6 @@ class LastFMPlugin(plugin.PluginObject):
         """
         target.respond("LastFM: " + msg)
 
-    def nowplaying_cmd_old(self, protocol, caller, source, command, raw_args,
-                       parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
-        ### Get LastFM username to use
-        username = None
-        if len(args) == 0:
-            username = self._get_username(caller.nickname)
-        elif len(args) == 1:
-            username = self._get_username(args[0])
-        else:
-            caller.respond("Usage: {CHARS}nowplaying [lastfm username]")
-            return
-
-        ### Query LastFM
-        response = None
-        try:
-            response = self.api.user_get_recent_tracks(username, 1)
-        except LastFMError as ex:
-            # Some errors will be caused by user input
-            if ex.err_code in (6,):
-                caller.respond("LastFM: %s" % ex.message)
-            else:
-                self.logger.exception("Error while fetching nowplaying")
-                caller.respond("There was an error while contacting LastFM - "
-                               "please alert a bot admin")
-            return
-
-        ### Parse the info and print it
-        try:
-            # TODO: If last song was recent, display anyway (possibly say "just
-            #  - listened to")
-            # TODO: Get track info and display it too
-            track = response["recenttracks"]["track"][0]
-            if (("nowplaying" in track["@attr"] and
-                 bool(track["@attr"]["nowplaying"]))):
-                source.respond(u"%s is now playing: %s - %s" %
-                               (username,
-                                track["artist"]["#text"],
-                                track["name"]))
-            else:
-                source.respond("%s is not currently listening to anything" %
-                               username)
-        except Exception as ex:
-            # If the response is unexpected (example, the user has never
-            # listened to anything), then we'll get errors. Log this in case
-            # there's actually a bug in there somewhere.
-            self.logger.debug("Error!", exc_info=ex)
-            source.respond("%s is not currently listening to anything" %
-                           username)
-
     def lastfmnick_cmd(self, protocol, caller, source, command, raw_args,
                        parsed_args):
         args = raw_args.split()  # Quick fix for new command handler signature
@@ -226,10 +176,6 @@ class LastFMPlugin(plugin.PluginObject):
                 datetime.utcnow() - datetime.utcfromtimestamp(
                     float(track["date"]["uts"])
                 )).seconds <= self._recent_play_limit)
-            try:
-                self.logger.debug((datetime.utcnow() - datetime.utcfromtimestamp(float(track["date"]["uts"]))).seconds)
-            except:
-                pass
             if now_playing or just_played:
                 track_artist = track["artist"]["#text"]
                 track_title = track["name"]
