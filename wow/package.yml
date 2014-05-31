@@ -1,0 +1,17 @@
+name: WoW
+current_version:
+    number: 0.0.1
+    info: >
+        Initial release of the World of Warcraft plugin
+description: >
+    World of Warcraft API handler plugin that returns information about
+    a character of the specified realm.
+    Syntax: armoury [realm] [character name] [region = eu]
+# Plugin
+- plugins/wow.plug
+- plugins/wow/
+- plugins/wow/__init__.py
+requires:
+    modules: ["requests"]
+    packages: []
+documentation: https://github.com/UltrosBot/Ultros-contrib/blob/master/wow/README.md

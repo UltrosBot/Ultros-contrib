@@ -1,0 +1,10 @@
+core:
+  name: WoW
+  module: wow
+  dependencies: []
+info:
+  description: Interact with the World of Warcraft API and look up information.
+  author: Zarthus
+  version: 0.0.1
+  website: http://github.com/Zarthus
+  copyright: MIT
