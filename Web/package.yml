@@ -33,6 +33,7 @@ files:
 - web/static/codemirror-compressed.js
 - web/static/custom.css
 - web/static/monokai.css
+- web/static/ultros.png
 - web/templates/
 - web/templates/admin/
 - web/templates/base.html
