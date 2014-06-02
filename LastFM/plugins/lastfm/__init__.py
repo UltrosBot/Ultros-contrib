@@ -157,7 +157,6 @@ class LastFMPlugin(plugin.PluginObject):
         self.logger.debug("Entering _nowplaying_cmd_recent_tracks_result()")
         # Extract track info
         try:
-            print __import__("json").dumps(result)
             tracks = result["recenttracks"]["track"]
             if len(tracks) == 0:
                 # User has never listened to anything - an extreme edge-case,
@@ -183,7 +182,7 @@ class LastFMPlugin(plugin.PluginObject):
                 if "album" in track:
                     album = track["album"]["#text"]
                 mbid = None
-                if "mbid" in track:
+                if "mbid" in track and track["mbid"]:
                     mbid = track["mbid"]
                 ### Query LastFM for track info, then finally send info to chan
                 deferred = self.api.track_get_info(track_title,
@@ -224,7 +223,7 @@ class LastFMPlugin(plugin.PluginObject):
             track = result["track"]
             # I don't know if any of these may not exist
             if "userloved" in track:
-                user_loved = bool(track["userloved"])
+                user_loved = track["userloved"] == "1"
             if "userplaycount" in track:
                 user_play_count = int(track["userplaycount"])
             if "playcount" in track:
@@ -235,7 +234,9 @@ class LastFMPlugin(plugin.PluginObject):
                 duration = int(track["duration"])
             if "url" in track:
                 url = track["url"]
-            if "toptags" in track:
+            if "toptags" in track and isinstance(track["toptags"], dict):
+                # type check due to an irregularity in the LastFM API: http://
+                # www.last.fm/group/Last.fm+Web+Services/forum/21604/_/2231458
                 for tag in track["toptags"]["tag"]:
                     # TODO: Make these clickable links for protocols that can?
                     tags.append(tag["name"])
@@ -333,6 +334,11 @@ class LastFM(object):
             "method": method
         }
         final_payload.update(payload)
+        # Convert unicode strings to utf8-encoded bytestrings (treq doesn't
+        # seem to be able to encode unicode strings properly)
+        for k, v in final_payload.iteritems():
+            if isinstance(v, unicode):
+                final_payload[k] = v.encode("utf8")
         deferred = treq.post(self.API_URL, final_payload)
         deferred.addCallback(self._handle_response)
         return deferred

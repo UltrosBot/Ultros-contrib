@@ -1,9 +1,9 @@
 name: LastFM
 current_version:
-    number: 0.2.0
+    number: 0.2.1
     info: >
-        Shows more stats alongside now-playing info.
-        Is now async.
+        Fix error when getting info for track with no tags.
+        Fix error with outgoing requests not encoding unicode properly
 description: >
     LastFM API integration. Current features:
     - Now Playing, including stats

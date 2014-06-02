@@ -5,3 +5,6 @@
 0.2.0: >
     Shows more stats alongside now-playing info.
     Is now async.
+0.2.1: >
+    Fix error when getting info for track with no tags.
+    Fix error with outgoing requests not encoding unicode properly
