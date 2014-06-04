@@ -1,0 +1,19 @@
+name: Domai.nr
+current_version:
+    number: 0.0.0
+    info: >
+        Initial version. Commands for search and info API methods.
+description: >
+    Domai.nr API integration. Current features:
+    - Search
+    - Info
+files:
+- plugins/domainr/
+- plugins/domainr/__init__.py
+- plugins/domainr.plug
+requires:
+    modules: [
+        treq
+    ]
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Domai.nr/README.md

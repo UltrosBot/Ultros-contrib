@@ -19,6 +19,13 @@ AoS-Helper:
     requires:
         modules: []
         packages: []
+Domai.nr:
+    version: 0.1.0
+    description: "Domai.nr API integration."
+    requires:
+        modules:
+        - "treq"
+        packages: []
 DrunkOctopus:
     version: 0.2.2
     description: "Gives your squidopus shots of vodka and rum."
