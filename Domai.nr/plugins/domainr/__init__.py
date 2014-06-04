@@ -21,16 +21,16 @@ class DomainrPlugin(plugin.PluginObject):
 
         ### Register commands
         self._commands.register_command("domainrsearch",
-                                       self.search_cmd,
-                                       self,
-                                       "domainr.search",
-                                       aliases=[
-                                           "domainr"
-                                       ])
+                                        self.search_cmd,
+                                        self,
+                                        "domainr.search",
+                                        aliases=[
+                                            "domainr"
+                                        ])
         self._commands.register_command("domainrinfo",
-                                       self.info_cmd,
-                                       self,
-                                       "domainr.info")
+                                        self.info_cmd,
+                                        self,
+                                        "domainr.info")
 
     def reload(self):
         self._load()
@@ -219,6 +219,7 @@ class Domainr(object):
             "q": domain
         }
         return self._make_request("info", payload)
+
 
 class DomainrError(Exception):
 
