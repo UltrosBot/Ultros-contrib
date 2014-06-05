@@ -81,7 +81,7 @@ class W3validatorPlugin(plugin.PluginObject):
         if warnings != "0":
             errstring += "Warnings: \x0307{}\x0F, ".format(warnings)
         if recursion != "1":
-		    # Level of recursion is one by default.
+            # Level of recursion is one by default.
             errstring += "Recursion: \x0314{}\x0F, ".format(recursion)
 
         # Remove the ", " from the string.
