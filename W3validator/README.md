@@ -1,7 +1,7 @@
-World of Warcraft API
-=====================
+W3 Validator
+============
 
-This plugin interacts with the World of Warcraft API and returns information about the specified character.
+This plugin sends a request to validator.w3.org and reads it's headers, returning if the document was valid or not.
 
 ## Configuration
 * There is no configuration required, go wild!
@@ -9,9 +9,9 @@ This plugin interacts with the World of Warcraft API and returns information abo
 ## Usage
 
 This package supplies the following command.
-* `armoury [realm] [character name] [region = eu]`: Retrieve data from the API for `character` on `realm`. 
-  * Valid regions are `eu`, `us`, `sea`, `kr`, and `tw`.
-  * Supports the American spelling `armory` as well.
+* `w3validate [url] [...]`: Return if a website is valid. Supports multiple URLs  
+	* `validate [url] [...]`: Alias for `w3validate`
+	* `valid [url] [...]`: Alias for `w3validate`  
   
 ## License
 This plugin is licensed under MIT.

@@ -1,0 +1,10 @@
+core:
+  name: W3validator
+  module: w3validator
+  dependencies: []
+info:
+  description: This plugin sends a request to validator.w3.org and reads it's headers, returning if the document was valid or not.
+  author: Zarthus
+  version: 0.0.1
+  website: http://github.com/Zarthus
+  copyright: MIT
