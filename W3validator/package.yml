@@ -5,7 +5,7 @@ current_version:
         Initial release of the validator plugin.
 description: >
     This plugin sends a request to validator.w3.org and reads it's headers, returning if the document was valid or not.
-    You can validy multiple websites at once, up to three.
+    You can validate multiple websites at once, up to three.
     Syntax: validate [url] [...]
 # Plugin
 files:
