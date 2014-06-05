@@ -102,6 +102,13 @@ URL-tools:
     requires:
         modules: []
         packages: []
+W3validator:
+    version: 0.0.1
+    description: "Uses validator.w3.org to validate websites."
+    requires:
+        modules:
+        - "requests"
+        packages: []
 Web:
     version: 0.2.0
     description: "An extensible web interface and REST API built on Bottle and Twisted HTTP."
