@@ -63,7 +63,7 @@ class W3validatorPlugin(plugin.PluginObject):
 
         r = requests.get(val_link)
         valid = r.headers["x-w3c-validator-status"].lower()
-        col_valid = self.w3_colour_validity(valid)
+        col_valid = self.w3_colour_status(valid)
 
         if valid == "valid":
             return "[{}] The website {} is {}. ({})".format(col_valid, website,
@@ -94,14 +94,14 @@ class W3validatorPlugin(plugin.PluginObject):
         return "[{}] The website {} is {}. ({})".format(col_valid, website,
                                                         col_valid, val_link)
 
-    def w3_colour_validity(validity):
+    def w3_colour_status(self, status):
         """
-        Colourise the validity,
+        Colourise the status header,
         green is valid, red is invalid, the rest is gray
         """
         col_valid = ""
 
-        valid = validity.lower()
+        valid = status.lower()
         if valid == "valid":
             col_valid = "\x0303Valid\x0F"
         elif valid == "invalid":
