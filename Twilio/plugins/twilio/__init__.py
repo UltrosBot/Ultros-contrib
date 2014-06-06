@@ -15,7 +15,7 @@ from system.plugin_manager import YamlPluginManagerSingleton
 from system.storage.manager import StorageManager
 from system.storage.formats import YAML, JSON
 
-from utils.switch import Switch
+from utils.switch import Switch as switch
 
 
 class TwilioPlugin(plugin.PluginObject):
@@ -146,7 +146,7 @@ class TwilioPlugin(plugin.PluginObject):
         operation = args[1].lower()
         target = args[2]
 
-        for case in Switch(operation):  # I was bored, okay?
+        for case, default in switch(operation):  # I was bored, okay?
             if case("set"):
                 if len(args) < 4:
                     caller.respond("Usage: {CHARS}tw contact set <name>"
@@ -197,7 +197,7 @@ class TwilioPlugin(plugin.PluginObject):
                     source.respond("Error loading contact: %s" % e)
 
                 break
-            if case():
+            if default:
                 caller.respond("Unknown operation: %s" % operation)
 
     def sms_command(self, protocol, caller, source, command, raw_args,
