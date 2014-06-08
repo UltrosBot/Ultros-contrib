@@ -95,7 +95,10 @@ class DomainrPlugin(plugin.PluginObject):
             try:
                 deferred = self.api.search(raw_args)
                 deferred.addCallbacks(
-                    lambda r: self._search_cmd_result(protocol, caller, source, r),
+                    lambda r: self._search_cmd_result(protocol,
+                                                      caller,
+                                                      source,
+                                                      r),
                     lambda f: self._cmd_error(caller, f)
                 )
             except RateLimitExceededError:
@@ -110,7 +113,10 @@ class DomainrPlugin(plugin.PluginObject):
             try:
                 deferred = self.api.info(raw_args)
                 deferred.addCallbacks(
-                    lambda r: self._info_cmd_result(protocol, caller, source, r),
+                    lambda r: self._info_cmd_result(protocol,
+                                                    caller,
+                                                    source,
+                                                    r),
                     lambda f: self._cmd_error(caller, f)
                 )
             except RateLimitExceededError:
@@ -193,7 +199,9 @@ class Domainr(object):
 
     # I'll have to play around to see what the best limit/buffer is, but it
     # should be ~60 per minute anyway.
-    @RateLimiter(limit=20, buffer=10, time_period=20)
+    # Sod it, the rate limiting plugin (coming soon) can deal with
+    # burst/slowdown - we'll jsut set this to 60 per 60.
+    @RateLimiter(limit=60, buffer=10, time_period=60)
     def _make_request(self, method, payload):
         """
         Actually make the HTTP request.
