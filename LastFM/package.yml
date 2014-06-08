@@ -1,9 +1,8 @@
 name: LastFM
 current_version:
-    number: 0.2.1
+    number: 0.2.2
     info: >
-        Fix error when getting info for track with no tags.
-        Fix error with outgoing requests not encoding unicode properly
+        Fix error with request exception handling
 description: >
     LastFM API integration. Current features:
     - Now Playing, including stats

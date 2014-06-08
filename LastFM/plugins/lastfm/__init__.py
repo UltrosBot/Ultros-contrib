@@ -275,7 +275,7 @@ class LastFMPlugin(plugin.PluginObject):
         :type failure: twisted.python.failure.Failure
         """
         # Some errors will be caused by user input
-        if failure.value.err_code in (6,):
+        if failure.check(LastFMError) and failure.value.err_code in (6,):
             self._respond(caller, failure.value.message)
         else:
             self.logger.debug("Error while fetching nowplaying",

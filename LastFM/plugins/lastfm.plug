@@ -5,6 +5,6 @@ core:
 info:
   description: "LastFM API integration."
   author: Sean Gordon
-  version: 0.2.1
+  version: 0.2.2
   website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/LastFM
   copyright: BSD 3-Clause
