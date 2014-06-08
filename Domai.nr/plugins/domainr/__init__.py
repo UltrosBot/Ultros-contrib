@@ -211,6 +211,7 @@ class Domainr(object):
         # seem to be able to encode unicode strings properly)
         # Alters payload in-place, but this is a "private" method, and we don't
         # reuse is after this call anyway.
+        payload["client_id"] = "Ultros-Domai.nr"
         for k, v in payload.iteritems():
             if isinstance(v, unicode):
                 payload[k] = v.encode("utf8")
