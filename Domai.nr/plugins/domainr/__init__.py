@@ -1,6 +1,7 @@
 import treq
 
 from system.command_manager import CommandManager
+from system.decorators.ratelimit import RateLimiter, RateLimitExceededError
 
 import system.plugin as plugin
 
@@ -91,11 +92,14 @@ class DomainrPlugin(plugin.PluginObject):
             caller.respond("Usage: {CHARS}%s <query>" % command)
             return
         else:
-            deferred = self.api.search(raw_args)
-            deferred.addCallbacks(
-                lambda r: self._search_cmd_result(protocol, caller, source, r),
-                lambda f: self._cmd_error(caller, f)
-            )
+            try:
+                deferred = self.api.search(raw_args)
+                deferred.addCallbacks(
+                    lambda r: self._search_cmd_result(protocol, caller, source, r),
+                    lambda f: self._cmd_error(caller, f)
+                )
+            except RateLimitExceededError:
+                caller.respond("Command on cooldown - try again later")
 
     def info_cmd(self, protocol, caller, source, command, raw_args,
                  parsed_args):
@@ -103,11 +107,14 @@ class DomainrPlugin(plugin.PluginObject):
             caller.respond("Usage: {CHARS}%s <domain>" % command)
             return
         else:
-            deferred = self.api.info(raw_args)
-            deferred.addCallbacks(
-                lambda r: self._info_cmd_result(protocol, caller, source, r),
-                lambda f: self._cmd_error(caller, f)
-            )
+            try:
+                deferred = self.api.info(raw_args)
+                deferred.addCallbacks(
+                    lambda r: self._info_cmd_result(protocol, caller, source, r),
+                    lambda f: self._cmd_error(caller, f)
+                )
+            except RateLimitExceededError:
+                caller.respond("Command on cooldown - try again later")
 
     def _search_cmd_result(self, protocol, caller, source, result):
         """
@@ -184,6 +191,9 @@ class Domainr(object):
         else:
             return result
 
+    # I'll have to play around to see what the best limit/buffer is, but it
+    # should be ~60 per minute anyway.
+    @RateLimiter(limit=20, buffer=10, time_period=20)
     def _make_request(self, method, payload):
         """
         Actually make the HTTP request.

@@ -1,8 +1,8 @@
 name: Domai.nr
 current_version:
-    number: 0.0.0
+    number: 0.1.1
     info: >
-        Initial version. Commands for search and info API methods.
+        Added rate-limiting of API methods.
 description: >
     Domai.nr API integration. Current features:
     - Search

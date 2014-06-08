@@ -1,2 +1,4 @@
 0.1.0: >
     Initial version. Commands for search and info API methods.
+0.1.1: >
+    Added rate-limiting of API methods.
