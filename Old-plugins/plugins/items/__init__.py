@@ -2,6 +2,7 @@
 __author__ = "Gareth Coles"
 
 from system.command_manager import CommandManager
+from system.decorators.ratelimit import RateLimiter
 
 import system.plugin as plugin
 
@@ -60,8 +61,10 @@ class ItemsPlugin(plugin.PluginObject):
         else:
             self.handler = SQLiteType(self, self.storage, self.logger)
 
+    @RateLimiter(5, 0, 10)
     def give_command(self, *args, **kwargs):
         return self.handler.give_command(*args, **kwargs)
 
+    @RateLimiter(5, 0, 10)
     def get_command(self, *args, **kwargs):
         return self.handler.get_command(*args, **kwargs)
