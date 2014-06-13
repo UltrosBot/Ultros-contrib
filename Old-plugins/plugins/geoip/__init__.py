@@ -29,7 +29,7 @@ class GeoIPPlugin(plugin.PluginObject):
             resp = urllib.urlopen(self.api_url % addr)
             data = resp.read()
 
-            self.logger.debug("Data: %s" % repr(data))
+            self.logger.trace("Data: %s" % repr(data))
 
             if data == "Not Found\n":
                 source.respond("%s | Not found" % args[0])

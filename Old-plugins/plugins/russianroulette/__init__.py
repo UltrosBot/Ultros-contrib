@@ -39,9 +39,9 @@ class RoulettePlugin(plugin.PluginObject):
     def play(self, protocol, caller, source, command, raw_args,
              parsed_args):
         args = raw_args.split()  # Quick fix for new command handler signature
-        self.logger.debug("Caller: %s" % repr(caller))
-        self.logger.debug("Source: %s" % repr(source))
-        self.logger.debug("Result: %s" % isinstance(source, Channel))
+        self.logger.trace("Caller: %s" % repr(caller))
+        self.logger.trace("Source: %s" % repr(source))
+        self.logger.trace("Result: %s" % isinstance(source, Channel))
         if not isinstance(source, Channel):
             caller.respond("This command may only be used in a channel.")
             return

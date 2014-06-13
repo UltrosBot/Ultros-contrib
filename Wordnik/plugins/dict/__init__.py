@@ -136,12 +136,12 @@ class DictPlugin(plugin.PluginObject):
     def get_definition(self, word):
         result = self.word_api.getDefinitions(word, limit=1,
                                               sourceDictionaries="wiktionary")
-        self.logger.debug("Data: %s" % result)
+        self.logger.trace("Data: %s" % result)
         if result:
             return result[0]
         return None
 
     def get_wotd(self):
         result = self.words_api.getWordOfTheDay()
-        self.logger.debug("Data: %s" % result)
+        self.logger.trace("Data: %s" % result)
         return result.word

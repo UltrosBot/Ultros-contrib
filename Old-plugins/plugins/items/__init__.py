@@ -33,7 +33,7 @@ class ItemsPlugin(plugin.PluginObject):
         self.commands = CommandManager()
         self.storage = StorageManager()
 
-        self.logger.debug("Entered setup method.")
+        self.logger.trace("Entered setup method.")
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/items.yml")

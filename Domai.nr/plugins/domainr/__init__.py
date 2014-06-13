@@ -138,7 +138,7 @@ class DomainrPlugin(plugin.PluginObject):
         try:
             msgs = []
             for res in result["results"]:
-                self.logger.debug(res)
+                self.logger.trace(res)
                 msg = u"%s%s - %s" % (res["domain"],
                                       res["path"],
                                       res["availability"])

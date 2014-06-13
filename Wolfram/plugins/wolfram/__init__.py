@@ -21,7 +21,7 @@ class WolframPlugin(plugin.PluginObject):
     storage = None
 
     def setup(self):
-        self.logger.debug("Entered setup method.")
+        self.logger.trace("Entered setup method.")
         self.storage = StorageManager()
         try:
             self.config = self.storage.get_file(self, "config", YAML,

@@ -213,7 +213,7 @@ class Admin(object):
               "        </tr>\n"
 
         for k in files.keys():
-            self.logger.debug("Files: %s" % files[k])
+            self.logger.trace("Files: %s" % files[k])
             rows = ""
 
             for d in files[k].keys():

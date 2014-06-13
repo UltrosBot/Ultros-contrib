@@ -70,7 +70,7 @@ class BottlePlugin(plugin.PluginObject):
     # region Internal
 
     def setup(self):
-        self.logger.debug("Entered setup method.")
+        self.logger.trace("Entered setup method.")
 
         self.packs = packages.Packages()
         self.storage = StorageManager()
@@ -242,9 +242,9 @@ class BottlePlugin(plugin.PluginObject):
                 run(app=self.app, host=self.host, port=self.port,
                     server=self.adapter, quiet=True)
             except ReactorAlreadyRunning:
-                self.logger.debug("Caught ReactorAlreadyRunning error.")
+                self.logger.trace("Caught ReactorAlreadyRunning error.")
 
-            self.logger.debug("Throwing event..")
+            self.logger.trace("Throwing event..")
             event = ServerStartedEvent(self, self.app)
             self.events.run_callback("Web/ServerStartedEvent", event)
             return True

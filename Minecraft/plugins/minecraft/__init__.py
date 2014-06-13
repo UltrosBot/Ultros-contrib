@@ -63,7 +63,7 @@ class MinecraftPlugin(plugin.PluginObject):
         return self.config["targets"]
 
     def setup(self):
-        self.logger.debug("Entered setup method.")
+        self.logger.trace("Entered setup method.")
         self.storage = StorageManager()
         try:
             self.config = self.storage.get_file(self, "config", YAML,
@@ -147,7 +147,7 @@ class MinecraftPlugin(plugin.PluginObject):
                 for key, value in server.items():
                     parsed_statuses[key] = value
                     if self.statuses[key] != value:
-                        self.logger.debug(u"%s » %s" % (key, value))
+                        self.logger.trace(u"%s » %s" % (key, value))
                         if value == "green":
                             online.append(self.status_friendly_names[key])
                         elif value == "yellow":
@@ -155,9 +155,9 @@ class MinecraftPlugin(plugin.PluginObject):
                         else:
                             offline.append(self.status_friendly_names[key])
 
-            self.logger.info("%s status changes found." % (len(online)
-                                                           + len(offline)
-                                                           + len(problems)))
+            self.logger.trace("%s status changes found." % (len(online)
+                                                            + len(offline)
+                                                            + len(problems)))
 
             message = "Mojang status report "
             times = 0

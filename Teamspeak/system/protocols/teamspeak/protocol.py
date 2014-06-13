@@ -73,7 +73,7 @@ class Protocol(GenericProtocol):
             if output:  # Check this and debug output if false
                 self.log.info("-> %s" % done)
             else:
-                self.log.debug("-> %s" % done)
+                self.log.trace("-> %s" % done)
 
             self.send(done)
 
@@ -290,7 +290,7 @@ class Protocol(GenericProtocol):
             if "" in splitdata:
                 splitdata.remove("")
             for x in splitdata:
-                self.log.debug("<- %s" % x)
+                self.log.trace("<- %s" % x)
                 self.do_parse(x)
 
     def send_message(self, mode, target, message):

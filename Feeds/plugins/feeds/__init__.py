@@ -31,7 +31,7 @@ class FeedsPlugin(plugin.PluginObject):
     failures = {}
 
     def setup(self):
-        self.logger.debug("Entered setup method.")
+        self.logger.trace("Entered setup method.")
         self.storage = StorageManager()
         try:
             self.config = self.storage.get_file(self, "config", YAML,
@@ -89,7 +89,7 @@ class FeedsPlugin(plugin.PluginObject):
     @run_async_daemon
     def check_feed(self, feed):
         name = "<Unable to get feed name>"
-        self.logger.debug("Feed: %s" % feed)
+        self.logger.trace("Feed: %s" % feed)
         try:  # Have to catch all exceptions, or the task will cancel.
             name = feed["name"]
 
@@ -113,7 +113,7 @@ class FeedsPlugin(plugin.PluginObject):
                     return
             else:
                 self.feed_times[name] = d.entries[0].updated
-                self.logger.debug("Feed '%s' initialized." % name)
+                self.logger.trace("Feed '%s' initialized." % name)
                 if not feed["instantly-relay"]:
                     reactor.callLater(feed["frequency"], self.check_feed, feed)
                     return
@@ -121,7 +121,7 @@ class FeedsPlugin(plugin.PluginObject):
             entry = d.entries[0]
             entry["name"] = name
 
-            self.logger.debug("Entry: %s" % entry)
+            self.logger.trace("Entry: %s" % entry)
 
             if "title" not in entry:
                 entry["title"] = "(No title)"

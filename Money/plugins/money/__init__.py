@@ -72,7 +72,7 @@ class MoneyPlugin(plugin.PluginObject):
                 return self.rates_table
         else:
             # The old data is still usable
-            self.logger.debug("Rates table is still valid, not fetching.")
+            self.logger.trace("Rates table is still valid, not fetching.")
             return self.rates_table
 
     def money_command_called(self, protocol, caller, source, command, raw_args,

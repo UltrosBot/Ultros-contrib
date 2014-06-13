@@ -82,18 +82,18 @@ class DrunkPlugin(plugin.PluginObject):
         # Sort out the sobering deferred as necessary
         if self._cooldown_enabled:
             if self._sobering_call is None:
-                self.logger.debug("Starting sobering call due to config "
+                self.logger.trace("Starting sobering call due to config "
                                   "change")
                 self._sobering_call = reactor.callLater(self._cooldown_time,
                                                         self._sober_up)
         else:
             if self._sobering_call is not None:
-                self.logger.debug("Cancelling sobering call due to config "
+                self.logger.trace("Cancelling sobering call due to config "
                                   "change")
                 self._sobering_call.cancel()
 
     def _sober_up(self):
-        self.logger.debug("Sobering up")
+        self.logger.trace("Sobering up")
         drunk = self._drunktalk.drunkenness
         drunk -= self._cooldown_amount
         if drunk < 0:
@@ -141,7 +141,7 @@ class DrunkPlugin(plugin.PluginObject):
         """
         :type event: MessageSent
         """
-        self.logger.debug("RECEIVED %s EVENT: %s" % (event.type,
+        self.logger.trace("RECEIVED %s EVENT: %s" % (event.type,
                                                      event.message))
         event.message = self._drunktalk.drunk_typing(event.message)
 

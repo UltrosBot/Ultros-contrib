@@ -127,7 +127,7 @@ class LastFMPlugin(plugin.PluginObject):
 
     def nowplaying_cmd(self, protocol, caller, source, command, raw_args,
                        parsed_args):
-        self.logger.debug("Entering nowplaying_cmd()")
+        self.logger.trace("Entering nowplaying_cmd()")
         args = raw_args.split()  # Quick fix for new command handler signature
         ### Get LastFM username to use
         username = None
@@ -154,7 +154,7 @@ class LastFMPlugin(plugin.PluginObject):
         """
         Receives the API response for User.getRecentTracks.
         """
-        self.logger.debug("Entering _nowplaying_cmd_recent_tracks_result()")
+        self.logger.trace("Entering _nowplaying_cmd_recent_tracks_result()")
         # Extract track info
         try:
             tracks = result["recenttracks"]["track"]
@@ -210,7 +210,7 @@ class LastFMPlugin(plugin.PluginObject):
 
     def _nowplaying_cmd_end_result(self, caller, source, username, now_playing,
                                    track_artist, track_title, album, result):
-        self.logger.debug("Entering _nowplaying_cmd_end_result()")
+        self.logger.trace("Entering _nowplaying_cmd_end_result()")
         try:
             ### Extract track info
             user_loved = False

@@ -32,7 +32,7 @@ class TwilioPlugin(plugin.PluginObject):
     web = None
 
     def setup(self):
-        self.logger.debug("Entered setup method.")
+        self.logger.trace("Entered setup method.")
 
         self.commands = CommandManager()
         self.events = EventManager()
@@ -385,7 +385,7 @@ class TwilioPlugin(plugin.PluginObject):
             name = "default"
 
             if name not in self.config["targetting"]:
-                self.logger.debug("No default target found.")
+                self.logger.trace("No default target found.")
                 return
 
         targets = self.config["targetting"][name]

@@ -156,24 +156,24 @@ class URLToolsPlugin(plugin.PluginObject):
                          % len(shorteners_enabled))
 
     def do_get(self, url, params):
-        self.logger.debug("URL: %s" % url)
-        self.logger.debug("Params: %s" % params)
+        self.logger.trace("URL: %s" % url)
+        self.logger.trace("Params: %s" % params)
         query_string = urllib.urlencode(params)
         constructed = url + "?" + query_string
-        self.logger.debug("Constructed GET: %s" % constructed)
+        self.logger.trace("Constructed GET: %s" % constructed)
         r = urllib2.urlopen(constructed)
         data = r.read()
-        self.logger.debug("Response: %s" % data)
+        self.logger.trace("Response: %s" % data)
         return data
 
     def do_post(self, url, params, header=None):
         if not header:
             header = {}
         request = urllib2.Request(url, params, header)
-        self.logger.debug("Constructed POST: %s | %s" % (url, params))
+        self.logger.trace("Constructed POST: %s | %s" % (url, params))
         r = urllib2.urlopen(request)
         data = r.read()
-        self.logger.debug("Response: %s" % data)
+        self.logger.trace("Response: %s" % data)
         return data
 
     def shortener_isgd(self, url):
@@ -225,7 +225,7 @@ class URLToolsPlugin(plugin.PluginObject):
         return data
 
     def site_osu(self, url):
-        self.logger.debug("OSU | %s" % url)
+        self.logger.trace("OSU | %s" % url)
         if "osu" not in self.api_details:
             return None
 
@@ -240,7 +240,7 @@ class URLToolsPlugin(plugin.PluginObject):
         if len(split) < 2:
             return None
 
-        self.logger.debug("OSU | %s" % split)
+        self.logger.trace("OSU | %s" % split)
 
         if split[0] == "u":  # User
             args = {"m": "",
