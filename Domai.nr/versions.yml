@@ -4,3 +4,5 @@
     Added rate-limiting of API methods.
 0.1.2: >
     Added client_id to request.
+0.2.0: >
+    Added permission nodes to determine command output location.

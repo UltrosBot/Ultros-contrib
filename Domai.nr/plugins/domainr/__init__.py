@@ -126,6 +126,15 @@ class DomainrPlugin(plugin.PluginObject):
         """
         Receives the API response for search
         """
+        loud = self._commands.perm_handler.check("domainr.search.loud",
+                                                 caller,
+                                                 source,
+                                                 protocol)
+        target = None
+        if loud:
+            target = source
+        else:
+            target = caller
         try:
             msgs = []
             for res in result["results"]:
@@ -134,7 +143,7 @@ class DomainrPlugin(plugin.PluginObject):
                                       res["path"],
                                       res["availability"])
                 msgs.append(msg)
-            self._msg(protocol, source, msgs)
+            self._msg(protocol, target, msgs)
         except:
             self.logger.exception("Please tell the developer about this error")
 
@@ -142,12 +151,21 @@ class DomainrPlugin(plugin.PluginObject):
         """
         Receives the API response for info
         """
+        loud = self._commands.perm_handler.check("domainr.info.loud",
+                                                 caller,
+                                                 source,
+                                                 protocol)
+        target = None
+        if loud:
+            target = source
+        else:
+            target = caller
         try:
             msgs = []
             msgs.append(u"Availability: %s" % result["availability"])
             if result["availability"] in (Domainr.AVAILABLE, Domainr.MAYBE):
                 msgs.append(u"Register: %s" % result["register_url"])
-            self._msg(protocol, source, msgs)
+            self._msg(protocol, target, msgs)
         except:
             self.logger.exception("Please tell the developer about this error")
 
