@@ -13,7 +13,7 @@ import requests
 
 import system.plugin as plugin
 from system.command_manager import CommandManager
-from system.decorators import run_async_threadpool
+from system.decorators.threads import run_async_threadpool
 
 from twisted.internet import reactor
 

@@ -3,7 +3,7 @@ __author__ = 'Gareth Coles'
 import wolframalpha
 
 from system.command_manager import CommandManager
-from system.decorators import run_async
+from system.decorators.threads import run_async_threadpool
 
 import system.plugin as plugin
 
@@ -48,7 +48,7 @@ class WolframPlugin(plugin.PluginObject):
     def _load(self):
         self.app = wolframalpha.Client(self.config["app_id"])
 
-    @run_async
+    @run_async_threadpool
     def wolfram_command(self, protocol, caller, source, command, raw_args,
                         parsed_args):
         target = caller

@@ -8,7 +8,7 @@ from minecraft_query import MinecraftQuery
 from twisted.internet import reactor
 
 from system.command_manager import CommandManager
-from system.decorators import run_async_daemon
+from system.decorators.threads import run_async_threadpool
 
 import system.plugin as plugin
 
@@ -89,7 +89,7 @@ class MinecraftPlugin(plugin.PluginObject):
         if self.do_relay:
             reactor.callLater(60, self.check_status)
 
-    @run_async_daemon
+    @run_async_threadpool
     def query_command(self, protocol, caller, source, command, raw_args,
                       parsed_args):
         if len(parsed_args) < 1:
@@ -130,7 +130,7 @@ class MinecraftPlugin(plugin.PluginObject):
             players = ", ".join(status["players"])
             target.respond("Players: %s" % players)
 
-    @run_async_daemon
+    @run_async_threadpool
     def check_status(self, firstparse=False):
         try:
             r = urllib.urlopen(self.status_url)

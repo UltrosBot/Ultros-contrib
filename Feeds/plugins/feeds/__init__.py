@@ -5,7 +5,7 @@ import feedparser
 
 from twisted.internet import reactor
 
-from system.decorators import run_async_daemon
+from system.decorators.threads import run_async_threadpool
 
 import system.plugin as plugin
 
@@ -86,7 +86,7 @@ class FeedsPlugin(plugin.PluginObject):
         for feed in self.feeds:
             self.check_feed(feed)
 
-    @run_async_daemon
+    @run_async_threadpool
     def check_feed(self, feed):
         name = "<Unable to get feed name>"
         self.logger.trace("Feed: %s" % feed)

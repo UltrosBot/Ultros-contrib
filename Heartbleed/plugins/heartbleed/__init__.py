@@ -3,7 +3,7 @@ __author__ = 'Gareth Coles'
 from . import hb
 
 from system.command_manager import CommandManager
-from system.decorators import run_async_threadpool
+from system.decorators.threads import run_async_threadpool
 
 import system.plugin as plugin
 

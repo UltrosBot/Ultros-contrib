@@ -4,7 +4,7 @@ import utils.teamspeak as utils
 
 from collections import deque
 from utils.log import getLogger
-from system.decorators import run_async
+from system.decorators.threads import run_async_threadpool
 
 from twisted.internet import reactor
 from system.protocols.generic.protocol import Protocol as GenericProtocol
@@ -112,16 +112,16 @@ class Protocol(GenericProtocol):
                     "data": done_lines,
                     "result": True if parsed_error["id"] == "0" else False}
 
-    @run_async
+    @run_async_threadpool
     def send(self, data):
         self.transport.write("%s\n" % data)
 
-    @run_async
+    @run_async_threadpool
     def whoami_heartbeat(self):
         self.send_command("whoami", output=False)
         reactor.callLater(5, self.whoami_heartbeat)
 
-    @run_async
+    @run_async_threadpool
     def do_login(self):
         result = self.send_command("login",
                                    {"client_login_name": self.user,
@@ -269,7 +269,7 @@ class Protocol(GenericProtocol):
             self.log.debug("Received notification: %s %s"
                            % (notify_type, parsed))
 
-    @run_async
+    @run_async_threadpool
     def do_parse(self, data):
         if data.lower().startswith("ts3"):
             self.log.info("Connected.")
