@@ -6,7 +6,6 @@ from system.plugin_manager import YamlPluginManagerSingleton
 __author__ = 'Gareth Coles'
 
 import locale
-import logging
 import urllib
 import urllib2
 
@@ -14,8 +13,6 @@ import system.plugin as plugin
 
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
-
-from utils.misc import output_exception
 
 # Attempt to guess the locale.
 locale.setlocale(locale.LC_ALL, "")
@@ -99,8 +96,7 @@ class URLToolsPlugin(plugin.PluginObject):
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/urltools.yml")
         except Exception:
-            self.logger.error("Unable to load the configuration!")
-            output_exception(self.logger, logging.ERROR)
+            self.logger.exception("Unable to load the configuration!")
             self._disable_self()
             return
 
