@@ -14,7 +14,7 @@ files:
 - config/protocols/inter.yml.example
 # Plugin
 - plugins/inter.plug
-- plugins/Inter/
+- plugins/inter/
 - plugins/inter/__init__.py
 # Events
 - system/events/inter.py
