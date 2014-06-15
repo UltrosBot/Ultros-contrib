@@ -10,7 +10,7 @@ class User(BaseUser):
     server = ""
 
     def respond(self, message):
-        self.protocol.send_msg("%s: %s" % (self.name, message))
+        self.protocol.send_msg(self, "%s: %s" % (self.name, message))
 
     def __str__(self):
         return self.name
