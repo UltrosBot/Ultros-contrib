@@ -6,7 +6,7 @@ current_version:
 description: >
     xkcd comic searching
 files:
-- config/plugins/xkcd.yml
+- config/plugins/xkcd.yml.example
 - plugins/xkcd/
 - plugins/xkcd/__init__.py
 - plugins/xkcd.plug
