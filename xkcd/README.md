@@ -3,6 +3,10 @@ xkcd
 
 Searching xkcd comics
 
+## Configuration
+
+* `archive-time` - How often (in seconds) to update the archive.
+
 ## Commands and permissions
 
 * `xkcd [comic number|comic title]`

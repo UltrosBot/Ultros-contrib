@@ -2,3 +2,5 @@
     Initial version. Random comic, comic by number, comic by title.
 0.1.1: >
     Updated for new command handler signature
+1.0.0: >
+    Rewritten to use treq. Async!
