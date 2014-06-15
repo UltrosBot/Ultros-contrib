@@ -77,7 +77,7 @@ class xkcdPlugin(plugin.PluginObject):
             self._disable_self()
         try:
             self._archive = self._storage.get_file(self, "data", YAML,
-                                                  "plugins/xkcd/archive.yml")
+                                                   "plugins/xkcd/archive.yml")
         except:
             self.logger.exception("Error loading archive!")
             self.logger.error("Disabling...")
@@ -188,8 +188,7 @@ class xkcdPlugin(plugin.PluginObject):
                       '"%s" - %s' % (
                           comic["title"],
                           ("http://xkcd.com/%s/" % comic["num"])
-                      )
-        )
+                      ))
 
     def _xkcd_command_get_comic_errback(self, failure, target, cid, is_id):
         if failure.check(NoSuchComicError):
