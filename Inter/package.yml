@@ -1,0 +1,30 @@
+name: Inter
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version.
+description: >
+    Provides a protocol (sans commands) and companion plugin for working with Inter.
+
+    Please be aware that this is deliberately basic to work with the limitations of Inter's protocol.
+    Inter can be found here: https://github.com/gdude2002/Inter/
+files:
+# Configuration
+- config/plugins/inter.yml.example
+- config/protocols/inter.yml.example
+# Plugin
+- plugins/inter.plug
+- plugins/Inter/
+- plugins/inter/__init__.py
+# Events
+- system/events/inter.py
+# Protocol
+- system/protocols/inter/
+- system/protocols/__init__.py
+- system/protocols/channel.py
+- system/protocols/protocol.py
+- system/protocols/user.py
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/UlrosBot/Ultros-contrib/blob/master/Inter/README.md

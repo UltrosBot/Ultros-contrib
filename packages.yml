@@ -45,6 +45,12 @@ Heartbleed:
     requires:
         modules: []
         packages: []
+Inter:
+    version: 0.0.1
+    description: "Provides a protocol (sans commands) and companion plugin for working with Inter."
+    requires:
+        modules: []
+        packages: []
 Jargon:
     version: 0.1.2
     description: "Generates jargon sentences."
