@@ -20,10 +20,10 @@ files:
 - system/events/inter.py
 # Protocol
 - system/protocols/inter/
-- system/protocols/__init__.py
-- system/protocols/channel.py
-- system/protocols/protocol.py
-- system/protocols/user.py
+- system/protocols/inter/__init__.py
+- system/protocols/inter/channel.py
+- system/protocols/inter/protocol.py
+- system/protocols/inter/user.py
 requires:
     modules: []
     packages: []
