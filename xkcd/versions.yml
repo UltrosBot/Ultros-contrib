@@ -4,3 +4,5 @@
     Updated for new command handler signature
 1.0.0: >
     Rewritten to use treq. Async!
+1.0.1: >
+    Fixed incorrect file path in package.

@@ -1,12 +1,12 @@
 name: xkcd
 current_version:
-    number: 1.0.0
+    number: 1.0.1
     info: >
-        Rewritten to use treq. Async!
+        Fixed incorrect file path in package.
 description: >
     xkcd comic searching
 files:
-- config/xkcd.yml
+- config/plugins/xkcd.yml
 - plugins/xkcd/
 - plugins/xkcd/__init__.py
 - plugins/xkcd.plug
