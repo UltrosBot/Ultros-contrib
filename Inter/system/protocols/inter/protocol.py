@@ -39,6 +39,8 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
     channel = None
     can_flood = False
 
+    control_chars = "."
+
     handshake_done = False
 
     inter_servers = {}
@@ -62,6 +64,8 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
         self.handshake_done = False
         self.inter_servers = {}
         self.nickname = ""
+
+        self.control_chars = self.config["control_char"]
 
         self.ourselves = User(self.config["nickname"], self, True)
         self.channel = Channel(protocol=self)
@@ -112,25 +116,31 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
                         if source == self.nickname:
                             break  # Since this is also us.
 
-                        event = general_events.PreMessageReceived(
-                            self, user, self.channel, msg, "message"
-                        )
+                        if not self.command_manager.process_input(
+                                msg, user, user,  # No concept of channels
+                                self, self.control_chars, self.nickname
+                        ):
 
-                        self.event_manager.run_callback(
-                            "PreMessageReceived", event
-                        )
-
-                        if event.printable:
-                            self.log.info("<%s:%s> %s" % (user, source, msg))
-
-                        if not event.cancelled:
-                            second_event = general_events.MessageReceived(
+                            event = general_events.PreMessageReceived(
                                 self, user, self.channel, msg, "message"
                             )
 
                             self.event_manager.run_callback(
-                                "MessageReceived", second_event
+                                "PreMessageReceived", event
                             )
+
+                            if event.printable:
+                                self.log.info("<%s:%s> %s" % (user, source,
+                                                              msg))
+
+                            if not event.cancelled:
+                                second_event = general_events.MessageReceived(
+                                    self, user, self.channel, msg, "message"
+                                )
+
+                                self.event_manager.run_callback(
+                                    "MessageReceived", second_event
+                                )
 
                         break
                     if case("players"):
