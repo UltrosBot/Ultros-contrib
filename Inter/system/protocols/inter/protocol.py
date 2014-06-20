@@ -6,6 +6,8 @@ import json
 from twisted.internet import reactor
 from twisted.protocols.basic import LineOnlyReceiver
 
+from system.command_manager import CommandManager
+
 from system.event_manager import EventManager
 
 from system.events import general as general_events
@@ -52,6 +54,7 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
 
         self.log = getLogger(self.name)
         self.event_manager = EventManager()
+        self.command_manager = CommandManager()
 
         reactor.connectTCP(
             self.config["connection"]["host"],
