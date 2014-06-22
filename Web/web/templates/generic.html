@@ -1,8 +1,9 @@
 <%inherit file="base.html"/>
-        <div class="container">
-            <%include file="navbar.html" args="items=nav_items"/>
 
-            % if show_breadcrumbs:
+    <div class="page-content inset">
+        <div class="row">
+            <div class="col-md-12">
+% if show_breadcrumbs:
                 <ol class="breadcrumb">
                     % for element in breadcrumbs:
                         <li>
@@ -14,11 +15,12 @@
 
                     <li class="active">${current_breadcrumb}</li>
                 </ol>
-            % endif
+% endif
 
-            ${content}
-
+                ${content}
+            </div>
         </div>
+    </div>
 
 <%block name="title">Ultros | ${_title}</%block>
 <%block name="header">

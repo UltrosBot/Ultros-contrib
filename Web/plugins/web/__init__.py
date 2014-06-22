@@ -229,8 +229,6 @@ class BottlePlugin(plugin.PluginObject):
             self.add_route("/login", ["POST"], self.login_post)
             self.add_route("/logout", ["GET", "POST"], self.logout)
 
-            self.add_navbar_entry("Home", "/")
-
             self.api = API(self)
             self.admin = Admin(self)
             self.errors = Errors(self)
@@ -370,7 +368,6 @@ class BottlePlugin(plugin.PluginObject):
     def index(self):
         auth = self.get_authorization()
         nav_items = copy.deepcopy(self.navbar_items)
-        nav_items["Home"]["active"] = True
         return template("web/templates/index.html",
                         nav_items=nav_items,
                         headers=self.additional_headers,

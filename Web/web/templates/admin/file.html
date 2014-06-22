@@ -1,47 +1,49 @@
 <%inherit file="../base.html"/>
-        <div class="container" style="height: 100% !important">
-            <%include file="../navbar.html" args="items=nav_items"/>
+        <div class="page-content inset">
+            <div class="row">
+                <div class="col-md-12">
+                    <ol class="breadcrumb">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/admin">Admin</a></li>
+                        <li><a href="/admin/files">Files</a></li>
+                        <li class="active">${filename}</li>
+                    </ol>
 
-            <ol class="breadcrumb">
-                <li><a href="/">Home</a></li>
-                <li><a href="/admin">Admin</a></li>
-                <li><a href="/admin/files">Files</a></li>
-                <li class="active">${filename}</li>
-            </ol>
+                    <h1 class="text-center">
+                        <small>${filename}</small>
+                    </h1>
 
-            <h1 class="text-center">
-                <small>${filename}</small>
-            </h1>
+                    % if error:
 
-            % if error:
+                    <div class="alert alert-danger alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        ${error}
+                    </div>
 
-            <div class="alert alert-danger alert-dismissable">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                ${error}
-            </div>
+                    % endif
 
-            % endif
+                    % if success:
 
-            % if success:
+                    <div class="alert alert-success alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        File saved successfully.
+                    </div>
 
-            <div class="alert alert-success alert-dismissable">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                File saved successfully.
-            </div>
+                    % endif
 
-            % endif
-
-            <form method="post" action="/admin/file/${filetype}/${filename}">
-                <textarea id="input" name="input">
+                    <form method="post" action="/admin/file/${filetype}/${filename}">
+                        <textarea id="input" name="input">
 ${content}
-                </textarea>
-                <br />
-                <button type="submit" class="btn btn-success btn-lg btn-block">Save</button>
+                        </textarea>
+                        <br />
+                        <button type="submit" class="btn btn-success btn-lg btn-block">Save</button>
 
-            </form>
-
+                    </form>
+                </div>
+            </div>
         </div>
 
+        <!-- Editor Javascript -->
         <script>
             var myCodeMirror = CodeMirror.fromTextArea(
                 document.getElementById("input"), {

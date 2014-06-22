@@ -1,30 +1,26 @@
 <%inherit file="base.html"/>
-        <div class="container">
-            <%include file="navbar.html" args="items=nav_items,auth=auth"/>
+    <div class="content-header">
+        <h1>
+            Login
+        </h1>
+    </div>
 
-            <div class="jumbotron">
-                <h1>Login</h1>
-
-                <p>This uses your bot account. If you don't have one, find the bot on one of its networks
-                   and message it with the register command - For example, <code>.register username password</code>.
+    <div class="page-content inset">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="lead"> This uses your bot account. If you don't have one, find the bot on one of its networks
+                                 and message it with the register command - For example, <code>.register username password</code>.
                 </p>
-
-                % if failed:
-
+% if failed:
                 <div class="alert alert-danger alert-dismissable">
                     Incorrect username or password.
                 </div>
-
-                % endif
-
-                % if missing:
-
+% endif
+% if missing:
                 <div class="alert alert-danger alert-dismissable">
                     Please enter both a username and a password.
                 </div>
-
-                % endif
-
+% endif
                 <form role="form" action="/login" method="post">
                     <div class="input-group input-group-lg">
                         <span class="input-group-addon">Username</span>
@@ -38,10 +34,9 @@
                     <br />
                     <button type="submit" class="btn btn-lg btn-block btn-primary">Submit</button>
                 </form>
-
             </div>
-
         </div>
+    </div>
 
 <%block name="title">Ultros | Login</%block>
 <%block name="header">
