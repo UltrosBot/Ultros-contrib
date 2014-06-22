@@ -1,8 +1,8 @@
 name: Web interface
 current_version:
-    number: 0.2.0
+    number: 0.3.0
     info: >
-        Some good progress on the admin interface, as well as a memory usage graph.
+        A redesigned web interface! Hope everyone likes it!
 description: >
     Provides a full web interface and REST API for Ultros.
      
