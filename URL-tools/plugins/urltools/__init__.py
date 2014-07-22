@@ -289,11 +289,17 @@ class URLToolsPlugin(plugin.PluginObject):
     def site_github(self, url):
         self.logger.trace("GITHUB | %s" % url)
 
+        if url[-1] == "/":
+            url = url[:-1]
+
         parsed = urlparse.urlparse(url)
         split = parsed.path.lower().split("/")
 
         if "" in split:
             split.remove("")
+
+        if " " in split:
+            split.remove(" ")
 
         if len(split) == 1:
             # User or org
