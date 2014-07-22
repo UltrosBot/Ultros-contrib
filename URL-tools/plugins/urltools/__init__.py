@@ -118,15 +118,16 @@ class URLToolsPlugin(plugin.PluginObject):
     GITHUB_ISSUE_ASSIGNED_MILESTONE = "[GitHub issue] %s/%s/%s %s by %s " \
                                       "(%s) - %s (%s) - Assigned to %s"
 
-    GITHUB_COMMITS = "[GitHub repo / last %s commits] %s/%s - +%s/-%s/±%s" \
-                     " (%s individual file edits) by %s authors."
-    GITHUB_COMMITS_COMMIT = "[GitHub commit] %s/%s +%s/-%s/±%s (%s files) " \
-                            "by %s - %s"
+    GITHUB_COMMITS = u"[GitHub repo / last %s commits] %s/%s - +%s/-%s/±%s" \
+                     u" (%s individual file edits) by %s authors."
+    GITHUB_COMMITS_COMMIT = u"[GitHub commit] %s/%s +%s/-%s/±%s (%s files) " \
+                            u"by %s - %s"
     GITHUB_COMMITS_COMPARE = "[GitHub commit comparison] %s/%s - Comparing " \
                              "%s by %s and %s by %s with %s intermediary " \
                              "commits"
 
-    GITHUB_PULLS = "[GitHub repo / %s pull requests] %s/%s - % open, %s closed"
+    GITHUB_PULLS = "[GitHub repo / %s pull requests] %s/%s - %s open, %s " \
+                   "closed"
     GITHUB_PULLS_PULL = "[GitHub pull request] %s/%s/%s by %s (%s) - %s"
 
     def setup(self):
@@ -422,7 +423,7 @@ class URLToolsPlugin(plugin.PluginObject):
                             d["author"]["login"],
                             len(d["assets"]), dls
                         )
-            elif split[2] == "issues":  # Issues
+            elif split[2] == "issues" or split[2] == "issue":  # Issues
                 if len(split) == 3:  # Issues list
                     try:
                         open_r = requests.get(
@@ -444,7 +445,7 @@ class URLToolsPlugin(plugin.PluginObject):
                         _open = len(open_d)
                         _closed = len(closed_d)
                         _total = _open + _closed
-                        return self.GITHUB_ISSUE % (
+                        return self.GITHUB_ISSUES % (
                             _total, owner, repo, _open, _closed
                         )
                 else:  # Specific issue
@@ -499,7 +500,7 @@ class URLToolsPlugin(plugin.PluginObject):
                                 d["title"], ", ".join(labels),
                                 d["assignee"]["login"]
                             )
-            elif split[2] == "commits":  # Commits
+            elif split[2] == "commits" or split[2] == "commit":  # Commits
                 if len(split) == 3:  # Commits list
                     try:
                         r = requests.get("%s/repos/%s/%s/commits" % (
