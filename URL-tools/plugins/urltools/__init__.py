@@ -118,8 +118,10 @@ class URLToolsPlugin(plugin.PluginObject):
     GITHUB_ISSUE_ASSIGNED_MILESTONE = "[GitHub issue] %s/%s/%s %s by %s " \
                                       "(%s) - %s (%s) - Assigned to %s"
 
-    GITHUB_COMMITS = u"[GitHub repo / last %s commits] %s/%s - +%s/-%s/±%s" \
-                     u" (%s individual file edits) by %s authors."
+    # GITHUB_COMMITS = u"[GitHub repo / last %s commits] %s/%s - +%s/-%s/±%s" \
+    #                  u" (%s individual file edits) by %s authors."
+    GITHUB_COMMITS = u"[GitHub repo / last %s commits] %s/%s - %s commits by" \
+                     u" %s authors."
     GITHUB_COMMITS_COMMIT = u"[GitHub commit] %s/%s +%s/-%s/±%s (%s files) " \
                             u"by %s - %s"
     GITHUB_COMMITS_COMPARE = "[GitHub commit comparison] %s/%s - Comparing " \
@@ -415,8 +417,11 @@ class URLToolsPlugin(plugin.PluginObject):
                     else:
                         dls = 0
 
-                        for asset in d["assets"]:
-                            dls += asset["download_count"]
+                        if "asset" in d:
+                            for asset in d["assets"]:
+                                dls += asset["download_count"]
+                        else:
+                            dls = "N/A"
 
                         return self.GITHUB_RELEASE % (
                             owner, repo, release,
@@ -513,24 +518,23 @@ class URLToolsPlugin(plugin.PluginObject):
                             % (owner, repo)
                         )
                     else:
-                        additions = 0
-                        deletions = 0
-                        totals = 0
-                        file_edits = 0
+                        # additions = 0
+                        # deletions = 0
+                        # totals = 0
+                        # file_edits = 0
                         authors = set()
 
                         for commit in d:
-                            additions += commit["stats"]["additions"]
-                            deletions += commit["stats"]["deletions"]
-                            totals += commit["stats"]["total"]
-                            file_edits += len(commit["files"])
+                            # additions += commit["stats"]["additions"]
+                            # deletions += commit["stats"]["deletions"]
+                            # totals += commit["stats"]["total"]
+                            # file_edits += len(commit["files"])
                             authors.add(commit["author"]["login"])
 
                         num_authors = len(authors)
 
                         return self.GITHUB_COMMITS % (
-                            len(d), owner, repo, additions, deletions, totals,
-                            file_edits, num_authors
+                            len(d), owner, repo, len(d), num_authors
                         )
                 else:  # Specific commit
                     commit = split[3]
