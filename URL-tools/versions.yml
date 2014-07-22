@@ -3,3 +3,6 @@
 
 0.1.0: >
     Some fixes and removed bit.ly/j.mp support as they require OAuth tokens (which wasn't mentioned in the docs).
+
+0.2.0: >
+    Add GitHub support and add requests to the module requirements

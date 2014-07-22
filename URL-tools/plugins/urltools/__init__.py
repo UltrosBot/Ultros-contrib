@@ -6,6 +6,7 @@ from system.plugin_manager import YamlPluginManagerSingleton
 __author__ = 'Gareth Coles'
 
 import locale
+import requests
 import urllib
 import urllib2
 
@@ -90,6 +91,44 @@ class URLToolsPlugin(plugin.PluginObject):
         "-2": "Graveyard"
     }
 
+    GITHUB_URL = "https://api.github.com"
+
+    GITHUB_USER = "[GitHub user] %s (%s followers) - %s repos, %s gists"
+    GITHUB_USER_ADMIN = "[GitHub admin] %s (%s followers) - %s repos, %s gists"
+    GITHUB_ORG = "[GitHub org] %s (%s followers) - %s repos, %s gists"
+
+    GITHUB_REPO = "[GitHub repo / No forks] %s (%s stars / %s watchers) - " \
+                  "%s open issues - %s"
+    GITHUB_REPO_FORKS = "[GitHub repo / %s forks] %s (%s stars / %s " \
+                        "watchers) - %s open issues - %s"
+    GITHUB_REPO_FORK = "[GitHub repo / fork of %s] %s (%s stars / %s " \
+                       "watchers) - %s open issues - %s"
+
+    GITHUB_RELEASES = "[GitHub repo / %s releases] %s/%s - Latest: %s by %s " \
+                      "(%s downloads)"
+    GITHUB_RELEASE = "[GitHub release] %s/%s/%s by %s - %s assets, %s " \
+                     "downloads"
+    GITHUB_RELEASE_NONE = "[GitHub repo] %s/%s - No releases found"
+
+    GITHUB_ISSUES = "[GitHub repo / %s issues] %s/%s - %s open, %s closed"
+    GITHUB_ISSUE = "[GitHub issue] %s/%s/%s by %s (%s) - %s (%s)"
+    GITHUB_ISSUE_MILESTONE = "[GitHub issue] %s/%s/%s %s by %s (%s) - %s (%s)"
+    GITHUB_ISSUE_ASSIGNED = "[GitHub issue] %s/%s/%s by %s (%s) - %s (%s) " \
+                            "- Assigned to %s"
+    GITHUB_ISSUE_ASSIGNED_MILESTONE = "[GitHub issue] %s/%s/%s %s by %s " \
+                                      "(%s) - %s (%s) - Assigned to %s"
+
+    GITHUB_COMMITS = "[GitHub repo / last %s commits] %s/%s - +%s/-%s/±%s" \
+                     " (%s individual file edits) by %s authors."
+    GITHUB_COMMITS_COMMIT = "[GitHub commit] %s/%s +%s/-%s/±%s (%s files) " \
+                            "by %s - %s"
+    GITHUB_COMMITS_COMPARE = "[GitHub commit comparison] %s/%s - Comparing " \
+                             "%s by %s and %s by %s with %s intermediary " \
+                             "commits"
+
+    GITHUB_PULLS = "[GitHub repo / %s pull requests] %s/%s - % open, %s closed"
+    GITHUB_PULLS_PULL = "[GitHub pull request] %s/%s/%s by %s (%s) - %s"
+
     def setup(self):
         self.storage = StorageManager()
         try:
@@ -102,6 +141,7 @@ class URLToolsPlugin(plugin.PluginObject):
 
         self.sites["osu.ppy.sh"] = self.site_osu
         self.sites["youtube.com"] = self.site_youtube
+        self.sites["github.com"] = self.site_github
 
         self.shorteners["is.gd"] = self.shortener_isgd
         self.shorteners["nazr.in"] = self.shortener_nazrin
@@ -219,6 +259,408 @@ class URLToolsPlugin(plugin.PluginObject):
         data = self.do_get("http://api.waa.ai/", params)
 
         return data
+
+    def gh_user(self, d):
+        if d.get("site-admin", False):
+            return self.GITHUB_USER_ADMIN % (
+                d["name"],
+                d["followers"],
+                d["public_repos"],
+                d["public_gists"]
+            )
+        return self.GITHUB_USER % (
+            d["name"],
+            d["followers"],
+            d["public_repos"],
+            d["public_gists"]
+        )
+
+    def gh_org(self, d):
+        return self.GITHUB_ORG % (
+            d["name"],
+            d["followers"],
+            d["public_repos"],
+            d["public_gists"]
+        )
+
+    def site_github(self, url):
+        self.logger.trace("GITHUB | %s" % url)
+
+        parsed = urlparse.urlparse(url)
+        split = parsed.path.lower().split("/")
+
+        if "" in split:
+            split.remove("")
+
+        if len(split) == 1:
+            # User or org
+            # First, check if it's a user..
+            try:
+                r = requests.get(
+                    "%s/users/%s" % (self.GITHUB_URL, split[0])
+                )
+                data = r.json()
+            except Exception as e:  # If not, let's see if it's an org
+                self.logger.debug(
+                    "Error getting GitHub user %s: %s" % (split[0], e)
+                )
+                self.logger.debug(
+                    "Checking to see if they're an org instead.."
+                )
+                try:
+                    r = requests.get(
+                        "%s/orgs/%s" % (self.GITHUB_URL, split[0])
+                    )
+                    data = r.json()
+                except Exception:  # It's.. I have no idea.
+                    self.logger.exception(
+                        "Error getting GitHub user/org %s" % split[0]
+                    )
+                    return None
+                else:  # It's an org!
+                    return self.gh_org(data)
+
+            else:  # It's a user!
+                if data["type"] == "User":
+                    return self.gh_user(data)
+                else:
+                    return self.gh_org(data)
+
+        elif len(split) == 2:
+            owner = split[0]
+            repo = split[1]
+            try:
+                r = requests.get("%s/repos/%s/%s" % (
+                    self.GITHUB_URL, owner, repo
+                ))
+
+                d = r.json()
+            except Exception:
+                self.logger.exception(
+                    "Error getting GitHub repo %s/%s" % (owner, repo)
+                )
+            else:
+                if d["fork"]:
+                    return self.GITHUB_REPO_FORK % (
+                        d["parent"]["full-name"],
+                        d["full-name"],
+                        d["stargazers_count"],
+                        d["watchers_count"],
+                        d["open_issues_count"],
+                        d["description"]
+                    )
+                elif d["forks_count"] > 0:
+                    return self.GITHUB_REPO_FORKS % (
+                        d["forks_count"],
+                        d["full-name"],
+                        d["stargazers_count"],
+                        d["watchers_count"],
+                        d["open_issues_count"],
+                        d["description"]
+                    )
+                else:
+                    return self.GITHUB_REPO % (
+                        d["full-name"],
+                        d["stargazers_count"],
+                        d["watchers_count"],
+                        d["open_issues_count"],
+                        d["description"]
+                    )
+        elif len(split) >= 3:  # Commit, issue, etc
+            owner = split[0]
+            repo = split[1]
+            if split[2] == "releases":  # Releases
+                if len(split) == 3:  # Releases list
+                    try:
+                        r = requests.get("%s/repos/%s/%s/releases" % (
+                            self.GITHUB_URL, owner, repo
+                        ))
+                        d = r.json()
+                    except Exception:
+                        self.logger.exception(
+                            "Error getting releases for GitHub repo %s/%s"
+                            % (owner, repo)
+                        )
+                    else:
+                        count = len(d)
+                        if count > 0:
+                            current = d[0]
+                            dls = 0
+
+                            for asset in current["assets"]:
+                                dls += asset["download_count"]
+
+                            return self.GITHUB_RELEASES % (
+                                count, owner, repo,
+                                current["name"], current["author"]["login"],
+                                dls
+                            )
+                        else:
+                            return self.GITHUB_RELEASE_NONE % (
+                                owner, repo
+                            )
+                else:  # Specific release
+                    release = split[3]
+                    try:
+                        r = requests.get("%s/repos/%s/%s/releases/%s" % (
+                            self.GITHUB_URL, owner, repo, release
+                        ))
+                        d = r.json()
+                    except Exception:
+                        self.logger.exception(
+                            "Error getting release for GitHub repo %s/%s/%s"
+                            % (owner, repo, release)
+                        )
+                    else:
+                        dls = 0
+
+                        for asset in d["assets"]:
+                            dls += asset["download_count"]
+
+                        return self.GITHUB_RELEASE % (
+                            owner, repo, release,
+                            d["author"]["login"],
+                            len(d["assets"]), dls
+                        )
+            elif split[2] == "issues":  # Issues
+                if len(split) == 3:  # Issues list
+                    try:
+                        open_r = requests.get(
+                            "%s/repos/%s/%s/issues?state=open" % (
+                                self.GITHUB_URL, owner, repo
+                            ))
+                        open_d = open_r.json()
+
+                        closed_r = requests.get(
+                            "%s/repos/%s/%s/issues?state=closed" % (
+                                self.GITHUB_URL, owner, repo
+                            ))
+                        closed_d = closed_r.json()
+                    except Exception:
+                        self.logger.exception("Error getting issues for "
+                                              "GitHub repository %s/%s" %
+                                              (repo, owner))
+                    else:
+                        _open = len(open_d)
+                        _closed = len(closed_d)
+                        _total = _open + _closed
+                        return self.GITHUB_ISSUE % (
+                            _total, owner, repo, _open, _closed
+                        )
+                else:  # Specific issue
+                    issue = split[3]
+
+                    try:
+                        r = requests.get("%s/repos/%s/%s/issues/%s" % (
+                            self.GITHUB_URL, owner, repo, issue
+                        ))
+                        d = r.json()
+                    except Exception:
+                        self.logger.exception(
+                            "Error getting GitHub issue %s/%s/%s"
+                            % (owner, repo, issue)
+                        )
+                    else:
+                        labels = []
+
+                        for label in d["labels"]:
+                            labels.append(label["name"])
+
+                        labels = sorted(labels)
+
+                        if d["milestone"] is None:
+                            if d["assignee"] is None:
+                                return self.GITHUB_ISSUE % (
+                                    owner, repo, issue,
+                                    d["user"]["login"],
+                                    d["state"].title(),
+                                    d["title"], ", ".join(labels)
+                                )
+                            else:
+                                return self.GITHUB_ISSUE_ASSIGNED % (
+                                    owner, repo, issue,
+                                    d["user"]["login"],
+                                    d["state"].title(),
+                                    d["title"], ", ".join(labels),
+                                    d["assignee"]["login"]
+                                )
+                        elif d["assignee"] is None:
+                            return self.GITHUB_ISSUE_MILESTONE % (
+                                owner, repo, issue, d["milestone"],
+                                d["user"]["login"],
+                                d["state"].title(),
+                                d["title"], ", ".join(labels)
+                            )
+                        else:
+                            return self.GITHUB_ISSUE_ASSIGNED_MILESTONE % (
+                                owner, repo, issue, d["milestone"],
+                                d["user"]["login"],
+                                d["state"].title(),
+                                d["title"], ", ".join(labels),
+                                d["assignee"]["login"]
+                            )
+            elif split[2] == "commits":  # Commits
+                if len(split) == 3:  # Commits list
+                    try:
+                        r = requests.get("%s/repos/%s/%s/commits" % (
+                            self.GITHUB_URL, owner, repo
+                        ))
+                        d = r.json()
+                    except Exception:
+                        self.logger.exception(
+                            "Error loading commits for GitHub repo %s/%s"
+                            % (owner, repo)
+                        )
+                    else:
+                        additions = 0
+                        deletions = 0
+                        totals = 0
+                        file_edits = 0
+                        authors = set()
+
+                        for commit in d:
+                            additions += commit["stats"]["additions"]
+                            deletions += commit["stats"]["deletions"]
+                            totals += commit["stats"]["total"]
+                            file_edits += len(commit["files"])
+                            authors.add(commit["author"]["login"])
+
+                        num_authors = len(authors)
+
+                        return self.GITHUB_COMMITS % (
+                            len(d), owner, repo, additions, deletions, totals,
+                            file_edits, num_authors
+                        )
+                else:  # Specific commit
+                    commit = split[3]
+                    if "..." not in commit:
+                        try:
+                            r = requests.get("%s/repos/%s/%s/commits/%s" % (
+                                self.GITHUB_URL, owner, repo, commit
+                            ))
+                            d = r.json()
+                        except Exception:
+                            self.logger.exception(
+                                "Error loading GitHub commit %s/%s/%s"
+                                % (owner, repo, commit)
+                            )
+                        else:
+                            message = d["commit"]["message"]
+                            if "\n" in message:
+                                messages = message.strip("\r").split("\n")
+                                if "" in messages:
+                                    messages.remove("")
+                                message = messages.pop(0)
+                                message += " ...and %s more lines" \
+                                           % len(messages)
+                            return self.GITHUB_COMMITS_COMMIT % (
+                                owner, repo,
+                                d["stats"]["additions"],
+                                d["stats"]["deletions"],
+                                d["stats"]["total"],
+                                len(d["files"]),
+                                d["author"]["login"],
+                                message
+                            )
+                    else:
+                        commits = commit.split("...")
+                        left = commits[0]
+                        right = commits[1]
+
+                        try:
+                            r = requests.get(
+                                "%s/repos/%s/%s/commits/%s...%s" % (
+                                    self.GITHUB_URL, owner, repo, left, right
+                                )
+                            )
+                            d = r.json()
+                        except Exception:
+                            self.logger.exception(
+                                "Error loading GitHub commit comparison "
+                                " for %s/%s - %s...%s"
+                                % (owner, repo, left, right)
+                            )
+                        else:
+                            if ":" in left:
+                                left_split = left.split(":", 1)
+                                left_hash = left_split[0] + \
+                                    ":" + \
+                                    left_split[1][:6]
+                            else:
+                                left_hash = "%s/%s:%s" \
+                                    % (owner, repo, left[:6])
+
+                            if ":" in right:
+                                right_split = right.split(":", 1)
+                                right_hash = right_split[0] + \
+                                    ":" + \
+                                    right_split[1][:6]
+                            else:
+                                right_hash = "%s/%s:%s" \
+                                    % (owner, repo, right[:6])
+
+                            return self.GITHUB_COMMITS_COMPARE % (
+                                owner, repo,
+                                left_hash, d["base_commit"]["author"]["login"],
+                                right_hash, d["commits"][0]["author"]["login"],
+                                d["total_commits"]
+                            )
+            elif split[2] == "pulls":  # Pull requests
+                if len(split) == 3:  # PRs list
+                    try:
+                        open_r = requests.get(
+                            "%s/repos/%s/%s/pulls?state=open" % (
+                                self.GITHUB_URL, owner, repo
+                            )
+                        )
+                        open_d = open_r.json()
+
+                        closed_r = requests.get(
+                            "%s/repos/%s/%s/pulls?state=closed" % (
+                                self.GITHUB_URL, owner, repo
+                            )
+                        )
+                        closed_d = closed_r.json()
+                    except Exception:
+                        self.logger.exception(
+                            "Error getting pull requests for GitHub repo %s/%s"
+                            % (owner, repo)
+                        )
+                    else:
+                        return self.GITHUB_PULLS % (
+                            len(open_d) + len(closed_d),
+                            owner, repo,
+                            len(open_d), len(closed_d)
+                        )
+                else:  # Specific PR
+                    pr = split[3]
+                    try:
+                        r = requests.get(
+                            "%s/repos/%s/%s/pulls/%s" % (
+                                self.GITHUB_URL, owner, repo, pr
+                            )
+                        )
+                        d = r.json()
+                    except Exception:
+                        self.logger.exception(
+                            "Error getting pull requests for GitHub repo %s/%s"
+                            % (owner, repo)
+                        )
+                    else:
+                        return self.GITHUB_PULLS_PULL % (
+                            owner, repo, pr,
+                            d["user"]["login"],
+                            d["state"].title(),
+                            d["title"]
+                        )
+            # TODO: Branches and perhaps wiki
+            # elif split[2] == "branches":  # Branches
+            #     if len(split) == 3:  # Branches list
+            #         pass
+            #     else:  # Specific branch
+            #         pass
+
+        return None
 
     def site_osu(self, url):
         self.logger.trace("OSU | %s" % url)

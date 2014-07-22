@@ -1,15 +1,15 @@
 name: URL Tools
 current_version:
-    number: 0.1.0
+    number: 0.2.0
     info: >
-        Some fixes and removed bit.ly/j.mp support as they require OAuth tokens (which wasn't mentioned in the docs)
+        Add GitHub support and add requests to the module requirements
 description: >
     Provides a set of tools for working with the URLs plugin. These tools provide both URL shorteners
     and specific domain handlers for the URL title parser.
 
     == DONE ==
     Shorteners: is.gd,  nazr.in, v.gd, waa.ai
-    Sites: youtube.com, osu.ppy.sh
+    Sites: youtube.com, osu.ppy.sh, github.com
 
 files:
 - plugins/urltools.plug
@@ -17,6 +17,7 @@ files:
 - plugins/urltools/__init__.py
 - config/plugins/urltools.yml.example
 requires:
-    modules: []
+    modules:
+    - requests
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/URL-tools/README.md

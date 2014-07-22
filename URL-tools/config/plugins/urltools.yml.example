@@ -4,6 +4,7 @@ sites:
   enabled:
   - osu.ppy.sh
   - youtube.com
+  - github.com
 
 shorteners:
   enabled:
