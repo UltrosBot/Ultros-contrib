@@ -351,8 +351,8 @@ class URLToolsPlugin(plugin.PluginObject):
             else:
                 if d["fork"]:
                     return self.GITHUB_REPO_FORK % (
-                        d["parent"]["full-name"],
-                        d["full-name"],
+                        d["parent"]["full_name"],
+                        d["full_name"],
                         d["stargazers_count"],
                         d["watchers_count"],
                         d["open_issues_count"],
@@ -361,7 +361,7 @@ class URLToolsPlugin(plugin.PluginObject):
                 elif d["forks_count"] > 0:
                     return self.GITHUB_REPO_FORKS % (
                         d["forks_count"],
-                        d["full-name"],
+                        d["full_name"],
                         d["stargazers_count"],
                         d["watchers_count"],
                         d["open_issues_count"],
@@ -369,7 +369,7 @@ class URLToolsPlugin(plugin.PluginObject):
                     )
                 else:
                     return self.GITHUB_REPO % (
-                        d["full-name"],
+                        d["full_name"],
                         d["stargazers_count"],
                         d["watchers_count"],
                         d["open_issues_count"],
