@@ -15,8 +15,12 @@
     <link rel="shortcut icon" href="/static/ultros.png" />
     <link rel="apple-touch-icon-precomposed" href="/static/ultros.png" />
 
-    <!-- Bootstrap core CSS -->
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+
+    <!-- Semantic CSS and JS -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/css/semantic.min.css" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/javascript/semantic.min.js"></script>
 
     <!-- Other CSS -->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
@@ -24,8 +28,6 @@
     <link href="//mottie.github.io/tablesorter/css/theme.bootstrap.css" rel="stylesheet" />
 
     <!-- Javascript -->
-    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="//mottie.github.io/tablesorter/js/jquery.tablesorter.min.js"></script>
     <script src="//code.highcharts.com/highcharts.js"></script>
 
@@ -33,75 +35,74 @@
 </head>
 
 <body>
-    <div id="wrapper">
-        <%include file="navbar.html" args="items=nav_items"/>
-        <!-- Page content -->
-        <div id="page-content-wrapper">
-            <div class="page-content inset menu-toggle-container">
-                <a id="menu-toggle" href="#" class="btn btn-default"><i class="fa fa-bars"></i></a>
-            </div>
-            ${self.body()}
-        </div>
-
+    <%include file="navbar.html" args="items=nav_items"/>
+    <!-- Page content -->
+    <div class="ui main container">
+        ${self.body()}
     </div>
 
-    <!-- Javascript for the menu toggle -->
+    <!-- Semantic JS stuff -->
     <script>
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("active");
-        $("#sidebar-wrapper").toggleClass("active");
-    });
+        // Sidebar triggers
+        $("#menu").first().sidebar("attach events", ".menu-toggle");
+        // Initialize popups
+        $('.popup').popup();
+        // Initialize accordions
+        $(".accordion").accordion();
     </script>
 
     <!-- Javascript for the sortable tables -->
     <script>
     $(".table-sortable").bind("sortEnd", function(e, table) {
         $(".tablesorter-headerRow").find(".tablesorter-icon")
-                .removeClass("glyphicon")
-                .removeClass("glyphicon-sort")
-                .removeClass("glyphicon-sort-by-attributes")
-                .removeClass("glyphicon-sort-by-attributes-alt");
+                .removeClass("icon")
+                .removeClass("sort")
+                .removeClass("ascending")
+                .removeClass("descending")
 
         $(".tablesorter-headerRow").find(".tablesorter-headerUnSorted")
                 .find(".tablesorter-icon")
-                .addClass("glyphicon")
-                .addClass("glyphicon-sort");
+                .addClass("icon")
+                .addClass("sort");
 
         $(".tablesorter-headerRow").find(".tablesorter-headerAsc")
                 .find(".tablesorter-icon")
-                .addClass("glyphicon")
-                .addClass("glyphicon-sort-by-attributes");
+                .addClass("icon")
+                .addClass("sort")
+                .addClass("ascending");
 
         $(".tablesorter-headerRow").find(".tablesorter-headerDesc")
                 .find(".tablesorter-icon")
-                .addClass("glyphicon")
-                .addClass("glyphicon-sort-by-attributes-alt");
+                .addClass("icon")
+                .addClass("sort")
+                .addClass("descending");
     }).bind("tablesorter-initialized", function(e, table) {
         $(".tablesorter-headerRow").find(".tablesorter-icon")
-                .removeClass("glyphicon")
-                .removeClass("glyphicon-sort")
-                .removeClass("glyphicon-sort-by-attributes")
-                .removeClass("glyphicon-sort-by-attributes-alt");
+                .removeClass("icon")
+                .removeClass("sort")
+                .removeClass("ascending")
+                .removeClass("descending");
 
         $(".tablesorter-headerRow").find(".tablesorter-headerUnSorted")
                 .find(".tablesorter-icon")
-                .addClass("glyphicon")
-                .addClass("glyphicon-sort");
+                .addClass("icon")
+                .addClass("sort");
 
         $(".tablesorter-headerRow").find(".tablesorter-headerAsc")
                 .find(".tablesorter-icon")
-                .addClass("glyphicon")
-                .addClass("glyphicon-sort-by-attributes");
+                .addClass("icon")
+                .addClass("sort")
+                .addClass("ascending");;
 
         $(".tablesorter-headerRow").find(".tablesorter-headerDesc")
                 .find(".tablesorter-icon")
-                .addClass("glyphicon")
-                .addClass("glyphicon-sort-by-attributes-alt");
+                .addClass("icon")
+                .addClass("sort")
+                .addClass("descending");;
     });
 
     $(function(){
-        $(".table-sortable").tablesorter({theme: 'bootstrap', headerTemplate: "{content} {icon}"});
+        $(".table-sortable").tablesorter({headerTemplate: "{content} {icon}"});
     });
     </script>
 </body>

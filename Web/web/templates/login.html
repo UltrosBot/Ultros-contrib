@@ -1,40 +1,56 @@
 <%inherit file="base.html"/>
-    <div class="content-header">
-        <h1>
-            Login
-        </h1>
+    <div class="ui segment">
+        <p> This uses your bot account. If you don't have one, find the bot on one of its networks
+            and message it with the register command - For example, <code>.register username password</code>.
+        </p>
     </div>
-
-    <div class="page-content inset">
-        <div class="row">
-            <div class="col-md-12">
-                <p class="lead"> This uses your bot account. If you don't have one, find the bot on one of its networks
-                                 and message it with the register command - For example, <code>.register username password</code>.
-                </p>
 % if failed:
-                <div class="alert alert-danger alert-dismissable">
-                    Incorrect username or password.
-                </div>
+        <div class="ui attached error message">
+            <div class="header">
+                Incorrect username or password
+            </div>
+            <p> Please ensure that your details are correct.
+                If you feel this message is in error, please talk to a bot admin.
+            </p>
+        </div>
 % endif
 % if missing:
-                <div class="alert alert-danger alert-dismissable">
-                    Please enter both a username and a password.
-                </div>
-% endif
-                <form role="form" action="/login" method="post">
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-addon">Username</span>
-                        <input type="text" class="form-control" name="username" required>
-                    </div>
-                    <br />
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-addon">Password</span>
-                        <input type="password" class="form-control" name="password" required>
-                    </div>
-                    <br />
-                    <button type="submit" class="btn btn-lg btn-block btn-primary">Submit</button>
-                </form>
+        <div class="ui attached warning message">
+            <div class="header">
+                Missing details
             </div>
+            <p> Please enter both a username and password.
+            </p>
+        </div>
+% endif
+        <div class="ui form attached fluid segment">
+            <form role="form" action="/login" method="post">
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input type="text" placeholder="Username" name="username" required>
+                        <i class="user icon"></i>
+                        <div class="ui corner label">
+                            <i class="icon asterisk"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input type="password" placeholder="Password" name="password" required>
+                        <i class="lock icon"></i>
+                        <div class="ui corner label">
+                            <i class="icon asterisk"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui buttons">
+                    <button type="submit" class="positive ui button">Submit</button>
+                    <div class="or"></div>
+                    <a href="/login/reset">
+                        <button class="negative ui button">Reset</button>
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 

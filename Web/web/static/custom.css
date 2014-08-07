@@ -1,3 +1,31 @@
 .sidebar-nav li.active {
     background-color: #222;
 }
+
+.main.container {
+    padding: 50px;
+    padding-left: 250px;
+    padding-right: 250px;
+}
+
+#menu {
+    display: inline;
+}
+
+#mobile-menu {
+    display: none;
+}
+
+@media all and (max-width: 855px) {
+    .main.container {
+        padding: 50px;
+    }
+
+    #menu {
+        display: none;
+    }
+
+    #mobile-menu {
+        display: block;
+    }
+}

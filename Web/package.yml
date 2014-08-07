@@ -1,8 +1,8 @@
 name: Web interface
 current_version:
-    number: 0.3.0
+    number: 0.4.0
     info: >
-        A redesigned web interface! Hope everyone likes it!
+        Another redesign. Templates, eugh. And this one does have some more functionality.
 description: >
     Provides a full web interface and REST API for Ultros.
      
@@ -32,15 +32,16 @@ files:
 - web/static/codemirror.css
 - web/static/codemirror-compressed.js
 - web/static/custom.css
-- web/static/monokai.css
-- web/static/simple-sidebar.css
+- web/static/eclipse.css
 - web/static/ultros.png
+- web/static/ultros-logo.png
 - web/templates/
 - web/templates/admin/
 - web/templates/base.html
 - web/templates/generic.html
 - web/templates/index.html
 - web/templates/login.html
+- web/templates/login-reset.html
 - web/templates/navbar.html
 - web/templates/admin/file.html
 requires:

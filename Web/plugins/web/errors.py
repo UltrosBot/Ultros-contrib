@@ -19,11 +19,10 @@ class Errors(object):
         def inner_error(error):
             self.plugin.logger.warn("Page not found!")
             content = """
-                <div class="alert alert-danger">
-                    <h3>Page not found</h3>
+                <div class="ui warning message">
+                    <div class="header">Page not found</div>
 
-                    <p>Path: <strong>%s</strong></p>
-                    <br />
+                    Path: <strong>%s</strong>
                 </div>
             """
 
@@ -41,14 +40,13 @@ class Errors(object):
         def inner_error(error):
             self.plugin.logger.warn("Error!")
             content = """
-                <div class="alert alert-danger">
-                    <h3>Internal server error</h3>
+                <div class="ui error message">
+                    <div class="header">Internal server error</div>
 
-                    <p>Path: <strong>%s</strong></p>
-                    <br />
+                    Path: <strong>%s</strong>
                 </div>
 
-                <pre>%s</pre>
+                <pre class="ui segment">%s</pre>
             """
 
             return self.plugin.wrap_template(

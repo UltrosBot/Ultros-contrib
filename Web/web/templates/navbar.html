@@ -1,45 +1,108 @@
         <%page args="items={}"/>
 
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand">
-                    <a href="/">
-                        <i class="fa fa-home fa-inverse fa-fw"></i>&nbsp;&nbsp;&nbsp;&nbsp;
-                        Ultros
-                    </a>
-                </li>
-% if auth.authorized:
-                <li class="sidebar-login-display">
-                    <a href="/logout">
-                        <i class="fa fa-unlock fa-inverse fa-fw"></i>&nbsp;&nbsp;&nbsp;&nbsp;
-                        Logout (${auth.auth_name})
-                    </a>
-                </li>
-% else:
-                <li class="sidebar-login-display">
-                    <a href="/login">
-                        <i class="fa fa-lock fa-inverse fa-fw"></i>&nbsp;&nbsp;&nbsp;&nbsp;
-                        Login
-                    </a>
-                </li>
-% endif
-% for title, entry in sorted(items.items()):
-    % if entry["active"]:
-                <li class="active">
-                    <a href="${entry['url']}#">
-                        <i class="fa fa-arrow-right fa-inverse fa-fw"></i>&nbsp;&nbsp;&nbsp;&nbsp;
-                        ${title}
-                    </a>
-                </li>
+<div id="mobile-menu" class="ui pointing fluid menu">
+    % if nav_name == "Home":
+    <a class="purple active item" href="/">
+        <i class="home icon"></i>
+        Home
+    </a>
     % else:
-                <li>
-                    <a href="${entry['url']}">
-                        <i class="fa fa-arrow-right fa-inverse fa-fw"></i>&nbsp;&nbsp;&nbsp;&nbsp;
-                        ${title}
-                    </a>
-        </li>
+    <a class="item" href="/">
+        <i class="home icon"></i>
+        Home
+    </a>
     % endif
-% endfor
-            </ul>
-        </div>
+
+    % for title, entry in sorted(items.items()):
+        % if entry["active"]:
+        <a class="purple active item" href="${entry['url']}">
+            <i class="${entry.get('icon', 'question')} icon"></i>
+            ${title}
+        </a>
+        % else:
+        <a class="item" href="${entry['url']}">
+            <i class="${entry.get('icon', 'question')} icon"></i>
+            ${title}
+        </a>
+        % endif
+    % endfor
+
+    <div class="right menu">
+        % if auth.authorized:
+        <a class="blue item" href="/logout">
+            <i class="blue alternate unlock icon"></i>
+            Logout (${auth.auth_name})
+        </a>
+        % else:
+
+            % if nav_name == "Login":
+        <a class="blue active item" href="/login">
+            <i class="lock icon"></i>
+            Login
+        </a>
+            % else:
+        <a class="item" href="/login">
+            <i class="lock icon"></i>
+            Login
+        </a>
+            % endif
+        % endif
+    </div>
+</div>
+
+<div id="menu" class="ui thin vertical sidebar menu active">
+
+    <div class="ui attached fluid vertical menu segment">
+        <a class="item" href="/" style="height: 50px;">
+            <img class="icon" src="/static/ultros-logo.png">
+        </a>
+    </div>
+
+    <div class="ui attached fluid vertical menu segment">
+        % if nav_name == "Home":
+        <a class="green active item" href="/">
+            <i class="green home icon"></i>
+            Home
+        </a>
+        % else:
+        <a class="item" href="/">
+            <i class="home icon"></i>
+            Home
+        </a>
+        % endif
+
+        % if auth.authorized:
+        <a class="blue item" href="/logout">
+            <i class="blue alternate unlock icon"></i>
+            Logout (${auth.auth_name})
+        </a>
+        % else:
+
+            % if nav_name == "Login":
+        <a class="blue active item" href="/login">
+            <i class="lock icon"></i>
+            Login
+        </a>
+            % else:
+        <a class="item" href="/login">
+            <i class="lock icon"></i>
+            Login
+        </a>
+            % endif
+        % endif
+
+        % for title, entry in sorted(items.items()):
+            % if entry["active"]:
+            <a class="green active item" href="${entry['url']}">
+                <i class="${entry.get('icon', 'question')} icon"></i>
+                ${title}
+            </a>
+            % else:
+            <a class="item" href="${entry['url']}">
+                <i class="${entry.get('icon', 'question')} icon"></i>
+                ${title}
+            </a>
+            % endif
+        % endfor
+    </div>
+</div>

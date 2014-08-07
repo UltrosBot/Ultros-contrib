@@ -1,26 +1,20 @@
 <%inherit file="base.html"/>
 
-    <div class="page-content inset">
-        <div class="row">
-            <div class="col-md-12">
 % if show_breadcrumbs:
-                <ol class="breadcrumb">
-                    % for element in breadcrumbs:
-                        <li>
-                            <a href="${element[1]}">
-                                ${element[0]}
-                            </a>
-                        </li>
-                    % endfor
-
-                    <li class="active">${current_breadcrumb}</li>
-                </ol>
+<div class="ui green fluid segment">
+    <div class="ui breadcrumb">
+    % for element in breadcrumbs:
+        <a class="section" href="${element[1]}">
+            ${element[0]}
+        </a>
+        <div class="divider"> / </div>
+    % endfor
+        <a class="active section">${current_breadcrumb}</a>
+    </div>
+</div>
 % endif
 
-                ${content}
-            </div>
-        </div>
-    </div>
+${content}
 
 <%block name="title">Ultros | ${_title}</%block>
 <%block name="header">

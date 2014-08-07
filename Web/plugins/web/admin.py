@@ -31,7 +31,7 @@ class Admin(object):
 
         self.plugin.add_route("/admin/get_mem", ["GET"], self.get_mem)
 
-        self.plugin.add_navbar_entry("Admin", "/admin")
+        self.plugin.add_navbar_entry("Admin", "/admin", "settings")
 
     def has_admin(self, r=None):
         return self.plugin.check_permission("web.admin", r=r)
@@ -191,14 +191,14 @@ class Admin(object):
 
         content = ""
 
-        table = "\n" \
-                "<h2>%s</h2>\n" \
+        table = "<h2 class=\"ui header\">%s</h2>" \
                 "\n" \
-                "<table class=\"table table-striped table-bordered\">\n" \
+                "<table class=\"ui table segment\">\n" \
                 "    <thead>\n" \
                 "        <tr>\n" \
-                "            <th>Descriptor</th>\n" \
-                "            <th>Format</th>\n" \
+                "            <th style=\"width: 60%%\">Descriptor</th>\n" \
+                "            <th style=\"width: 15%%\">Editable</th>\n" \
+                "            <th style=\"width: 25%%\">Format</th>\n" \
                 "        </tr>\n" \
                 "    </thead>\n" \
                 "    <tbody>\n" \
@@ -208,9 +208,26 @@ class Admin(object):
                 "\n"
 
         row = "        <tr>\n" \
-              "            <td><a href=\"/admin/file/%s/%s\">%s</a></td>\n" \
-              "            <td>%s</td>\n" \
+              "          <td style=\"width: 60%%\">" \
+              "                <a href=\"/admin/file/%s/%s\">%s</a>" \
+              "            </td>\n" \
+              "          <td style=\"width: 15%%;\" class=\"positive\">" \
+              "                Yes" \
+              "            </td>" \
+              "          <td style=\"width: 25%%\">%s</td>\n" \
               "        </tr>\n"
+
+        row_error = "        <tr>\n" \
+                    "          <td style=\"width: 60%%\">" \
+                    "                %s" \
+                    "            </td>\n" \
+                    "         <td style=\"width: 15%%;\" class=\"negative\">" \
+                    "                No" \
+                    "            </td>" \
+                    "          <td style=\"width: 25%%\">" \
+                    "               %s" \
+                    "            </td>\n" \
+                    "        </tr>\n"
 
         for k in files.keys():
             self.logger.trace("Files: %s" % files[k])
@@ -218,7 +235,11 @@ class Admin(object):
 
             for d in files[k].keys():
                 f = files[k][d]
-                rows += row % (k, d, d, f.get().format)
+
+                if f.get().representation is None:
+                    rows += row_error % (d, f.get().format)
+                else:
+                    rows += row % (k, d, d, f.get().format)
             content += table % (k.title(), rows)
 
         crumbs = [
@@ -255,23 +276,22 @@ class Admin(object):
         mem = psutil.virtual_memory()
         mem_mb = (float(mem.total) / 1024) / 1024  # Total memory
 
-        content = """            <h2>Admin interface</h2>
+        content = """            <div class="ui labeled icon menu">
+                <a class="green active item">
+                    <i class="home icon"></i>
+                    Home
+                </a>
+                <a class="item" href="/admin/files">
+                    <i class="file outline icon"></i>
+                    Files
+                </a>
+            </div>
 
-            <ul class="nav nav-pills">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="/admin/files">Manage files</a></li>
-            </ul>
-
-            <hr />
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
+            <div class="ui attached fluid segment">
                     Memory usage (out of <strong>%0.2fMB</strong>)
-                </div>
-                <div class="panel-body">
-                    <div id="mem_chart" style="width:100%%; height:400px;">
-                    </div>
-                </div>
+            </div>
+            <div id="mem_chart" class="ui attached fluid segment"
+                 style="height:400px;">
             </div>
 
             <script>

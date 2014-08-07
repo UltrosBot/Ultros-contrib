@@ -1,58 +1,53 @@
 <%inherit file="../base.html"/>
-        <div class="page-content inset">
-            <div class="row">
-                <div class="col-md-12">
-                    <ol class="breadcrumb">
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/admin">Admin</a></li>
-                        <li><a href="/admin/files">Files</a></li>
-                        <li class="active">${filename}</li>
-                    </ol>
-
-                    <h1 class="text-center">
-                        <small>${filename}</small>
-                    </h1>
-
-                    % if error:
-
-                    <div class="alert alert-danger alert-dismissable">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        ${error}
-                    </div>
-
-                    % endif
-
-                    % if success:
-
-                    <div class="alert alert-success alert-dismissable">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        File saved successfully.
-                    </div>
-
-                    % endif
-
-                    <form method="post" action="/admin/file/${filetype}/${filename}">
-                        <textarea id="input" name="input">
-${content}
-                        </textarea>
-                        <br />
-                        <button type="submit" class="btn btn-success btn-lg btn-block">Save</button>
-
-                    </form>
-                </div>
+        <div class="ui green fluid segment">
+            <div class="ui breadcrumb">
+                <a class="section" href="/">Home</a>
+                <div class="divider"> / </div>
+                <a class="section" href="/admin">Admin</a>
+                <div class="divider"> / </div>
+                <a class="section" href="/admin/files">Files</a>
+                <div class="divider"> / </div>
+                <a class="active section">${filename}</a>
             </div>
         </div>
+
+        % if error:
+
+        <div class="ui error message">
+            <div class="header">
+                Error
+            </div>
+            ${error}
+        </div>
+
+        % endif
+
+        % if success:
+
+        <div class="ui success message">
+            File saved successfully.
+        </div>
+
+        % endif
+
+        <form method="post" class="ui form" action="/admin/file/${filetype}/${filename}">
+            <textarea id="input" name="input" class="ui attached fluid segment">${content}</textarea>
+
+            <button type="submit" class="positive ui button">Submit</button>
+        </form>
 
         <!-- Editor Javascript -->
         <script>
             var myCodeMirror = CodeMirror.fromTextArea(
                 document.getElementById("input"), {
                     mode: "${mode}",
-                    theme: "monokai",
+                    theme: "eclipse",
                     indentUnit: 4,
                     lineNumbers: true
                 }
             );
+
+            $(".CodeMirror").first().addClass("ui fluid segment");
         </script>
 
 <%block name="title">Ultros | File: ${_title}</%block>

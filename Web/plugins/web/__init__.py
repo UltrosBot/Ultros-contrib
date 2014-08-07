@@ -67,6 +67,13 @@ class BottlePlugin(plugin.PluginObject):
 
     started = False
 
+    default_reset_message = """
+The bot administrator didn't fill this section out.
+
+Please ask them to add or fill out the "reset_message" option in their
+config/plugins/web.yml file.
+    """
+
     # region Internal
 
     def setup(self):
@@ -123,6 +130,13 @@ class BottlePlugin(plugin.PluginObject):
         self._secret = self.data["secret"]
 
         self.logger.info("Compiling and minifying Javascript and CSS..")
+
+        if os.path.exists(base_path + "/static/.webassets-cache"):
+            os.removedirs(base_path + "/static/.webassets-cache")
+
+        if os.path.exists(base_path + "/static/generated"):
+            os.removedirs(base_path + "/static/generated")
+
         self.env = webassets.Environment(base_path, "/static")
         self.env.debug = "--debug" in sys.argv
         if "--debug" in sys.argv:
@@ -227,6 +241,7 @@ class BottlePlugin(plugin.PluginObject):
             self.add_route("/index", ["GET", "POST"], self.index)
             self.add_route("/login", ["GET"], self.login)
             self.add_route("/login", ["POST"], self.login_post)
+            self.add_route("/login/reset", ["GET"], self.login_reset)
             self.add_route("/logout", ["GET", "POST"], self.logout)
 
             self.api = API(self)
@@ -267,11 +282,11 @@ class BottlePlugin(plugin.PluginObject):
 
     # region Public API functions
 
-    def add_navbar_entry(self, title, url):
+    def add_navbar_entry(self, title, url, icon="question"):
         if title in self.navbar_items:
             return False
         self.logger.debug("Adding navbar entry: %s -> %s" % (title, url))
-        self.navbar_items[title] = {"url": url, "active": False}
+        self.navbar_items[title] = {"url": url, "active": False, "icon": icon}
         return True
 
     def add_header(self, header):
@@ -343,7 +358,7 @@ class BottlePlugin(plugin.PluginObject):
         if nav in nav_items:
             nav_items[nav]["active"] = True
         return template(tpl,
-                        nav_items=nav_items,
+                        nav_items=nav_items, nav_name=nav,
                         headers=self.additional_headers,
                         content=content, _title=_title,
                         auth=auth, breadcrumbs=breadcrumbs,
@@ -369,6 +384,7 @@ class BottlePlugin(plugin.PluginObject):
         auth = self.get_authorization()
         nav_items = copy.deepcopy(self.navbar_items)
         return template("web/templates/index.html",
+                        nav_name="Home",
                         nav_items=nav_items,
                         headers=self.additional_headers,
                         packages=self.packs.get_installed_packages(),
@@ -382,11 +398,26 @@ class BottlePlugin(plugin.PluginObject):
         if not self.is_authorized():
             # Show login form
             return template("web/templates/login.html",
+                            nav_name="Login",
                             nav_items=nav_items,
                             headers=self.additional_headers,
                             auth=auth,
                             failed=False,
                             missing=False)
+        return redirect("/", 307)
+
+    def login_reset(self):
+        auth = self.get_authorization()
+        nav_items = copy.deepcopy(self.navbar_items)
+        if not self.is_authorized():
+            return template("web/templates/login-reset.html",
+                            nav_name="Login",
+                            nav_items=nav_items,
+                            headers=self.additional_headers,
+                            auth=auth,
+                            message=self.config.get(
+                                "reset_message", self.default_reset_message
+                            ))
         return redirect("/", 307)
 
     def login_post(self):
@@ -403,6 +434,7 @@ class BottlePlugin(plugin.PluginObject):
 
             if not (username or password):
                 return template("web/templates/login.html",
+                                nav_name="Login",
                                 nav_items=nav_items,
                                 headers=self.additional_headers,
                                 auth=auth,
@@ -420,6 +452,7 @@ class BottlePlugin(plugin.PluginObject):
                 s.save()
             else:
                 return template("web/templates/login.html",
+                                nav_name="Login",
                                 nav_items=nav_items,
                                 headers=self.additional_headers,
                                 auth=auth,
