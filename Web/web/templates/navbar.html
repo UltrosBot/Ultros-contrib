@@ -2,7 +2,7 @@
 
 <div id="mobile-menu" class="ui pointing fluid menu">
     % if nav_name == "Home":
-    <a class="purple active item" href="/">
+    <a class="green active item" href="/">
         <i class="home icon"></i>
         Home
     </a>
@@ -15,7 +15,7 @@
 
     % for title, entry in sorted(items.items()):
         % if entry["active"]:
-        <a class="purple active item" href="${entry['url']}">
+        <a class="green active item" href="${entry['url']}">
             <i class="${entry.get('icon', 'question')} icon"></i>
             ${title}
         </a>
@@ -29,7 +29,7 @@
 
     <div class="right menu">
         % if auth.authorized:
-        <a class="blue item" href="/logout">
+        <a class="item" href="/logout">
             <i class="blue alternate unlock icon"></i>
             Logout (${auth.auth_name})
         </a>
@@ -61,7 +61,7 @@
     <div class="ui attached fluid vertical menu segment">
         % if nav_name == "Home":
         <a class="green active item" href="/">
-            <i class="green home icon"></i>
+            <i class="home icon"></i>
             Home
         </a>
         % else:

@@ -16,7 +16,27 @@
     display: none;
 }
 
-@media all and (max-width: 855px) {
+@media (max-width: 1000px) {
+    .main.container {
+        padding-right: 50px;
+    }
+}
+
+@media (max-width: 855px) {
+    .main.container {
+        padding: 50px;
+    }
+
+    #menu {
+        display: none;
+    }
+
+    #mobile-menu {
+        display: block;
+    }
+}
+
+@media handheld {
     .main.container {
         padding: 50px;
     }
