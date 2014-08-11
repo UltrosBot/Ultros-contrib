@@ -84,7 +84,7 @@ class MinecraftPlugin(plugin.PluginObject):
 
         self.commands = CommandManager()
         self.commands.register_command("mcquery", self.query_command, self,
-                                       "minecraft.query")
+                                       "minecraft.query", default=True)
 
         if self.do_relay:
             reactor.callLater(60, self.check_status)

@@ -27,11 +27,11 @@ class DomainrPlugin(plugin.PluginObject):
                                         "domainr.search",
                                         aliases=[
                                             "domainr"
-                                        ])
+                                        ], default=True)
         self._commands.register_command("domainrinfo",
                                         self.info_cmd,
                                         self,
-                                        "domainr.info")
+                                        "domainr.info", default=True)
 
     def reload(self):
         self._load()

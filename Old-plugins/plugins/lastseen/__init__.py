@@ -40,7 +40,7 @@ class LastseenPlugin(plugin.PluginObject):
                            "at INTEGER)")
 
         self.commands.register_command("seen", self.seen_command, self,
-                                       "seen.seen")
+                                       "seen.seen", default=True)
 
         # General events
 

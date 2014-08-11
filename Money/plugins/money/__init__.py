@@ -34,7 +34,7 @@ class MoneyPlugin(plugin.PluginObject):
 
         self.commands = command_manager.CommandManager()
         self.commands.register_command("money", self.money_command_called,
-                                       self, "money.main")
+                                       self, "money.main", default=True)
 
         self._load()
 

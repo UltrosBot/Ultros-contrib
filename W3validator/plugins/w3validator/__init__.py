@@ -26,7 +26,8 @@ class W3validatorPlugin(plugin.PluginObject):
 
         self.commands.register_command("w3validate", self.w3validate,
                                        self, "w3.w3validate",
-                                       aliases=["validate", "valid"])
+                                       aliases=["validate", "valid"],
+                                       default=True)
 
     def w3validate(self, protocol, caller, source, command, raw_args,
                    parsed_args):

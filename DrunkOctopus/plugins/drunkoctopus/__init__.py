@@ -58,7 +58,8 @@ class DrunkPlugin(plugin.PluginObject):
         self.commands.register_command("drunkenness",
                                        self.drunkenness_command,
                                        self,
-                                       "drunkoctopus.drunkenness")
+                                       "drunkoctopus.drunkenness",
+                                       default=True)
         self.commands.register_command("drink",
                                        self.drink_command,
                                        self,

@@ -34,7 +34,7 @@ class MemosPlugin(plugin.PluginObject):
         self.events.add_callback("PreMessageReceived", self,
                                  self.message_received, 0)
         self.commands.register_command("memo", self.memo_command, self,
-                                       "memo.send")
+                                       "memo.send", default=True)
 
     def save_memo(self, sender, recipient, memo):
         recipient = recipient.lower()

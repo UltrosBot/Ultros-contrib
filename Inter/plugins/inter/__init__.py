@@ -76,7 +76,7 @@ class ReplPlugin(plugin.PluginObject):
         self.config.add_callback(self.reload)
 
         self.commands.register_command("players", self.players_command, self,
-                                       "inter.players")
+                                       "inter.players", default=True)
 
         self.events.add_callback("ReactorStarted", self, self.first_load, 0)
 

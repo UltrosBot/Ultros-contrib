@@ -94,7 +94,7 @@ class xkcdPlugin(plugin.PluginObject):
         self._commands.register_command("xkcd",
                                         self.xkcd_cmd,
                                         self,
-                                        "xkcd.xkcd")
+                                        "xkcd.xkcd", default=True)
 
     def reload(self):
         # Reload config

@@ -26,7 +26,7 @@ class UrbanDictionaryPlugin(plugin.PluginObject):
                                        self.urbandictionary_cmd,
                                        self,
                                        "urbandictionary.definition",
-                                       aliases=["ud"])
+                                       aliases=["ud"], default=True)
 
     def urbandictionary_cmd(self, protocol, caller, source, command, raw_args,
                             parsed_args):

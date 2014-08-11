@@ -17,7 +17,7 @@ class GeoIPPlugin(plugin.PluginObject):
     def setup(self):
         self.commands = CommandManager()
         self.commands.register_command("geoip", self.command, self,
-                                       "geoip.command")
+                                       "geoip.command", default=True)
 
     def command(self, protocol, caller, source, command, raw_args,
                 parsed_args):

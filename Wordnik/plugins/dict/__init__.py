@@ -56,9 +56,9 @@ class DictPlugin(plugin.PluginObject):
         self.commands = CommandManager()
 
         self.commands.register_command("dict", self.dict_command,
-                                       self, "wordnik.dict")
+                                       self, "wordnik.dict", default=True)
         self.commands.register_command("wotd", self.wotd_command,
-                                       self, "wordnik.wotd")
+                                       self, "wordnik.wotd", default=True)
 
     def _load(self):
         self.api_key = self.config["apikey"]

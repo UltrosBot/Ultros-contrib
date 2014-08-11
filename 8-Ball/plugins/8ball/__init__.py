@@ -42,7 +42,8 @@ class EightBallPlugin(plugin.PluginObject):
         self.commands.register_command("8ball",
                                        self.eight_ball_cmd,
                                        self,
-                                       "8ball.8ball")
+                                       "8ball.8ball",
+                                       default=True)
 
     def reload(self):
         try:

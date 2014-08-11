@@ -51,9 +51,9 @@ class ItemsPlugin(plugin.PluginObject):
         self.config.add_callback(self._load)
 
         self.commands.register_command("give", self.give_command, self,
-                                       "items.give")
+                                       "items.give", default=True)
         self.commands.register_command("get", self.get_command, self,
-                                       "items.get")
+                                       "items.get", default=True)
 
     def _load(self):
         if self.storage_type == "json":

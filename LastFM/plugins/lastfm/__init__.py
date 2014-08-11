@@ -56,11 +56,11 @@ class LastFMPlugin(plugin.PluginObject):
                                        self.nowplaying_cmd,
                                        self,
                                        "lastfm.nowplaying",
-                                       aliases=["np"])
+                                       aliases=["np"], default=True)
         self.commands.register_command("lastfmnick",
                                        self.lastfmnick_cmd,
                                        self,
-                                       "lastfm.lastfmnick")
+                                       "lastfm.lastfmnick", default=True)
 
     def reload(self):
         try:

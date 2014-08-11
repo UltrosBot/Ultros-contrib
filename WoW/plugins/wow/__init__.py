@@ -26,7 +26,7 @@ class WoWPlugin(plugin.PluginObject):
 
         self.commands.register_command('armoury', self.armoury,
                                        self, 'wow.armoury',
-                                       aliases=['armory'])
+                                       aliases=['armory'], default=True)
 
     @run_async_threadpool
     def armoury(self, protocol, caller, source, command, raw_args,

@@ -61,7 +61,7 @@ class AoSPlugin(plugin.PluginObject):
                                        "aoshelper.playercount",
                                        [
                                            "playercount"
-                                       ])
+                                       ], default=True)
         self.commands.register_command("aostoip",
                                        self.aos_to_ip_command,
                                        self,

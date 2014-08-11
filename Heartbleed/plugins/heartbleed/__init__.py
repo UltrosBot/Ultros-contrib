@@ -17,7 +17,7 @@ class HeartbleedPlugin(plugin.PluginObject):
         self.commands.register_command("hb",
                                        self.hb_command,
                                        self,
-                                       "hb.hb")
+                                       "hb.hb", default=True)
 
     @run_async_threadpool
     def hb_command(self, protocol, caller, source, command, raw_args,

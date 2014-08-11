@@ -40,7 +40,7 @@ class BrainfuckPlugin(plugin.PluginObject):
             return
 
         self.commands.register_command("bf", self.bf_command, self,
-                                       "brainfuck.exec")
+                                       "brainfuck.exec", default=True)
 
     def reload(self):
         try:

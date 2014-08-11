@@ -42,7 +42,7 @@ class JargonPlugin(plugin.PluginObject):
         self.commands.register_command("jargon",
                                        self.jargon_cmd,
                                        self,
-                                       "jargon.jargon")
+                                       "jargon.jargon", default=True)
 
     def reload(self):
         try:

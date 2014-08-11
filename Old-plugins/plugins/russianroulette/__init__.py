@@ -21,7 +21,7 @@ class RoulettePlugin(plugin.PluginObject):
         self.commands = CommandManager()
         self.commands.register_command("rroulette", self.play, self,
                                        "russianroulette.rroulette",
-                                       aliases=["roulette"])
+                                       aliases=["roulette"], default=True)
 
     def addChannel(self, channel):
         if channel not in self.channels.keys():
