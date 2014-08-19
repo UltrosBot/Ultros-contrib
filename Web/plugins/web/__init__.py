@@ -81,7 +81,6 @@ config/plugins/web.yml file.
 
         self.packs = packages.Packages()
         self.storage = StorageManager()
-        self.storage.register_editor(self)
 
         try:
             self.config = self.storage.get_file(self, "config", YAML,
