@@ -498,14 +498,14 @@ class URLToolsPlugin(plugin.PluginObject):
                                 )
                         elif d["assignee"] is None:
                             return self.GITHUB_ISSUE_MILESTONE % (
-                                owner, repo, issue, d["milestone"],
+                                owner, repo, issue, d["milestone"]["title"],
                                 d["user"]["login"],
                                 d["state"].title(),
                                 d["title"], ", ".join(labels)
                             )
                         else:
                             return self.GITHUB_ISSUE_ASSIGNED_MILESTONE % (
-                                owner, repo, issue, d["milestone"],
+                                owner, repo, issue, d["milestone"]["title"],
                                 d["user"]["login"],
                                 d["state"].title(),
                                 d["title"], ", ".join(labels),
