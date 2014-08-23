@@ -48,7 +48,8 @@ If you'd like to add to this repository, please take note of the following guide
     * Contact one of the repo maintainers if you need help with these files.
 * If your plugin needs configuration, include an example configuration file.
 * Do not commit libraries if you didn't develop them. List them in your package.yml, if they're available from pip.
-  * If that's not the case, list them in your README.md file.
+  * If that's not the case, [check out](https://github.com/UltrosBot/Ultros/blob/master/lib/definitions/base.json) the [lib system](http://apidocs.ultros.io/Ultros.lib.definitions.html).
+    * The lib system will allow you to have non-pypi libraries downloaded dynamically!
 * Test your code. Make sure it works. You don't have to supply a test suite, but we will be manually testing all submitted code.
 * Obviously, don't submit anything malicious. Don't bother trying to wreck our computers with malicious code either; we do our testing in VMs.
 
