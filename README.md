@@ -57,4 +57,3 @@ Other than that, your package has no restrictions. It can contain plugins, proto
 
 The best way to submit a package is to fork this repo, modify your copy of it, and then submit a pull request with your changes.
 A member of the core dev team will look over your code and test it, and will either approve or deny it within a couple days.
-
