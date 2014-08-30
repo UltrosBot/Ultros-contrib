@@ -58,7 +58,7 @@ Jargon:
         modules: []
         packages: []
 LastFM:
-    version: 0.2.2
+    version: 0.3.0
     description: "LastFM API integration."
     requires:
         modules:

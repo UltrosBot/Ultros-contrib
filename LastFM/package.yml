@@ -1,11 +1,12 @@
 name: LastFM
 current_version:
-    number: 0.2.2
+    number: 0.3.0
     info: >
-        Fix error with request exception handling
+        Added compare user tastes command (Tasteometer)
 description: >
     LastFM API integration. Current features:
     - Now Playing, including stats
+    - Compare user tastes (Tasteometer)
 files:
 - plugins/lastfm/
 - plugins/lastfm/__init__.py
