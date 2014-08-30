@@ -61,16 +61,19 @@ class LastFMPlugin(plugin.PluginObject):
                                        self.nowplaying_cmd,
                                        self,
                                        "lastfm.nowplaying",
-                                       aliases=["np"], default=True)
+                                       aliases=["np"],
+                                       default=True)
         self.commands.register_command("lastfmnick",
                                        self.lastfmnick_cmd,
                                        self,
-                                       "lastfm.lastfmnick", default=True)
+                                       "lastfm.lastfmnick",
+                                       default=True)
         self.commands.register_command("lastfmcompare",
                                        self.compare_cmd,
                                        self,
                                        "lastfm.compare",
-                                       aliases=["musiccompare", "compare"])
+                                       aliases=["musiccompare", "compare"],
+                                       default=True)
 
     def reload(self):
         try:
