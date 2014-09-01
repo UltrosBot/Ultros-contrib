@@ -12,6 +12,11 @@ from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
 
+# TODO: Bite the bullet and switch to the XML version
+# The JSON API appears to just be the XML one run through a converter, which
+# gives some weirdness (like empty lists being strings).
+
+
 class LastFMPlugin(plugin.PluginObject):
 
     commands = None
@@ -56,11 +61,19 @@ class LastFMPlugin(plugin.PluginObject):
                                        self.nowplaying_cmd,
                                        self,
                                        "lastfm.nowplaying",
-                                       aliases=["np"], default=True)
+                                       aliases=["np"],
+                                       default=True)
         self.commands.register_command("lastfmnick",
                                        self.lastfmnick_cmd,
                                        self,
-                                       "lastfm.lastfmnick", default=True)
+                                       "lastfm.lastfmnick",
+                                       default=True)
+        self.commands.register_command("lastfmcompare",
+                                       self.compare_cmd,
+                                       self,
+                                       "lastfm.compare",
+                                       aliases=["musiccompare", "compare"],
+                                       default=True)
 
     def reload(self):
         try:
@@ -147,6 +160,38 @@ class LastFMPlugin(plugin.PluginObject):
                                                                 username,
                                                                 r),
             lambda f: self._nowplaying_cmd_error(caller, f)
+        )
+
+    def compare_cmd(self, protocol, caller, source, command, raw_args,
+                    parsed_args):
+        self.logger.trace("Entering compare_cmd()")
+        args = raw_args.split()  # Quick fix for new command handler signature
+        ### Get LastFM username to use
+        username_one = None
+        username_two = None
+        if len(args) == 1:
+            username_one = self._get_username(caller.nickname)
+            username_two = self._get_username(args[0])
+        elif len(args) == 2:
+            username_one = self._get_username(args[0])
+            username_two = self._get_username(args[1])
+        else:
+            caller.respond(
+                "Usage: {CHARS}%s <lastfm username> [lastfm username]" %
+                command)
+            return
+
+        ### Query LastFM for user taste comparison
+        deferred = self.api.tasteometer_compare(
+            "user", username_one, "user", username_two
+        )
+        deferred.addCallbacks(
+            lambda r: self._compare_cmd_tasteometer_result(caller,
+                                                           source,
+                                                           username_one,
+                                                           username_two,
+                                                           r),
+            lambda f: self._compare_cmd_tasteometer_error(caller, f)
         )
 
     def _nowplaying_cmd_recent_tracks_result(self, caller, source, username,
@@ -239,6 +284,8 @@ class LastFMPlugin(plugin.PluginObject):
                 # www.last.fm/group/Last.fm+Web+Services/forum/21604/_/2231458
                 for tag in track["toptags"]["tag"]:
                     # TODO: Make these clickable links for protocols that can?
+                    if not isinstance(tag, dict):
+                        self.logger.debug("Tag isn't a dict!? - %s" % tag)
                     tags.append(tag["name"])
 
             ### Finally, we send the message
@@ -270,6 +317,43 @@ class LastFMPlugin(plugin.PluginObject):
         except:
             self.logger.exception("Please tell the developer about this error")
 
+    def _compare_cmd_tasteometer_result(self, caller, source, username_one,
+                                        username_two, response):
+        """
+        Receives the API response for User.getRecentTracks.
+        """
+        self.logger.trace("Entering _compare_cmd_tasteometer_result()")
+        try:
+            ### Extract info
+            result = response["comparison"]["result"]
+            score = float(result["score"])
+            score_percent = score * 100
+            # More weird shit caused by using the JSON API... <_<
+            artist_count = -1
+            if "@attr" in result["artists"]:
+                artist_count = int(result["artists"]["@attr"]["matches"])
+            else:
+                artist_count = int(result["artists"]["matches"])
+            artists = []
+            if artist_count > 0:
+                for artist in result["artists"]["artist"]:
+                    artists.append(artist["name"])
+
+            ### Send the message
+            output = [u'%s and %s are %.0f%% compatible.' % (username_one,
+                                                             username_two,
+                                                             score_percent)]
+
+            if len(artists) > 0:
+                output.append(u" Some artists they share: ")
+                output.append(u", ".join(artists))
+
+            self._respond(source, u"".join(output))
+        except:
+            # TODO: Remove this debug dump line
+            print __import__("json").dumps(response)
+            self.logger.exception("Please tell the developer about this error")
+
     def _nowplaying_cmd_error(self, caller, failure):
         """
         :type failure: twisted.python.failure.Failure
@@ -279,6 +363,23 @@ class LastFMPlugin(plugin.PluginObject):
             self._respond(caller, failure.value.message)
         else:
             self.logger.debug("Error while fetching nowplaying",
+                              exc_info=(
+                                  failure.type,
+                                  failure.value,
+                                  failure.tb
+                              ))
+            caller.respond("There was an error while contacting LastFM - "
+                           "please alert a bot admin or try again later")
+
+    def _compare_cmd_tasteometer_error(self, caller, failure):
+        """
+        :type failure: twisted.python.failure.Failure
+        """
+        # Some errors will be caused by user input
+        if failure.check(LastFMError) and failure.value.err_code in (6, 7):
+            self._respond(caller, failure.value.message)
+        else:
+            self.logger.debug("Error while fetching comparison",
                               exc_info=(
                                   failure.type,
                                   failure.value,
@@ -339,7 +440,9 @@ class LastFM(object):
         for k, v in final_payload.iteritems():
             if isinstance(v, unicode):
                 final_payload[k] = v.encode("utf8")
-        deferred = treq.post(self.API_URL, final_payload)
+        deferred = treq.post(self.API_URL,
+                             final_payload,
+                             headers={"User-Agent": "Ultros-contrib/LastFM"})
         deferred.addCallback(self._handle_response)
         return deferred
 
@@ -382,6 +485,20 @@ class LastFM(object):
         if autocorrect is not None:
             payload["autocorrect"] = autocorrect
         return self._make_request("track.getInfo", payload)
+
+    def tasteometer_compare(self, type1, value1, type2, value2, limit=None):
+        """
+        :rtype : twisted.internet.defer.Deferred
+        """
+        payload = {
+            "type1": type1,
+            "value1": value1,
+            "type2": type2,
+            "value2": value2,
+        }
+        if limit is not None:
+            payload["limit"] = limit
+        return self._make_request("tasteometer.compare", payload)
 
 
 class LastFMError(Exception):

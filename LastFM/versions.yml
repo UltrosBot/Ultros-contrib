@@ -10,3 +10,5 @@
     Fix error with outgoing requests not encoding unicode properly
 0.2.2: >
     Fix error with request exception handling
+0.3.0: >
+    Added compare user tastes command (Tasteometer)

@@ -17,6 +17,10 @@ This plugin allows integration with the Last.FM API. Additional features may be 
 * `lastfmnick [username]`
     * Description: Store your last.fm username in the bot, or displays your currently stored name if none given.
     * Permissions: `lastfm.lastfmnick`
+* `lastfmcompare <username one> [username two]`
+    * Description: Compare two users with the LastFM Tasteometer. If only one username is given, it will compare against the caller.
+    * Aliases: `musiccompare`, `compare`
+    * Permissions: `lastfm.compare`
 
 ## Usernames
 
