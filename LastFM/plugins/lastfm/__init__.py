@@ -282,10 +282,15 @@ class LastFMPlugin(plugin.PluginObject):
             if "toptags" in track and isinstance(track["toptags"], dict):
                 # type check due to an irregularity in the LastFM API: http://
                 # www.last.fm/group/Last.fm+Web+Services/forum/21604/_/2231458
+                if isinstance(track["toptags"]["tag"], dict):
+                    # If the list only contains one item, it gets turned into
+                    # a dict, so reverse that shit
+                    track["toptags"]["tag"] = [track["toptags"]["tag"]]
                 for tag in track["toptags"]["tag"]:
                     # TODO: Make these clickable links for protocols that can?
                     if not isinstance(tag, dict):
-                        self.logger.debug("Tag isn't a dict!? - %s" % tag)
+                        self.logger.error("Tag isn't a dict!? - %s" % tag)
+                        continue
                     tags.append(tag["name"])
 
             ### Finally, we send the message

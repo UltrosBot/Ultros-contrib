@@ -12,3 +12,5 @@
     Fix error with request exception handling
 0.3.0: >
     Added compare user tastes command (Tasteometer)
+0.3.1: >
+    Fixed an(other) edge-case in the LastFM API
