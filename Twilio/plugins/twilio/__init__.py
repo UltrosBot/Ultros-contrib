@@ -11,7 +11,7 @@ import system.plugin as plugin
 
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
-from system.plugin_manager import YamlPluginManagerSingleton
+from system.plugins.manager import PluginManager
 from system.storage.manager import StorageManager
 from system.storage.formats import YAML, JSON
 
@@ -29,18 +29,18 @@ class TwilioPlugin(plugin.PluginObject):
     storage = None
 
     twilio = None
-    web = None
+
+    @property
+    def web(self):
+        return self.plugins.get_plugin("Web")
 
     def setup(self):
         self.logger.trace("Entered setup method.")
 
         self.commands = CommandManager()
         self.events = EventManager()
-        self.plugins = YamlPluginManagerSingleton()
+        self.plugins = PluginManager()
         self.storage = StorageManager()
-
-        #: :type: BottlePlugin
-        self.web = self.plugins.getPluginByName("Web").plugin_object
 
         try:
             self.config = self.storage.get_file(self, "config", YAML,

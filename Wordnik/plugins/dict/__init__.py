@@ -9,7 +9,7 @@ from system.command_manager import CommandManager
 
 import system.plugin as plugin
 
-from system.plugin_manager import YamlPluginManagerSingleton
+from system.plugins.manager import PluginManager
 from system.protocols.generic.user import User
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
@@ -27,7 +27,9 @@ class DictPlugin(plugin.PluginObject):
     plugman = None
     storage = None
 
-    urls = None
+    @property
+    def urls(self):
+        return self.plugman.get_plugin("URLs")
 
     def setup(self):
         self.storage = StorageManager()
@@ -50,8 +52,7 @@ class DictPlugin(plugin.PluginObject):
         self._load()
         self.config.add_callback(self._load)
 
-        self.plugman = YamlPluginManagerSingleton()
-        self.urls = self.plugman.getPluginByName("URLs").plugin_object
+        self.plugman = PluginManager()
 
         self.commands = CommandManager()
 
