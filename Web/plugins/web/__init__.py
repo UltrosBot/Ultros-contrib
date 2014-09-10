@@ -387,7 +387,8 @@ config/plugins/web.yml file.
                         nav_items=nav_items,
                         headers=self.additional_headers,
                         packages=self.packs.get_installed_packages(),
-                        plugins=self.factory_manager.loaded_plugins.values(),
+                        plugins=
+                        self.factory_manager.plugman.info_objects.values(),
                         factories=self.factory_manager.factories,
                         auth=auth)
 
