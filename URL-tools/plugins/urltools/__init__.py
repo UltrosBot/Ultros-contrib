@@ -191,8 +191,7 @@ class URLToolsPlugin(plugin.PluginObject):
                          % len(sites_enabled))
 
         for shortener in shorteners_enabled:
-            self.urls.add_shortener(shortener,
-                                                  self.shorteners[shortener])
+            self.urls.add_shortener(shortener, self.shorteners[shortener])
 
         self.logger.info("Enabled support for %s shortener(s)."
                          % len(shorteners_enabled))
