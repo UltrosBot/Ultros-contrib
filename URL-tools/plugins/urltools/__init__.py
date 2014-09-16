@@ -185,13 +185,13 @@ class URLToolsPlugin(plugin.PluginObject):
         self.logger.debug("Registering with the URLs plugin..")
 
         for site in sites_enabled:
-            self.urls.plugin_object.add_handler(site, self.sites[site])
+            self.urls.add_handler(site, self.sites[site])
 
         self.logger.info("Enabled support for %s site(s)."
                          % len(sites_enabled))
 
         for shortener in shorteners_enabled:
-            self.urls.plugin_object.add_shortener(shortener,
+            self.urls.add_shortener(shortener,
                                                   self.shorteners[shortener])
 
         self.logger.info("Enabled support for %s shortener(s)."
