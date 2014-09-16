@@ -9,7 +9,7 @@ from system.decorators.threads import run_async_threadpool
 
 import system.plugin as plugin
 
-from system.plugin_manager import YamlPluginManagerSingleton
+from system.plugins.manager import PluginManager
 from system.event_manager import EventManager
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
@@ -22,13 +22,16 @@ class FeedsPlugin(plugin.PluginObject):
     manager = None
     plugman = None
     storage = None
-    urls = None
 
     feeds = []
     feed_times = {}
     targets = {}
 
     failures = {}
+
+    @property
+    def urls(self):
+        return self.plugman.get_plugin("URLs")
 
     def setup(self):
         self.logger.trace("Entered setup method.")
@@ -50,8 +53,7 @@ class FeedsPlugin(plugin.PluginObject):
         self.config.add_callback(self.delayed_setup)
 
         self.events = EventManager()
-        self.plugman = YamlPluginManagerSingleton()
-        self.urls = self.plugman.getPluginByName("URLs").plugin_object
+        self.plugman = PluginManager()
 
         self.logger.info("Waiting 30 seconds to set up.")
 

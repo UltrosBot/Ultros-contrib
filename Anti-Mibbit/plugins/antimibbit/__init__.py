@@ -3,7 +3,7 @@ __author__ = "Gareth Coles"
 import requests
 
 import system.plugin as plugin
-from system.plugin_manager import YamlPluginManagerSingleton
+from system.plugins.manager import PluginManager
 
 HASTEBIN_URL = "http://hastebin.com/documents"
 
@@ -17,10 +17,10 @@ class AntiMibbitPlugin(plugin.PluginObject):
         """
         :rtype: URLsPlugin
         """
-        return self.plugs.getPluginByName("URLs").plugin_object
+        return self.plugs.get_plugin("URLs")
 
     def setup(self):
-        self.plugs = YamlPluginManagerSingleton()
+        self.plugs = PluginManager()
 
         self.urls.add_handler("miburl.com", self.miburl_handler)
         self.urls.add_handler("mibpaste.com", self.mibpaste_handler)

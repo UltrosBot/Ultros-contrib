@@ -382,12 +382,13 @@ config/plugins/web.yml file.
     def index(self):
         auth = self.get_authorization()
         nav_items = copy.deepcopy(self.navbar_items)
+        plugins = self.factory_manager.plugman.info_objects.values()  # PEP
         return template("web/templates/index.html",
                         nav_name="Home",
                         nav_items=nav_items,
                         headers=self.additional_headers,
                         packages=self.packs.get_installed_packages(),
-                        plugins=self.factory_manager.loaded_plugins.values(),
+                        plugins=plugins,
                         factories=self.factory_manager.factories,
                         auth=auth)
 

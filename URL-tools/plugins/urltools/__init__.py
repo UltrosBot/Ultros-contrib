@@ -1,9 +1,8 @@
 # coding=utf-8
+__author__ = 'Gareth Coles'
+
 import json
 import urlparse
-from system.plugin_manager import YamlPluginManagerSingleton
-
-__author__ = 'Gareth Coles'
 
 import locale
 import requests
@@ -12,6 +11,7 @@ import urllib2
 
 import system.plugin as plugin
 
+from system.plugins.manager import PluginManager
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
@@ -93,30 +93,31 @@ class URLToolsPlugin(plugin.PluginObject):
 
     GITHUB_URL = "https://api.github.com"
 
-    GITHUB_USER = "[GitHub user] %s (%s followers) - %s repos, %s gists"
-    GITHUB_USER_ADMIN = "[GitHub admin] %s (%s followers) - %s repos, %s gists"
-    GITHUB_ORG = "[GitHub org] %s (%s followers) - %s repos, %s gists"
+    GITHUB_USER = u"[GitHub user] %s (%s followers) - %s repos, %s gists"
+    GITHUB_USER_ADMIN = u"[GitHub admin] %s (%s followers) - %s repos, %s " \
+                        u"gists"
+    GITHUB_ORG = u"[GitHub org] %s (%s followers) - %s repos, %s gists"
 
-    GITHUB_REPO = "[GitHub repo / No forks] %s (%s stars / %s watchers) - " \
-                  "%s open issues - %s"
-    GITHUB_REPO_FORKS = "[GitHub repo / %s forks] %s (%s stars / %s " \
-                        "watchers) - %s open issues - %s"
-    GITHUB_REPO_FORK = "[GitHub repo / fork of %s] %s (%s stars / %s " \
-                       "watchers) - %s open issues - %s"
+    GITHUB_REPO = u"[GitHub repo / No forks] %s (%s stars / %s watchers) - " \
+                  u"%s open issues - %s"
+    GITHUB_REPO_FORKS = u"[GitHub repo / %s forks] %s (%s stars / %s " \
+                        u"watchers) - %s open issues - %s"
+    GITHUB_REPO_FORK = u"[GitHub repo / fork of %s] %s (%s stars / %s " \
+                       u"watchers) - %s open issues - %s"
 
-    GITHUB_RELEASES = "[GitHub repo / %s releases] %s/%s - Latest: %s by %s " \
-                      "(%s downloads)"
-    GITHUB_RELEASE = "[GitHub release] %s/%s/%s by %s - %s assets, %s " \
-                     "downloads"
-    GITHUB_RELEASE_NONE = "[GitHub repo] %s/%s - No releases found"
+    GITHUB_RELEASES = u"[GitHub repo / %s releases] %s/%s - Latest: %s by " \
+                      u"%s (%s downloads)"
+    GITHUB_RELEASE = u"[GitHub release] %s/%s/%s by %s - %s assets, %s " \
+                     u"downloads"
+    GITHUB_RELEASE_NONE = u"[GitHub repo] %s/%s - No releases found"
 
-    GITHUB_ISSUES = "[GitHub repo / %s issues] %s/%s - %s open, %s closed"
-    GITHUB_ISSUE = "[GitHub issue] %s/%s/%s by %s (%s) - %s (%s)"
-    GITHUB_ISSUE_MILESTONE = "[GitHub issue] %s/%s/%s %s by %s (%s) - %s (%s)"
-    GITHUB_ISSUE_ASSIGNED = "[GitHub issue] %s/%s/%s by %s (%s) - %s (%s) " \
-                            "- Assigned to %s"
-    GITHUB_ISSUE_ASSIGNED_MILESTONE = "[GitHub issue] %s/%s/%s %s by %s " \
-                                      "(%s) - %s (%s) - Assigned to %s"
+    GITHUB_ISSUES = u"[GitHub repo / %s issues] %s/%s - %s open, %s closed"
+    GITHUB_ISSUE = u"[GitHub issue] %s/%s/%s by %s (%s) - %s (%s)"
+    GITHUB_ISSUE_MILESTONE = u"[GitHub issue] %s/%s/%s %s by %s (%s) - %s (%s)"
+    GITHUB_ISSUE_ASSIGNED = u"[GitHub issue] %s/%s/%s by %s (%s) - %s (%s) " \
+                            u"- Assigned to %s"
+    GITHUB_ISSUE_ASSIGNED_MILESTONE = u"[GitHub issue] %s/%s/%s %s by %s " \
+                                      u"(%s) - %s (%s) - Assigned to %s"
 
     # GITHUB_COMMITS = u"[GitHub repo / last %s commits] %s/%s - +%s/-%s/±%s" \
     #                  u" (%s individual file edits) by %s authors."
@@ -124,13 +125,17 @@ class URLToolsPlugin(plugin.PluginObject):
                      u" %s authors."
     GITHUB_COMMITS_COMMIT = u"[GitHub commit] %s/%s +%s/-%s/±%s (%s files) " \
                             u"by %s - %s"
-    GITHUB_COMMITS_COMPARE = "[GitHub commit comparison] %s/%s - Comparing " \
-                             "%s by %s and %s by %s with %s intermediary " \
-                             "commits"
+    GITHUB_COMMITS_COMPARE = u"[GitHub commit comparison] %s/%s - Comparing " \
+                             u"%s by %s and %s by %s with %s intermediary " \
+                             u"commits"
 
-    GITHUB_PULLS = "[GitHub repo / %s pull requests] %s/%s - %s open, %s " \
-                   "closed"
-    GITHUB_PULLS_PULL = "[GitHub pull request] %s/%s/%s by %s (%s) - %s"
+    GITHUB_PULLS = u"[GitHub repo / %s pull requests] %s/%s - %s open, %s " \
+                   u"closed"
+    GITHUB_PULLS_PULL = u"[GitHub pull request] %s/%s/%s by %s (%s) - %s"
+
+    @property
+    def urls(self):
+        return self.plugman.get_plugin("URLs")
 
     def setup(self):
         self.storage = StorageManager()
@@ -151,7 +156,7 @@ class URLToolsPlugin(plugin.PluginObject):
         self.shorteners["v.gd"] = self.shortener_vgd
         self.shorteners["waa.ai"] = self.shortener_waaai
 
-        self.plugman = YamlPluginManagerSingleton()
+        self.plugman = PluginManager()
 
         self._load()
         self.config.add_callback(self._load)
@@ -179,17 +184,15 @@ class URLToolsPlugin(plugin.PluginObject):
 
         self.logger.debug("Registering with the URLs plugin..")
 
-        urls = self.plugman.getPluginByName("URLs")
-
         for site in sites_enabled:
-            urls.plugin_object.add_handler(site, self.sites[site])
+            self.urls.plugin_object.add_handler(site, self.sites[site])
 
         self.logger.info("Enabled support for %s site(s)."
                          % len(sites_enabled))
 
         for shortener in shorteners_enabled:
-            urls.plugin_object.add_shortener(shortener,
-                                             self.shorteners[shortener])
+            self.urls.plugin_object.add_shortener(shortener,
+                                                  self.shorteners[shortener])
 
         self.logger.info("Enabled support for %s shortener(s)."
                          % len(shorteners_enabled))
