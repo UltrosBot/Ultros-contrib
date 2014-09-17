@@ -12,6 +12,7 @@
 * `chances` - Percentage chance of each reponse type. Leftover percentage is "maybe".
     * `yes` - Percent chance of a "yes" reply
     * `no` - Percent chance of a "no" reply
+* `same_answers` - Whether the same question should always result in the same answer.
 
 ## Commands and permissions
 

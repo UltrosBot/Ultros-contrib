@@ -35,3 +35,4 @@ responses:
 chances:
   "yes": 42
   "no": 42
+same_answers: true

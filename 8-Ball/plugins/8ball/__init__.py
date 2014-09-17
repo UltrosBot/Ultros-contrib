@@ -1,4 +1,5 @@
 import random
+import re
 
 from system.command_manager import CommandManager
 
@@ -38,6 +39,10 @@ class EightBallPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
+        ### Setup some stuff
+        self._random = random.Random()
+        self._question_regex = re.compile("[\W_]+")
+
         ### Register commands
         self.commands.register_command("8ball",
                                        self.eight_ball_cmd,
@@ -65,15 +70,34 @@ class EightBallPlugin(plugin.PluginObject):
     def maybe_chance(self):
         return 100 - self.yes_chance - self.no_chance
 
+    @property
+    def same_answers(self):
+        # Default False to keep old behaviour
+        return self._config.get("same_answers", False)
+
     def eight_ball_cmd(self, protocol, caller, source, command, raw_args,
                        parsed_args):
-        source.respond("[8ball] " + self.get_response())
+        source.respond("[8ball] " + self.get_response(raw_args))
 
-    def get_response(self):
-        choice = random.randint(1, 100)
+    def get_response(self, question=None):
+        if self.same_answers and question is not None:
+            try:
+                qseed = question.encode("ascii", "ignore").strip().lower()
+                qseed = self._question_regex.sub("", qseed)
+                self.logger.debug("qseed: %s" % qseed)
+                self._random.seed(qseed)
+            except Exception:
+                self.logger.exception(
+                    "Error while reducing question. Please alert the author."
+                )
+        # Use self._random so that we can seed it (above) to always get the
+        # same answer.
+        choice = self._random.randint(1, 100)
         reply_type = "maybe"
         if choice <= self.yes_chance:
             reply_type = "yes"
         elif choice <= self.yes_chance + self.no_chance:
             reply_type = "no"
+        # We don't want to use the re-seeded random here or we'll always get
+        # the exact same response.
         return random.choice(self._config["responses"][reply_type])

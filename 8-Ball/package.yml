@@ -1,8 +1,8 @@
 name: 8-Ball
 current_version:
-    number: 0.1.0
+    number: 0.2.0
     info: >
-        Initial version
+        + Option to always return same answer for same question.
 description: >
     8 ball command
 files:
