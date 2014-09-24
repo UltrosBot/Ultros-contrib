@@ -14,3 +14,5 @@
     Added compare user tastes command (Tasteometer)
 0.3.1: >
     Fixed an(other) edge-case in the LastFM API
+0.3.2: >
+    Fixed yet another edge-case in the LastFM API

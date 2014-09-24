@@ -341,7 +341,10 @@ class LastFMPlugin(plugin.PluginObject):
                 artist_count = int(result["artists"]["matches"])
             artists = []
             if artist_count > 0:
-                for artist in result["artists"]["artist"]:
+                _json_artists = result["artists"]["artist"]
+                if isinstance(_json_artists, dict):
+                    _json_artists = [_json_artists]
+                for artist in _json_artists:
                     artists.append(artist["name"])
 
             ### Send the message
