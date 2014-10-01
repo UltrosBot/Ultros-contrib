@@ -1,8 +1,8 @@
 name: LastFM
 current_version:
-    number: 0.3.1
+    number: 0.3.2
     info: >
-        Fixed an(other) edge-case in the LastFM API
+        Fixed yet another edge-case in the LastFM API
 description: >
     LastFM API integration. Current features:
     - Now Playing, including stats
