@@ -51,6 +51,8 @@ class URLToolsPlugin(plugin.PluginObject):
                                           "by %s [%s BPM] - Difficulty: %.2f" \
                                           " - Mode '%s' doesn't apply to " \
                                           "this map."
+    OSU_B_STR_SCORELESS = "[" + OSU_LOGO + " %s beatmap] (%s) %s - %s [%s] " \
+                                           "by %s [%s BPM] - Difficulty: %.2f"
     OSU_B_STR_WIP = "[" + OSU_LOGO + " %s beatmap] (%s) %s - %s [%s] " \
                                      "by %s [%s BPM] - Difficulty: %.2f"
     OSU_U_STR = "[" + OSU_LOGO + " user] %s (L%d) %s/%s/%s - Rank %s | " \
@@ -789,7 +791,9 @@ class URLToolsPlugin(plugin.PluginObject):
                 _score = self.do_get(domain + "get_scores", params)
                 _score = json.loads(_score)[0]
             except:
-                if self.OSU_APPROVALS[_map["approved"]] == "WIP":
+                if self.OSU_APPROVALS[_map["approved"]] in [
+                    "Pending", "WIP", "Graveyard"
+                ]:
                     return self.OSU_B_STR_WIP % (
                         self.OSU_MODES[_map["mode"]],
                         self.OSU_APPROVALS[_map["approved"]], _map["artist"],
