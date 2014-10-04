@@ -89,7 +89,7 @@ Teamspeak:
         modules: []
         packages: []
 Triggers:
-    version: 0.1.0
+    version: 0.2.0
     description: "Configurable trigger responses"
     requires:
         modules: []

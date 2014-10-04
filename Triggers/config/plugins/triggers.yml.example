@@ -13,3 +13,4 @@ triggers:
             # These triggers will fire in this channel on this protocol
           - {trigger: "^channel trigger$", response: ["Ultros response!"]}
           - {trigger: "tentacle ra((pe)|(ep))", response: ["l-lewd", "lewd!", "{source}, why you gotta be so leeewwd?"], flags: "i"}
+          - {trigger: "^pets Ultros", response: ["gently tentacles {source}", "gurgles~ ^-^", "flails tentacles"], trigger_types: {action: true}, response_type: "action", flags: "i"}

@@ -4,7 +4,7 @@ import itertools
 
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
-from system.events.general import MessageReceived
+from system.events.general import MessageReceived, ActionReceived
 
 import system.plugin as plugin
 from system.protocols.generic.channel import Channel
@@ -49,16 +49,20 @@ class TriggersPlugin(plugin.PluginObject):
 
         ### Register event handlers
         def _message_event_filter(event=MessageReceived):
-            target = event.target
-            type_ = event.type
-
-            return isinstance(target, Channel)
+            return isinstance(event.target, Channel)
 
         self.events.add_callback("MessageReceived",
                                  self,
                                  self.message_handler,
                                  1,
                                  _message_event_filter)
+
+        self.events.add_callback("ActionReceived",
+                                 self,
+                                 self.action_handler,
+                                 1,
+                                 _message_event_filter)
+
 
     def reload(self):
         try:
@@ -73,14 +77,27 @@ class TriggersPlugin(plugin.PluginObject):
         return self._config.get("triggers", {})
 
     def message_handler(self, event=MessageReceived):
+        self.event_handler(
+            event.caller,
+            event.source,
+            event.target,
+            event.message,
+            event.type
+        )
+
+    def action_handler(self, event=ActionReceived):
+        self.event_handler(
+            event.caller,
+            event.source,
+            event.target,
+            event.message,
+            "action"
+        )
+
+    def event_handler(self, protocol, source, target, message, e_type):
         """
         Event handler for general messages
         """
-
-        protocol = event.caller
-        source = event.source
-        target = event.target
-        message = event.message
 
         allowed = self.commands.perm_handler.check("triggers.trigger",
                                                    source,
@@ -132,11 +149,17 @@ class TriggersPlugin(plugin.PluginObject):
                 responses = trigger["response"]
                 chance = trigger.get("chance", 100)
                 flags = trigger.get("flags", "")
+                trigger_types = trigger.get("trigger_types", {"message": True})
+                response_type = trigger.get("response_type", "message")
 
-                response = random.choice(responses)
+                if not trigger_types.get(e_type, False):
+                    continue
 
                 if random.random() * 100 >= chance:
                     continue
+
+                response = random.choice(responses)
+                response_type = response_type.lower()
 
                 flags_parsed = 0
 
@@ -178,7 +201,22 @@ class TriggersPlugin(plugin.PluginObject):
                         *format_args,
                         **format_kwargs
                     )
-                    target.respond(response_formatted)
+                    if response_type == "message":
+                        protocol.send_msg(target, response_formatted)
+                    elif response_type == "action":
+                        protocol.send_action(target, response_formatted)
+                    elif response_type == "notice":
+                        if hasattr(protocol, "send_notice"):
+                            protocol.send_notice(target, response_formatted)
+                        else:
+                            self.logger.error(
+                                "Cannot respond with notice on protocol: '%s'"
+                                % protocol.name
+                            )
+                    else:
+                        self.logger.error(
+                            "Invalid response_type '%s'" % response_type
+                        )
             except Exception:
                 self.logger.exception(
                     "Invalid trigger for channel '%s' in protocol  '%s'" %

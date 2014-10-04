@@ -1,8 +1,8 @@
 name: Triggers
 current_version:
-    number: 0.1.0
+    number: 0.2.0
     info: >
-        Initial version.
+        + Configurable trigger/response types (message, notice, action)
 description: >
     Configurable trigger responses
 files:
