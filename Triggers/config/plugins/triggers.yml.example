@@ -1,0 +1,15 @@
+triggers:
+  # You may remove any of these sections if you don't want to use them.
+  global:
+    # These triggers will fire in any channel on any protocol
+    - {trigger: "^global trigger$", response: ["Global response!"]}
+  protocols:
+    irc-esper:
+      global:
+        # These triggers will fire in any channel on this protocol
+        - {trigger: "^protocol trigger$", response: ["Esper response!"]}
+      channels:
+        "#Ultros":
+            # These triggers will fire in this channel on this protocol
+          - {trigger: "^channel trigger$", response: ["Ultros response!"]}
+          - {trigger: "tentacle ra((pe)|(ep))", response: ["l-lewd", "lewd!", "{source}, why you gotta be so leeewwd?"], flags: "i"}

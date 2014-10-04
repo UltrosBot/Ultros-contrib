@@ -1,0 +1,10 @@
+core:
+  name: Triggers
+  module: triggers
+  dependencies: []
+info:
+  description: "Configurable trigger responses"
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Triggers
+  copyright: BSD 3-Clause

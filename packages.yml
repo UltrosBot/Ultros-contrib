@@ -88,6 +88,12 @@ Teamspeak:
     requires:
         modules: []
         packages: []
+Triggers:
+    version: 0.1.0
+    description: "Configurable trigger responses"
+    requires:
+        modules: []
+        packages: []
 Twilio:
     version: 0.0.1
     description: "Provides an interface with Twilio for sending and receiving text and MMS messages."

@@ -1,0 +1,16 @@
+name: Triggers
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version.
+description: >
+    Configurable trigger responses
+files:
+- plugins/triggers/
+- plugins/triggers/__init__.py
+- plugins/triggers.plug
+- config/plugins/triggers.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Triggers/README.md
