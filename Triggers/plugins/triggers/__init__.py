@@ -63,7 +63,6 @@ class TriggersPlugin(plugin.PluginObject):
                                  1,
                                  _message_event_filter)
 
-
     def reload(self):
         try:
             self._config.reload()
