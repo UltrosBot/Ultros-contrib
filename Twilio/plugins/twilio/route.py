@@ -9,7 +9,7 @@ class Route(RequestHandler):
     twilio = None
 
     def initialize(self):
-        self.twilio = self.plugin.plugman.get_plugin("Twilio")
+        self.twilio = self.plugin.factory_manager.plugman.get_plugin("Twilio")
 
     def get(self):
         from_ = self.get_argument("From", default="")
