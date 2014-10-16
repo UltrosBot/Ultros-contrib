@@ -12,10 +12,14 @@ from twisted.python.failure import Failure
 
 class RequestHandler(Handler):
 
+    #: :type: str
     name = None
 
-    css = ["/static/custom.css"]
-    js = []
+    #: :type: list
+    css = None
+
+    #: :type: list
+    js = None
 
     @property
     def plugin(self):
@@ -53,6 +57,9 @@ class RequestHandler(Handler):
         return None
 
     def prepare(self):
+        self.css = ["/static/custom.css"]
+        self.js = []
+
         self.plugin.logger.trace("XSRF token: %s" % self.xsrf_token)
 
         s = self.get_session_object()
