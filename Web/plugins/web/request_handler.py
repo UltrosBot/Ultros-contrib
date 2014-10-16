@@ -25,7 +25,7 @@ class RequestHandler(Handler):
         self.css = ["/static/custom.css"]
         self.js = []
 
-        super(self, RequestHandler).__init__(*args, **kwargs)
+        super(RequestHandler, self).__init__(*args, **kwargs)
 
     @property
     def plugin(self):
