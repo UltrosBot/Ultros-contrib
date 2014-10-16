@@ -21,6 +21,12 @@ class RequestHandler(Handler):
     #: :type: list
     js = None
 
+    def __init__(self, *args, **kwargs):
+        self.css = ["/static/custom.css"]
+        self.js = []
+
+        super(self, RequestHandler).__init__(*args, **kwargs)
+
     @property
     def plugin(self):
         return self.create_template_loader().plugin
@@ -57,9 +63,6 @@ class RequestHandler(Handler):
         return None
 
     def prepare(self):
-        self.css = ["/static/custom.css"]
-        self.js = []
-
         self.plugin.logger.trace("XSRF token: %s" % self.xsrf_token)
 
         s = self.get_session_object()
