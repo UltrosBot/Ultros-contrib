@@ -1,7 +1,6 @@
 # coding=utf-8
 __author__ = 'Gareth Coles'
 
-from bottle import abort
 from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
 
@@ -32,6 +31,9 @@ class TwilioPlugin(plugin.PluginObject):
 
     @property
     def web(self):
+        """
+        :rtype: WebPlugin
+        """
         return self.plugins.get_plugin("Web")
 
     def setup(self):
@@ -89,32 +91,11 @@ class TwilioPlugin(plugin.PluginObject):
                                                     account.friendly_name))
 
     def add_routes(self, event):
-        self.web.add_route("/twilio/<apikey>",
-                           ["POST"], self.route)
+        self.web.add_handler(
+            r"/twilio/%s" % self.config["security"]["api_key"],
+            "plugins.twilio.route.Route"
+        )
         self.logger.info("Registered route: /twilio/<apikey>")
-
-    def route(self, apikey):
-        if apikey != self.config["security"]["api_key"]:
-            return abort(404)
-
-        r = self.web.get_objects()
-        request = r.request
-        response = r.response
-
-        from_ = request.forms.From
-        message = request.forms.Body
-
-        if not (len(from_) and len(message)):
-            return r.abort(400, "No data!")
-
-        response.content_type = "text/xml"
-
-        try:
-            self.do_targets(from_, message)
-        except Exception:
-            self.logger.exception("Error in SMS message handler!")
-        finally:
-            return "<Response></Response>"
 
     def tw_command(self, protocol, caller, source, command, raw_args,
                    parsed_args):
@@ -402,7 +383,7 @@ class TwilioPlugin(plugin.PluginObject):
         elif from_ == "default":
             from_ = sender
 
-        message = message.replace("\r", "")
+        message = str(message).replace("\r", "")
         message = message.replace("\n", " ")
 
         f_str = f_str.replace("{FROM}", from_)
