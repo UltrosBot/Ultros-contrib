@@ -5,54 +5,55 @@
             <p>This is the default page. The web plugin is in its early stages, so watch this space!</p>
         </div>
 
-        <div class="ui fluid accordion">
-            <div class="active title">
-                <i class="dropdown icon"></i>
-                Packages and plugins
-            </div>
-            <div class="active content">
-                <h4 class="ui header">Currently installed packages: ${len(packages)}</h4>
-                <ul class="ui list">
-                % for package in sorted(packages.items()):
-                    <li>${package[0]} v${package[1]}</li>
-                % endfor
-                </ul>
-                <h4 class="ui header">Currently enabled plugins: ${len(plugins)}</h4>
-                <ul class="ui list">
+        <div>&nbsp;</div>
+
+        <div class="ui fluid attached sgement">
+            <h4>Packages and plugins</h4>
+        </div>
+        <div class="ui fluid attached sgement">
+            <h4 class="ui header">Currently installed packages: ${len(packages)}</h4>
+            <ul class="ui list">
+            % for package in sorted(packages.items()):
+                <li>${package[0]} v${package[1]}</li>
+            % endfor
+            </ul>
+            <h4 class="ui header">Currently enabled plugins: ${len(plugins)}</h4>
+            <ul class="ui list">
 <%
 import operator
 %>
-                % for plugin in sorted(plugins, key=operator.attrgetter("name")):
-                    <li><a href="${plugin.website}">${plugin.name}</a> v${plugin.version}</li>
-                % endfor
-                </ul>
-            </div>
-            <div class="title">
-                <i class="dropdown icon"></i>
-                Protocols
-            </div>
-            <div class="content">
-                <ul class="ui list">
+            % for plugin in sorted(plugins, key=operator.attrgetter("name")):
+                <li><a href="${plugin.website}">${plugin.name}</a> v${plugin.version}</li>
+            % endfor
+            </ul>
+        </div>
+
+        <div>&nbsp;</div>
+
+        <div class="ui fluid attached sgement">
+            <h4>Protocols</h4>
+        </div>
+        <div class="ui fluid attached sgement">
+            <ul class="ui list">
 <%
 types_map = {"Protocol": "Unknown",
-            "ChannelsProtocol": "Channel-based"}
+        "ChannelsProtocol": "Channel-based"}
 %>
-                % for name in sorted(factories.keys()):
-                    <li> ${name}
-                        <ul class="ui list">
-                            <li>Type: ${factories[name].protocol.TYPE}</li>
+            % for name in sorted(factories.keys()):
+                <li> ${name}
+                    <ul class="ui list">
+                        <li>Type: ${factories[name].protocol.TYPE}</li>
 <%
 from system.protocols.generic.protocol import ChannelsProtocol
 inst = isinstance(factories[name].protocol, ChannelsProtocol)
 %>
-                        % if inst:
-                            <li>${factories[name].protocol.num_channels} channel(s) </li>
-                        % endif
-                        </ul>
-                    </li>
-                % endfor
-                </ul>
-            </div>
+                    % if inst:
+                        <li>${factories[name].protocol.num_channels} channel(s) </li>
+                    % endif
+                    </ul>
+                </li>
+            % endfor
+            </ul>
         </div>
 
 <%block name="title">Ultros | Index</%block>

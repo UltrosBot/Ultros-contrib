@@ -19,138 +19,139 @@
             </p>
         </div>
 
-        <div class="ui fluid accordion">
-            <div class="title">
-                <i class="dropdown icon"></i>
-                API keys
+        <div>&nbsp;</div>
+
+        <div class="ui fluid attached segment">
+            <h4>API keys</h4>
+        </div>
+        <table class="ui fluid attached segment table">
+            <tbody>
+        % if len(api_keys):
+            % for key in api_keys:
+                <tr>
+                    <td>${key}</td>
+                    <td>
+                        <form method="post" action="/account/apikeys/delete">
+                            <input type="hidden" name="key" value="${key}">
+                            ${xsrf()}
+                            <button class="ui tiny right floated red add-popup icon button" title="Delete" data-position="left center">
+                                <i class="close icon"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            % endfor
+        % else:
+                <tr>
+                    <td>No API keys found.</td>
+                    <td></td>
+                </tr>
+        % endif
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2">
+                        <form method="post" action="/account/apikeys/create">
+                            ${xsrf()}
+                            <button class="ui tiny green labeled icon button"><i class="plus icon"></i> Add key</button>
+                        </form>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div>&nbsp;</div>
+
+        <div class="ui fluid attached segment">
+            <h4>Network logins</h4>
+        </div>
+        <table class="ui fluid attached segment table">
+        % if len(users):
+            <thead>
+                <tr>
+                    <th>Protocol</th>
+                    <th>Username</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            % for user in users:
+                <tr>
+                    <td>${user.protocol.name}</td>
+                    <td>${user.name}</td>
+                    <td>
+                        <form method="post" action="/account/users/logout">
+                            <input type="hidden" name="user" value="${id(user)}">
+                            ${xsrf()}
+                            <button class="ui tiny right floated red add-popup icon button" title="Delete" data-position="left center">
+                                <i class="close icon"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            % endfor
+            </tbody>
+        % else:
+            <tbody>
+                <tr>
+                    <td>No logins found</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        % endif
+        </table>
+
+        <div>&nbsp;</div>
+
+        <div class="ui fluid attached segment">
+            <h4>Password settings</h4>
+        </div>
+        <div class="ui fluid attached segment">
+            <div class="ui tiny center aligned red header">
+                Passwords are salted and securely hashed - we never store your plain password!
             </div>
-            <table class="ui content fluid table">
-                <tbody>
-            % if len(api_keys):
-                % for key in api_keys:
-                    <tr>
-                        <td>${key}</td>
-                        <td>
-                            <form method="post" action="/account/apikeys/delete">
-                                <input type="hidden" name="key" value="${key}">
-                                ${xsrf()}
-                                <button class="ui tiny right floated red add-popup icon button" title="Delete" data-position="left center">
-                                    <i class="close icon"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                % endfor
-            % else:
-                    <tr>
-                        <td>No API keys found.</td>
-                        <td></td>
-                    </tr>
-            % endif
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="2">
-                            <form method="post" action="/account/apikeys/create">
-                                ${xsrf()}
-                                <button class="ui tiny green labeled icon button"><i class="plus icon"></i> Add key</button>
-                            </form>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
 
-            <div class="title">
-                <i class="dropdown icon"></i>
-                Network logins
-            </div>
-            <table class="ui content fluid table">
-            % if len(users):
-                <thead>
-                    <tr>
-                        <th>Protocol</th>
-                        <th>Username</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                % for user in users:
-                    <tr>
-                        <td>${user.protocol.name}</td>
-                        <td>${user.name}</td>
-                        <td>
-                            <form method="post" action="/account/users/logout">
-                                <input type="hidden" name="user" value="${id(user)}">
-                                ${xsrf()}
-                                <button class="ui tiny right floated red add-popup icon button" title="Delete" data-position="left center">
-                                    <i class="close icon"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                % endfor
-                </tbody>
-            % else:
-                <tbody>
-                    <tr>
-                        <td>No logins found</td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            % endif
-            </table>
-
-            <div class="title active">
-                <i class="dropdown icon"></i>
-                Password settings
-            </div>
-            <div class="content active">
-                <div class="ui tiny center aligned red header">
-                    Passwords are salted and securely hashed - we never store your plain password!
-                </div>
-
-                <form class="ui form" method="post" action="/account/password/change">
-                    <div class="ui three fields">
-                        <div class="field">
-                            <label>Old password</label>
-                            <div class="ui left labeled icon input">
-                                <input type="password" required name="old_password">
-                                <i class="lock icon"></i>
-                                <div class="ui corner label">
-                                    <i class="icon asterisk"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label>New password</label>
-                            <div class="ui left labeled icon input">
-                                <input type="password" required name="new_password">
-                                <i class="lock icon"></i>
-                                <div class="ui corner label">
-                                    <i class="icon asterisk"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label>Confirm new password</label>
-                            <div class="ui left labeled icon input">
-                                <input type="password" required name="confirm_password">
-                                <i class="lock icon"></i>
-                                <div class="ui corner label">
-                                    <i class="icon asterisk"></i>
-                                </div>
+            <form class="ui form" method="post" action="/account/password/change">
+                <div class="ui three fields">
+                    <div class="field">
+                        <label>Old password</label>
+                        <div class="ui left labeled icon input">
+                            <input type="password" required name="old_password">
+                            <i class="lock icon"></i>
+                            <div class="ui corner label">
+                                <i class="icon asterisk"></i>
                             </div>
                         </div>
                     </div>
 
-                    ${xsrf()}
+                    <div class="field">
+                        <label>New password</label>
+                        <div class="ui left labeled icon input">
+                            <input type="password" required name="new_password">
+                            <i class="lock icon"></i>
+                            <div class="ui corner label">
+                                <i class="icon asterisk"></i>
+                            </div>
+                        </div>
+                    </div>
 
-                    <button type="submit" class="ui blue submit button">Change</button>
-                </form>
-            </div>
+                    <div class="field">
+                        <label>Confirm new password</label>
+                        <div class="ui left labeled icon input">
+                            <input type="password" required name="confirm_password">
+                            <i class="lock icon"></i>
+                            <div class="ui corner label">
+                                <i class="icon asterisk"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${xsrf()}
+
+                <button type="submit" class="ui blue submit button">Change</button>
+            </form>
         </div>
 
 <%block name="title">Ultros | ${session["username"]}</%block>
