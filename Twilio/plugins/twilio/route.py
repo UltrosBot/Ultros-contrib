@@ -11,7 +11,7 @@ class Route(RequestHandler):
     def initialize(self):
         self.twilio = self.plugin.factory_manager.plugman.get_plugin("Twilio")
 
-    def get(self):
+    def post(self):
         from_ = self.get_argument("From", default="")
         message = self.get_argument("Body", default="")
 
