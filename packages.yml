@@ -95,7 +95,7 @@ Triggers:
         modules: []
         packages: []
 Twilio:
-    version: 0.0.1
+    version: 0.0.2
     description: "Provides an interface with Twilio for sending and receiving text and MMS messages."
     requires:
         modules:
@@ -122,16 +122,12 @@ W3validator:
         - "requests"
         packages: []
 Web:
-    version: 0.4.0
+    version: 1.0.0
     description: "An extensible web interface and REST API built on Bottle and Twisted HTTP."
     requires:
         modules:
-        - "bottle"
-        - "cherrypy"
-        - "cssmin"
+        - "cyclone"
         - "mako"
-        - "webassets"
-        - "psutil"
         packages: []
 Wolfram:
     version: 0.0.1
