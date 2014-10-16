@@ -29,9 +29,23 @@
     <link href="//necolas.github.io/normalize.css/2.1.3/normalize.css" rel="stylesheet" />
     <link href="//mottie.github.io/tablesorter/css/theme.bootstrap.css" rel="stylesheet" />
 
+    % if extra_css is not UNDEFINED:
+    <!-- Route-specific CSS -->
+        % for url in extra_css:
+    <link href="${url}" rel="stylesheet" />
+        % endfor
+    % endif
+
     <!-- Javascript -->
     <script src="//mottie.github.io/tablesorter/js/jquery.tablesorter.min.js"></script>
     <script src="//code.highcharts.com/highcharts.js"></script>
+
+    % if extra_js is not UNDEFINED:
+    <!-- Route-specific JS -->
+        % for url in extra_js:
+    <script src="${url}" rel="stylesheet"></script>
+        % endfor
+    % endif
 
     <%block name="header"/>
 </head>
@@ -40,17 +54,34 @@
     <%include file="navbar.html" args="items=nav_items"/>
     <!-- Page content -->
     <div class="ui main container">
+        % if _message and _message_type:
+            <div class="ui ${_message_type | h} fluid message segment">
+                <p>${_message | h}</p>
+            </div>
+        % endif
+
         ${self.body()}
     </div>
 
     <!-- Semantic JS stuff -->
     <script>
         // Sidebar triggers
-        $("#menu").first().sidebar("attach events", ".menu-toggle");
-        // Initialize popups
-        $('.popup').popup();
-        // Initialize accordions
-        $(".accordion").accordion();
+        try {
+            $("#menu").first().sidebar("attach events", ".menu-toggle");
+        } finally {
+            try {
+                // Initialize popups
+                $(".add-popup").popup();
+            } finally {
+                try {
+                    // Initialize accordions
+                    $(".accordion").accordion();
+                } finally {
+                    // Initialize checkboxes
+                    $(".checkbox").checkbox();
+                }
+            }
+        }
     </script>
 
     <!-- Javascript for the sortable tables -->
@@ -60,7 +91,7 @@
                 .removeClass("icon")
                 .removeClass("sort")
                 .removeClass("ascending")
-                .removeClass("descending")
+                .removeClass("descending");
 
         $(".tablesorter-headerRow").find(".tablesorter-headerUnSorted")
                 .find(".tablesorter-icon")
@@ -94,13 +125,13 @@
                 .find(".tablesorter-icon")
                 .addClass("icon")
                 .addClass("sort")
-                .addClass("ascending");;
+                .addClass("ascending");
 
         $(".tablesorter-headerRow").find(".tablesorter-headerDesc")
                 .find(".tablesorter-icon")
                 .addClass("icon")
                 .addClass("sort")
-                .addClass("descending");;
+                .addClass("descending");
     });
 
     $(function(){

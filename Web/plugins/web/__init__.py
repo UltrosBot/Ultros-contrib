@@ -1,124 +1,206 @@
 # coding=utf-8
-__author__ = 'Gareth Coles'
 
-import copy
-import logging
-import os
-import sys
-import webassets
+"""
+Good ol' web interface and REST API plugin.
 
-from beaker.middleware import SessionMiddleware
+We're at 1.0.0! Cyclone <3
+"""
 
-from bottle import default_app, request, hook, abort, static_file, redirect, \
-    run, route, response
-from bottle import mako_template as template
+__author__ = "Gareth Coles"
 
-from twisted.internet.error import ReactorAlreadyRunning
+from cyclone.web import Application
 
-from .adapter import Server
-from .admin import Admin
-from .api import API
-from .errors import Errors
-from .events import ServerStartedEvent, ServerStoppedEvent, ServerStoppingEvent
-from .yielder import Yielder
-
-import system.plugin as plugin
+from plugins.web.apikeys import APIKeys
+from plugins.web.events import ServerStartedEvent, ServerStoppedEvent
+from plugins.web.template_loader import TemplateLoader
+from plugins.web.sessions import Sessions
+from plugins.web.stats import Stats
 
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
-from system.events.general import ReactorStartedEvent
-from system.protocols.generic.user import User
-from system.storage.manager import StorageManager
+from system.plugins.manager import PluginManager
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML, JSON
+from system.storage.manager import StorageManager
+from system.translations import Translations
 
-from utils.packages import packages
+from twisted.internet import reactor
+
+from utils.packages.packages import Packages
 from utils.password import mkpasswd
-from utils.misc import AttrDict
+
+_ = Translations().get()
+__ = Translations().get_m()
 
 
-class BottlePlugin(plugin.PluginObject):
-
-    app = None
-    host = ""
-    port = 8080
-    address = ""
-    output_requests = True
-    session_opts = {}
-    _secret = ""
-
-    api_routes_list = []
-    navbar_items = {}
-    additional_headers = []
-
-    adapter = None
-
-    config = None
-    commands = None
-    data = None
-    env = None
-
-    packs = None
-    events = None
-    storage = None
-
-    api = None
-    admin = None
-    errors = None
-
-    started = False
-
-    default_reset_message = """
-The bot administrator didn't fill this section out.
-
-Please ask them to add or fill out the "reset_message" option in their
-config/plugins/web.yml file.
+class WebPlugin(PluginObject):
+    """
+    Web plugin object
     """
 
-    # region Internal
+    api_log = None
+    api_keys = None
+
+    api_key_data = {}
+    config = {}
+    data = {}
+
+    namespace = {}  # Global, not used right now
+
+    handlers = {}  # Cyclone handlers
+
+    interface = ""  # Listening interface
+    listen_port = 8080
+
+    running = False
+
+    application = None  # Cyclone application
+    port = None  # Twisted's server port
+    storage = None
+    template_loader = None
+
+    navbar_items = {}
+
+    ## Stuff plugins might find useful
+
+    commands = None
+    events = None
+    packages = None
+    plugins = None
+    sessions = None
+    stats = None
+
+    ## Internal(ish) functions
 
     def setup(self):
-        self.logger.trace("Entered setup method.")
-
-        self.packs = packages.Packages()
         self.storage = StorageManager()
 
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/web.yml")
+            self.logger.debug("Config loaded")
         except Exception:
-            self.logger.exception("Error loading configuration!")
-            return self._disable_self()
-        else:
-            if not self.config.exists:
-                self.logger.error("Unable to find config/plugins/web.yml")
-                return self._disable_self()
+            self.logger.exception(_("Error loading configuration"))
+            self._disable_self()
+            return
+        if not self.config.exists:
+            self.logger.error(_("Unable to find config/plugins/web.yml"))
+            self._disable_self()
+            return
 
         try:
             self.data = self.storage.get_file(self, "data", JSON,
                                               "plugins/web/data.json")
+            self.logger.debug("Data loaded")
         except Exception:
-            self.logger.exception("Error loading data!")
-            self.logger.error("This data file is required. Shutting down...")
+            self.logger.exception("Error loading data file!")
             return self._disable_self()
 
-        self._load(start_now=False)
-        self.config.add_callback(self._load)
-        self.data.add_callback(self._load)
+        try:
+            _sessions = self.storage.get_file(self, "data", JSON,
+                                              "plugins/web/sessions.json")
+            self.logger.debug("Sessions loaded")
+        except Exception:
+            self.logger.exception("Error loading sessions file!")
+            return self._disable_self()
 
-        self.adapter = Server()
+        try:
+            self.api_log = open("logs/api.log", "w")
+        except Exception:
+            self.logger.exception("Unable to open api log file!")
+            return self._disable_self()
+
+        try:
+            self.api_key_data = self.storage.get_file(
+                self, "data", JSON, "plugins/web/apikeys.json"
+            )
+            self.logger.debug("Sessions loaded")
+        except Exception:
+            self.logger.exception("Error loading API keys!")
+            return self._disable_self()
+
+        try:
+            self.api_log = open("logs/api.log", "w")
+        except Exception:
+            self.logger.exception("Unable to open api log file!")
+            return self._disable_self()
+
+        self.config.add_callback(self.restart)
+        self.data.add_callback(self.restart)
+
+        # Index page
+
+        self.add_handler(r"/", "plugins.web.routes.index.Route")
+
+        # Login-related
+
+        self.add_handler(r"/login", "plugins.web.routes.login.Route")
+        self.add_handler(r"/logout", "plugins.web.routes.logout.Route")
+        self.add_handler(
+            r"/login/reset",
+            "plugins.web.routes.login-reset.Route"
+        )
+
+        # Accounts-related
+
+        self.add_handler(r"/account", "plugins.web.routes.account.index.Route")
+        self.add_handler(
+            r"/account/password/change",
+            "plugins.web.routes.account.password.change.Route"
+        )
+        self.add_handler(
+            r"/account/apikeys/create",
+            "plugins.web.routes.account.apikeys.create.Route"
+        )
+        self.add_handler(
+            r"/account/apikeys/delete",
+            "plugins.web.routes.account.apikeys.delete.Route"
+        )
+        self.add_handler(
+            r"/account/users/logout",
+            "plugins.web.routes.account.users.logout.Route"
+        )
+
+        # Admin-related
+
+        self.add_handler(
+            r"/admin",
+            "plugins.web.routes.admin.index.Route"
+        )
+        self.add_handler(
+            r"/admin/files",
+            "plugins.web.routes.admin.files.Route"
+        )
+        self.add_handler(
+            r"/admin/files/(config|data)/(.*)",
+            "plugins.web.routes.admin.file.Route"
+        )
+        self.add_handler(  # TODO: API routes
+            r"/api/admin/get_stats",
+            "plugins.web.routes.api.admin.get_stats.Route"
+        )
+
+        self.add_navbar_entry("admin", "/admin", "settings")
+
+        # Stuff routes might find useful
+
+        self.api_keys = APIKeys(self, self.api_key_data)
+        self.commands = CommandManager()
+        self.events = EventManager()
+        self.packages = Packages(False)
+        self.plugins = PluginManager()
+        self.sessions = Sessions(self, _sessions)
+        self.stats = Stats()
+
+        # Load 'er up!
+
+        self.load()
 
         self.events.add_callback("ReactorStarted", self,
-                                 self.start_callback,
+                                 self.start,
                                  0)
 
-    def _load(self, start_now=True):
-        base_path = "web/static"
-
-        self.host = self.config["hostname"]
-        self.port = self.config["port"]
-        self.output_requests = self.config["output_requests"]
-        self.address = self.config["public_address"]
-
+    def load(self):
         if "secret" not in self.data:
             self.logger.warn("Generating secret. DO NOT SHARE IT WITH ANYONE!")
             self.logger.warn("It's stored in data/plugins/web/data.json - "
@@ -126,160 +208,117 @@ config/plugins/web.yml file.
             with self.data:
                 self.data["secret"] = mkpasswd(60, 20, 20, 20)
 
-        self._secret = self.data["secret"]
+        self.template_loader = TemplateLoader(self)
 
-        self.logger.info("Compiling and minifying Javascript and CSS..")
-
-        if os.path.exists(base_path + "/static/.webassets-cache"):
-            os.removedirs(base_path + "/static/.webassets-cache")
-
-        if os.path.exists(base_path + "/static/generated"):
-            os.removedirs(base_path + "/static/generated")
-
-        self.env = webassets.Environment(base_path, "/static")
-        self.env.debug = "--debug" in sys.argv
-        if "--debug" in sys.argv:
-            self.logger.warn("Environment is in debug mode, no compilation "
-                             "will be done.")
-
-        css = []
-        js = []
-
-        assets = os.listdir(base_path)
-        for asset in assets:
-            if asset.endswith(".css"):
-                css.append(asset)
-            elif asset.endswith(".js"):
-                js.append(asset)
-
-        if js:
-            self.logger.info("Optimizing and compiling %s JavaScript files."
-                             % len(js))
-            js_bundle = webassets.Bundle(*js, filters="rjsmin",
-                                         output="generated/packed.js")
-
-            self.env.register("js", js_bundle)
-
-            for url in self.env["js"].urls():
-                self._add_javascript(url)
+        if self.config.get("output_requests", True):
+            log_function = self.log_request
         else:
-            self.logger.info("No JavaScript files were found. Nothing to do.")
+            log_function = self.null_log
 
-        if css:
-            self.logger.info("Optimizing and compiling %s CSS files."
-                             % len(css))
-            css_bundle = webassets.Bundle(*css, filters=["cssrewrite",
-                                                         "cssmin"],
-                                          output="generated/packed.css")
+        self.application = Application(
+            list(self.handlers.items()),  # Handler list
 
-            self.env.register("css", css_bundle)
+            ## General settings
+            xheaders=True,
+            log_function=log_function,
+            gzip=True,  # Are there browsers that don't support this now?
+            # error_handler=ErrorHandler,
 
-            for url in self.env["css"].urls():
-                self._add_stylesheet(url)
+            ## Security settings
+            cookie_secret=self.data["secret"],
+            login_url="/login",
+
+            ## Template settings
+            template_loader=self.template_loader,
+
+            ## Static file settings
+            static_path="web/static"
+        )
+
+        if self.config.get("hostname", "0.0.0.0") == "0.0.0.0":
+            self.interface = ""
         else:
-            self.logger.info("No CSS files were found. Nothing to do.")
+            self.interface = self.config.get("hostname")
 
-        self.session_opts = {
-            "session.cookie_expires": True,
-            "data_dir": "data/plugins/web/beaker/data",
-            "lock_dir": "data/plugins/web/beaker/lock",
-            "type": "file",
-            "key": "Ultros",
-            "secret": self._secret
-        }
+        self.listen_port = self.config.get("port", 8080)
 
-        ds = self.stop()
+    def start(self, _=None):
+        self.stats.start()
 
-        self.app = default_app()
-        self.app = SessionMiddleware(self.app, self.session_opts)
-        self.events = EventManager()
-        self.commands = CommandManager()
+        self.port = reactor.listenTCP(
+            self.listen_port, self.application, interface=self.interface
+        )
 
-        def log_all():
-            ip = request.remote_addr
-            method = request.method
-            fullpath = request.fullpath
+        self.logger.info("Server started")
+        self.running = True
 
-            level = logging.INFO if self.output_requests else logging.DEBUG
-
-            self.logger.log(level, "[%s] %s %s" % (ip, method, fullpath))
-
-        hook("before_request")(log_all)
-
-        if start_now:
-            if ds:
-                ds.addCallback(self.start_callback)
+        self.events.run_callback(
+            "Web/ServerStartedEvent",
+            ServerStartedEvent(self, self.application)
+        )
 
     def stop(self):
-        if self.app is not None:
-            self.logger.info("Stopping bottle app..")
-            event = ServerStoppingEvent(self, self.app)
-            self.events.run_callback("Web/ServerStopping", event)
+        self.application.doStop()
+        d = self.port.stopListening()
 
-            default_app().reset()
-            ds = self.adapter.stop()
+        d.addCallback(lambda _: self.logger.info("Server stopped"))
+        d.addCallback(lambda _: setattr(self, "running", False))
+        d.addCallback(lambda _: self.events.run_callback(
+            "Web/ServerStopped", ServerStoppedEvent(self)
+        ))
 
-            event = ServerStoppedEvent(self)
-            self.events.run_callback("Web/ServerStopped", event)
+        d.addErrback(lambda f: self.logger.error("Failed to stop: %s" % f))
 
-            return ds
-        return None
+        self.stats.stop()
+
+        return d
+
+    def restart(self):
+        d = self.stop()
+
+        d.addCallback(lambda _: [self.load(), self.start()])
 
     def deactivate(self):
         self.stop()
-        super(BottlePlugin, self).deactivate()
 
-    def start_callback(self, event=ReactorStartedEvent):
-        self.logger.info("Starting Bottle app..")
-        if self._start_bottle():
-            self.add_route("/static/<path:path>", ["GET", "POST"], self.static)
-            self.add_route("/static/", ["GET", "POST"], self.static_403)
-            self.add_route("/static", ["GET", "POST"], self.static_403)
+    def log_request(self, request):
+        log = self.logger.info
 
-            self.add_route("/", ["GET", "POST"], self.index)
-            self.add_route("/index", ["GET", "POST"], self.index)
-            self.add_route("/login", ["GET"], self.login)
-            self.add_route("/login", ["POST"], self.login_post)
-            self.add_route("/login/reset", ["GET"], self.login_reset)
-            self.add_route("/logout", ["GET", "POST"], self.logout)
+        status_code = request.get_status()
 
-            self.api = API(self)
-            self.admin = Admin(self)
-            self.errors = Errors(self)
+        if status_code >= 500:
+            log = self.logger.error
+        elif status_code >= 400:
+            log = self.logger.warn
 
-    def _start_bottle(self):
-        try:
-            try:
-                self.adapter(host=self.host, port=self.port, quiet=True)
-                run(app=self.app, host=self.host, port=self.port,
-                    server=self.adapter, quiet=True)
-            except ReactorAlreadyRunning:
-                self.logger.trace("Caught ReactorAlreadyRunning error.")
+        log(
+            "[%s] %s %s -> HTTP %s"
+            % (
+                request.request.remote_ip,
+                request.request.method,
+                request.request.path,
+                request.get_status()
+            )
+        )
 
-            self.logger.trace("Throwing event..")
-            event = ServerStartedEvent(self, self.app)
-            self.events.run_callback("Web/ServerStartedEvent", event)
-            return True
-        except Exception:
-            self.logger.exception("Exception while running the Bottle app!")
+    def null_log(self, *args, **kwargs):
+        pass
+
+    ## Public API functions
+
+    def add_handler(self, pattern, handler):
+        self.logger.debug("Adding route: %s -> %s" % (pattern, handler))
+
+        if pattern in self.handlers:
+            self.logger.debug("Route already exists.")
             return False
 
-    def _log_request(self, rq, level=logging.DEBUG):
-        ip = rq.remote_addr
-        self.logger.log("[%s] %s %s" % (ip, request.method, request.fullpath),
-                        level)
+        self.handlers[pattern] = handler
 
-    def _add_stylesheet(self, path):
-        header = '<link rel="stylesheet" href="%s" />' % path
-        self.add_header(header)
+        if self.application is not None:
+            self.application.add_handlers(r".*$", [(pattern, handler)])
 
-    def _add_javascript(self, path):
-        header = '<script src="%s"></script>' % path
-        self.add_header(header)
-
-    # endregion
-
-    # region Public API functions
+        self.logger.debug("Handlers list: %s" % list(self.handlers.values()))
 
     def add_navbar_entry(self, title, url, icon="question"):
         if title in self.navbar_items:
@@ -288,193 +327,28 @@ config/plugins/web.yml file.
         self.navbar_items[title] = {"url": url, "active": False, "icon": icon}
         return True
 
-    def add_header(self, header):
-        self.logger.debug("Adding header: %s" % header)
-        self.additional_headers.append(header)
+    def check_permission(self, perm, session=None):
+        if session is None:
+            username = "/anonymous/"
+        else:
+            username = session["username"]
 
-    def add_route(self, path, methods, *args, **kwargs):
-        if not isinstance(methods, list):
-            methods = [methods]
-        _id = "%s|%s" % (path, ", ".join(methods))
-        if _id in self.api_routes_list:
-            return False
-        self.api_routes_list.append(_id)
-
-        self.logger.debug("Adding route: %s" % path)
-        route(path, methods, *args, **kwargs)
-
-        return True
-
-    def get_yielder(self):
-        return Yielder()
-
-    def get_session(self, r=None):
-        if r is None:
-            r = self.get_objects()
-        return r.session
-
-    def get_objects(self):
-        return AttrDict(
-            request=request,
-            response=response,
-            abort=abort,
-            hook=hook,
-            static_file=static_file,
-            template=template,
-            session=request.environ.get("beaker.session")
+        return self.commands.perm_handler.check(
+            perm, username, "web", "plugin-web"
         )
 
-    def get_authorization(self, r=None):
-        s = self.get_session(r)
+    def remove_handlers(self, *names):
+        found = False
 
-        return AttrDict(
-            authorized=s.get("authorized", False),
-            auth_name=s.get("auth_name", None)
+        for name in names:
+            if name in self.handlers:
+                found = True
+                del self.handlers[name]
+
+        if found:
+            self.restart()
+
+    def write_api_log(self, address, key, username, message):
+        self.api_log.write(
+            "%s | %s (%s) | %s\n" % (address, key, username, message)
         )
-
-    def is_authorized(self, r=None):
-        a = self.get_authorization(r)
-        return a["authorized"]
-
-    def check_permission(self, perm, r=None):
-        auth = self.get_authorization(r)
-        caller = User(auth["auth_name"], "web")
-
-        caller.auth_name = auth["auth_name"]
-        caller.authorized = auth["authorized"]
-
-        return self.commands.perm_handler.check(perm, caller, "web", "web")
-
-    def wrap_template(self, content, _title, nav="Home", r=None,
-                      tpl="web/templates/generic.html", breadcrumbs=None,
-                      current_breadcrumb="Home", use_breadcrumbs=False,
-                      ** kwargs):
-        if not breadcrumbs:
-            breadcrumbs = []
-
-        auth = self.get_authorization(r)
-        nav_items = copy.deepcopy(self.navbar_items)
-        if nav in nav_items:
-            nav_items[nav]["active"] = True
-        return template(tpl,
-                        nav_items=nav_items, nav_name=nav,
-                        headers=self.additional_headers,
-                        content=content, _title=_title,
-                        auth=auth, breadcrumbs=breadcrumbs,
-                        current_breadcrumb=current_breadcrumb,
-                        show_breadcrumbs=use_breadcrumbs,
-                        **kwargs)
-
-    def require_login(self, r=None):
-        if r is None:
-            r = self.get_objects()
-
-        if not self.is_authorized(r):
-            # Login form
-            return False, redirect("/login", 307)
-        # They're logged in
-        return True, None
-
-    # endregion
-
-    # region Routes
-
-    def index(self):
-        auth = self.get_authorization()
-        nav_items = copy.deepcopy(self.navbar_items)
-        plugins = self.factory_manager.plugman.info_objects.values()  # PEP
-        return template("web/templates/index.html",
-                        nav_name="Home",
-                        nav_items=nav_items,
-                        headers=self.additional_headers,
-                        packages=self.packs.get_installed_packages(),
-                        plugins=plugins,
-                        factories=self.factory_manager.factories,
-                        auth=auth)
-
-    def login(self):
-        auth = self.get_authorization()
-        nav_items = copy.deepcopy(self.navbar_items)
-        if not self.is_authorized():
-            # Show login form
-            return template("web/templates/login.html",
-                            nav_name="Login",
-                            nav_items=nav_items,
-                            headers=self.additional_headers,
-                            auth=auth,
-                            failed=False,
-                            missing=False)
-        return redirect("/", 307)
-
-    def login_reset(self):
-        auth = self.get_authorization()
-        nav_items = copy.deepcopy(self.navbar_items)
-        if not self.is_authorized():
-            return template("web/templates/login-reset.html",
-                            nav_name="Login",
-                            nav_items=nav_items,
-                            headers=self.additional_headers,
-                            auth=auth,
-                            message=self.config.get(
-                                "reset_message", self.default_reset_message
-                            ))
-        return redirect("/", 307)
-
-    def login_post(self):
-        auth = self.get_authorization()
-        if not self.is_authorized():
-            s = self.get_session()
-
-            nav_items = copy.deepcopy(self.navbar_items)
-
-            username = request.forms.get("username", None)
-            password = request.forms.get("password", None)
-
-            result = False
-
-            if not (username or password):
-                return template("web/templates/login.html",
-                                nav_name="Login",
-                                nav_items=nav_items,
-                                headers=self.additional_headers,
-                                auth=auth,
-                                failed=False,
-                                missing=True)
-
-            for handler in self.commands.auth_handlers:
-                result = handler.check_login(username, password)
-                if result:
-                    break
-
-            if result:
-                s["authorized"] = True
-                s["auth_name"] = username
-                s.save()
-            else:
-                return template("web/templates/login.html",
-                                nav_name="Login",
-                                nav_items=nav_items,
-                                headers=self.additional_headers,
-                                auth=auth,
-                                failed=True,
-                                missing=False)
-        return redirect("/", 303)
-
-    def logout(self):
-        if self.is_authorized():
-            s = self.get_session()
-            del s["authorized"]
-            del s["auth_name"]
-            s.save()
-            s.delete()
-        return redirect("/", 307)
-
-    def static(self, path):
-        return static_file(path, root="web/static")
-
-    def static_403(self):
-        abort(403, "You may not list the static files.")
-
-    # endregion
-
-    pass  # So the regions work in PyCharm

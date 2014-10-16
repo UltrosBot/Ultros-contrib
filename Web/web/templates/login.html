@@ -27,6 +27,7 @@
 % endif
         <div class="ui form attached fluid segment">
             <form role="form" action="/login" method="post">
+                ${xsrf()}
                 <div class="field">
                     <div class="ui left icon input">
                         <input type="text" placeholder="Username" name="username" required>
@@ -45,6 +46,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="field">
+                    <div class="ui left">
+                        <div class="ui toggle checkbox">
+                            <input id="remember" type="checkbox">
+                            <label for="remember">Remember me</label>
+                        </div>
+                    </div>
+                </div>
+            % if redirect:
+                <input type="hidden" value="${redirect}" name="redirect">
+            % endif
                 <div class="ui buttons">
                     <button type="submit" class="positive ui button">Submit</button>
                     <div class="or"></div>

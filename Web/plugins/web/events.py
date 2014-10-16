@@ -10,13 +10,6 @@ class ServerStartedEvent(PluginEvent):
         super(ServerStartedEvent, self).__init__(caller)
 
 
-class ServerStoppingEvent(PluginEvent):
-
-    def __init__(self, caller, app):
-        self.app = app
-        super(ServerStoppingEvent, self).__init__(caller)
-
-
 class ServerStoppedEvent(PluginEvent):
 
     def __init__(self, caller):

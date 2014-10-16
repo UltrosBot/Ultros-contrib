@@ -3,52 +3,65 @@
         <%page args="items={}"/>
 
 <div id="mobile-menu" class="ui pointing fluid menu">
-    % if nav_name == "Home":
-    <a class="green active item" href="/">
+    % if nav_name == "home":
+    <a class="green active item hide-full" href="/">
         <i class="home icon"></i>
         Home
     </a>
     % else:
-    <a class="item" href="/">
+    <a class="item hide-full" href="/">
         <i class="home icon"></i>
         Home
     </a>
     % endif
 
     % for title, entry in sorted(items.items()):
-        % if entry["active"]:
-        <a class="green active item" href="${entry['url']}">
+        % if title == nav_name:
+        <a class="green active item hide-full" href="${entry['url']}">
             <i class="${entry.get('icon', 'question')} icon"></i>
-            ${title}
+            ${title.title()}
         </a>
         % else:
-        <a class="item" href="${entry['url']}">
+        <a class="item hide-full" href="${entry['url']}">
             <i class="${entry.get('icon', 'question')} icon"></i>
-            ${title}
+            ${title.title()}
         </a>
         % endif
     % endfor
 
-    <div class="right menu">
-        % if auth.authorized:
-        <a class="item" href="/logout">
-            <i class="blue alternate unlock icon"></i>
-            Logout (${auth.auth_name})
-        </a>
-        % else:
+    <a class="hidden item"></a>
 
-            % if nav_name == "Login":
-        <a class="blue active item" href="/login">
+    <div class="right menu">
+% if session:
+        <a class="hidden item"></a>
+
+    % if nav_name == "account":
+        <a class="blue active item add-popup" title="Account" data-position="bottom center" href="/account">
+            ${session["username"]}
+        </a>
+    % else:
+        <a class="item add-popup" title="Account" data-position="bottom center" href="/account">
+            ${session["username"]}
+        </a>
+    % endif
+        <a class="red item add-popup" title="Logout" data-position="bottom left" href="/logout">
+            <i class="red alternate unlock icon"></i>
+        </a>
+
+% else:
+        <a class="hidden item"></a>
+
+    % if nav_name == "login":
+        <a class="blue active item add-popup" title="Login" data-position="bottom left" href="/login">
+            <i class="lock icon"></i>
+        </a>
+    % else:
+        <a class="item add-popup" title="Login" data-position="bottom left" href="/login">
             <i class="lock icon"></i>
             Login
         </a>
-            % else:
-        <a class="item" href="/login">
-            <i class="lock icon"></i>
-            Login
-        </a>
-            % endif
-        % endif
+    % endif
+% endif
     </div>
 </div>
 
@@ -61,50 +74,30 @@
     </div>
 
     <div class="ui attached fluid vertical menu segment">
-        % if nav_name == "Home":
+    % if nav_name == "home":
         <a class="green active item" href="/">
             <i class="home icon"></i>
             Home
         </a>
-        % else:
+    % else:
         <a class="item" href="/">
             <i class="home icon"></i>
             Home
         </a>
-        % endif
+    % endif
 
-        % if auth.authorized:
-        <a class="blue item" href="/logout">
-            <i class="blue alternate unlock icon"></i>
-            Logout (${auth.auth_name})
+    % for title, entry in sorted(items.items()):
+        % if title == nav_name:
+        <a class="green active item" href="${entry['url']}">
+            <i class="${entry.get('icon', 'question')} icon"></i>
+            ${title.title()}
         </a>
         % else:
-
-            % if nav_name == "Login":
-        <a class="blue active item" href="/login">
-            <i class="lock icon"></i>
-            Login
+        <a class="item" href="${entry['url']}">
+            <i class="${entry.get('icon', 'question')} icon"></i>
+            ${title.title()}
         </a>
-            % else:
-        <a class="item" href="/login">
-            <i class="lock icon"></i>
-            Login
-        </a>
-            % endif
         % endif
-
-        % for title, entry in sorted(items.items()):
-            % if entry["active"]:
-            <a class="green active item" href="${entry['url']}">
-                <i class="${entry.get('icon', 'question')} icon"></i>
-                ${title}
-            </a>
-            % else:
-            <a class="item" href="${entry['url']}">
-                <i class="${entry.get('icon', 'question')} icon"></i>
-                ${title}
-            </a>
-            % endif
-        % endfor
+    % endfor
     </div>
 </div>

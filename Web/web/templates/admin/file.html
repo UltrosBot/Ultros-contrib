@@ -1,17 +1,16 @@
 ## -*- coding: utf-8 -*-
 
 <%inherit file="../base.html"/>
-        <div class="ui green fluid segment">
-            <div class="ui breadcrumb">
-                <a class="section" href="/">Home</a>
-                <div class="divider"> / </div>
-                <a class="section" href="/admin">Admin</a>
-                <div class="divider"> / </div>
-                <a class="section" href="/admin/files">Files</a>
-                <div class="divider"> / </div>
-                <a class="active section">${filename}</a>
-            </div>
-        </div>
+<div class="ui labeled icon menu">
+    <a class="item" href="/admin">
+        <i class="settings icon"></i>
+        Admin
+    </a>
+    <a class="green active item" href="/admin/files">
+        <i class="file outline icon"></i>
+        Files
+    </a>
+</div>
 
         % if error:
 
@@ -32,9 +31,10 @@
 
         % endif
 
-        <form method="post" class="ui form" action="/admin/file/${filetype}/${filename}">
-            <textarea id="input" name="input" class="ui attached fluid segment">${content}</textarea>
+        <form method="post" class="ui form" action="/admin/files/${filetype}/${filename}">
+            <textarea id="input" name="content" class="ui attached fluid segment">${content}</textarea>
 
+            ${xsrf()}
             <button type="submit" class="positive ui button">Submit</button>
         </form>
 
@@ -52,7 +52,7 @@
             $(".CodeMirror").first().addClass("ui fluid segment");
         </script>
 
-<%block name="title">Ultros | File: ${_title}</%block>
+<%block name="title">Ultros | File: ${filetype}/${filename}</%block>
 <%block name="header">
 % for item in headers:
     ${item}

@@ -1,0 +1,159 @@
+## -*- coding: utf-8 -*-
+
+<%inherit file="../base.html"/>
+
+<div class="ui labeled icon menu">
+    <a class="green active item">
+        <i class="settings icon"></i>
+        Admin
+    </a>
+    <a class="item" href="/admin/files">
+        <i class="file outline icon"></i>
+        Files
+    </a>
+</div>
+
+<div class="ui attached fluid segment">
+        Memory usage (out of <strong>${total_mem}MB</strong>)
+</div>
+
+<div id="mem_chart" class="ui attached fluid segment" style="height:400px;"></div>
+
+<div>&nbsp;</div>
+
+<div class="ui attached fluid segment">
+        CPU usage
+</div>
+
+<div id="cpu_chart" class="ui attached fluid segment" style="height:400px;"></div>
+
+<script>
+    var mem_chart;
+
+    function request_stat_data() {
+        $.ajax({
+            url: '/api/admin/get_stats',
+            success: function(json) {
+                var points = point = JSON.parse(json);
+
+                console.log(points);
+
+                if (points.error !== undefined) {
+                    console.log("Error getting stats: " + points.error);
+                    alert("Error getting stats: " + points.error);
+                    return;
+                }
+
+                var cpu_series = cpu_chart.series[0],
+                    cpu_shift = cpu_series.data.length >= 20,
+                    mem_series = mem_chart.series[0],
+                    mem_shift = mem_series.data.length >= 20,
+
+                    cpu_point = [points.cpu.x, points.cpu.y],
+                    mem_point = [points.ram.x, points.ram.y];
+
+                // Add the point
+                mem_series.addPoint(mem_point, true, mem_shift);
+                cpu_series.addPoint(cpu_point, true, cpu_shift);
+
+                // Check again after five seconds
+                setTimeout(request_stat_data, 5000);
+            },
+            cache: false
+        });
+    }
+
+    $(document).ready(function() {
+
+        mem_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: "mem_chart",
+                type: 'spline'
+            },
+            title: "",
+            tooltip: {
+                formatter: function () {
+                    return this.series.name + "<br /><strong>" + this.y + "MB</strong>";
+                }
+            },
+            animation: true,
+            xAxis: {
+                labels: {
+                    formatter: function() {
+                        return Highcharts.dateFormat(
+                            "%H:%M:%S", this.value, false
+                        );
+                    }
+                },
+                gridLineWidth: 1,
+                type: "datetime"
+            },
+            yAxis: {
+                title: {
+                    text: 'Memory usage'
+                }, labels: {
+                    formatter: function() {
+                        return this.value + "MB";
+                    }
+                },
+                gridLineWidth: 1,
+                min: 0
+            },
+            series:
+            [{
+                name: 'Used by Ultros',
+                data: JSON.parse('${ram}')
+            }]
+        });
+
+        cpu_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: "cpu_chart",
+                type: 'spline'
+            },
+            title: "",
+            tooltip: {
+                formatter: function () {
+                    return this.series.name + "<br /><strong>" + this.y + "%</strong>";
+                }
+            },
+            animation: true,
+            xAxis: {
+                labels: {
+                    formatter: function() {
+                        return Highcharts.dateFormat(
+                            "%H:%M:%S", this.value, false
+                        );
+                    }
+                },
+                gridLineWidth: 1,
+                type: "datetime"
+            },
+            yAxis: {
+                title: {
+                    text: 'CPU usage'
+                }, labels: {
+                    formatter: function() {
+                        return this.value + "%";
+                    }
+                },
+                gridLineWidth: 1,
+                min: 0
+            },
+            series:
+            [{
+                name: 'Used by Ultros',
+                data: JSON.parse('${cpu}')
+            }]
+        });
+
+        setTimeout(request_stat_data, 5000);
+    });
+</script>
+
+<%block name="title">Ultros | Admin</%block>
+<%block name="header">
+% for item in headers:
+    ${item}
+% endfor
+</%block>

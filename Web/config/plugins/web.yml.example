@@ -9,3 +9,9 @@ output_requests: yes  # Whether to output requests or not
 # When you've set up your Web plugin for the first time, type this into
 # a browser to make sure it works. If it doesn't, correct it!
 public_address: "http://localhost:8080"
+
+# reset_message: >
+#   Blah blah blah talk to xyz to reset your password.
+#
+#   Please fill this out! It'll be show to anyone who clicks the "reset"
+#   button on the login page.

@@ -27,3 +27,6 @@
     A redesigned web interface! Hope everyone likes it!
 0.4.0: >
     Another redesign. Templates, eugh. And this one does have some more functionality.
+1.0.0: >
+    A complete rewrite with a few additional features, including accounts management
+    and API keys.
