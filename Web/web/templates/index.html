@@ -11,13 +11,13 @@
             <h4 class="ui header">Packages and plugins</h4>
         </div>
         <div class="ui fluid attached segment">
-            <h4 class="ui header">Currently installed packages: ${len(packages)}</h4>
+            <h5 class="ui header">Currently installed packages: ${len(packages)}</h5>
             <ul class="ui list">
             % for package in sorted(packages.items()):
                 <li>${package[0]} v${package[1]}</li>
             % endfor
             </ul>
-            <h4 class="ui header">Currently enabled plugins: ${len(plugins)}</h4>
+            <h5 class="ui header">Currently enabled plugins: ${len(plugins)}</h5>
             <ul class="ui list">
 <%
 import operator
