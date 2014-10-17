@@ -4,7 +4,7 @@ current_version:
     info: >
         Added permission nodes to determine command output location.
 description: >
-    Domai.nr API integration. Current features:
+    Domainr API integration. Current features:
     - Search
     - Info
 files:

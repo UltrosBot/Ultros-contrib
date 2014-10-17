@@ -1,7 +1,7 @@
 Domai.nr
 ===========
 
-This plugin allows integration with the Domai.nr API.
+This plugin allows integration with the Domainr API.
 
 ## Commands and permissions
 
