@@ -199,7 +199,7 @@ class Domainr(object):
     MAYBE = "maybe"
     TLD = "tld"
 
-    API_URL = "https://domai.nr/api/json/"
+    API_URL = "https://domainr.com/api/json/"
 
     def _handle_response(self, response):
         deferred = response.json()
