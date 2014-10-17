@@ -3,7 +3,7 @@ core:
   module: domainr
   dependencies: []
 info:
-  description: "Domai.nr API commands"
+  description: "Domainr API commands"
   author: Sean Gordon
   version: 0.2.0
   website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Domai.nr

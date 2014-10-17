@@ -47,7 +47,7 @@ class DomainrPlugin(plugin.PluginObject):
         execute other bot commands in the case that we need to put any
         user-supplied data at the start of a message.
         """
-        target.respond("Domai.nr: " + msg)
+        target.respond("Domainr: " + msg)
 
     def _msg(self, protocol, target, *args):
         """
@@ -183,13 +183,13 @@ class DomainrPlugin(plugin.PluginObject):
                                   failure.value,
                                   failure.tb
                               ))
-            caller.respond("There was an error while contacting Domai.nr - "
+            caller.respond("There was an error while contacting Domainr - "
                            "please alert a bot admin or try again later")
 
 
 class Domainr(object):
     """
-    Basic Domai.nr API wrapper. Returns parsed JSON response.
+    Basic Domainr API wrapper. Returns parsed JSON response.
     """
 
     # Availability responses
@@ -199,7 +199,7 @@ class Domainr(object):
     MAYBE = "maybe"
     TLD = "tld"
 
-    API_URL = "https://domai.nr/api/json/"
+    API_URL = "https://domainr.com/api/json/"
 
     def _handle_response(self, response):
         deferred = response.json()

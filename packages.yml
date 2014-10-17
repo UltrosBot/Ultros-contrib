@@ -21,7 +21,7 @@ AoS-Helper:
         packages: []
 Domai.nr:
     version: 0.2.0
-    description: "Domai.nr API integration."
+    description: "Domainr API integration."
     requires:
         modules:
         - "treq"
