@@ -30,3 +30,5 @@
 1.0.0: >
     A complete rewrite with a few additional features, including accounts management
     and API keys.
+1.0.1: >
+    Added support for OpenShift and binding to env vars

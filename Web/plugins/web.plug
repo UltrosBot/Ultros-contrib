@@ -5,6 +5,6 @@ core:
 info:
   description: A plugin which will provide a REST API and web interface
   author: Gareth Coles
-  version: 1.0.0
+  version: 1.0.1
   website: https://github.com/UltrosBot/Ultros-contrib/blob/master/Web
   copyright: See Ultros' license

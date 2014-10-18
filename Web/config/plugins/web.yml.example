@@ -15,3 +15,15 @@ public_address: "http://localhost:8080"
 #
 #   Please fill this out! It'll be show to anyone who clicks the "reset"
 #   button on the login page.
+
+# Whether to use environment variables for binding. Comment this out or set
+# it to false if you aren't using a cloud hosting provider.
+hosted: false
+
+# You can either set this to a supported hosting provider..
+# hosted: openshift  # (just openshift for now)
+
+# ..or define the environment variables to use.
+# hosted:
+#   hostname: OPENSHIFT__IP
+#   port: OPENSHIFT__PORT

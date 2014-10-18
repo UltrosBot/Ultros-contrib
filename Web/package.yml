@@ -1,9 +1,8 @@
 name: Web interface
 current_version:
-    number: 1.0.0
+    number: 1.0.1
     info: >
-        A complete rewrite with a few additional features, including accounts management
-        and API keys.
+        Added support for OpenShift and binding to env vars
 description: >
     Provides a full web interface and REST API for Ultros.
      

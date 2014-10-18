@@ -8,6 +8,8 @@ We're at 1.0.0! Cyclone <3
 
 __author__ = "Gareth Coles"
 
+import os
+
 from cyclone.web import Application
 
 from plugins.web.apikeys import APIKeys
@@ -194,7 +196,11 @@ class WebPlugin(PluginObject):
 
         # Load 'er up!
 
-        self.load()
+        r = self.load()
+
+        if not r:
+            self._disable_self()
+            return
 
         self.events.add_callback("ReactorStarted", self,
                                  self.start,
@@ -235,12 +241,53 @@ class WebPlugin(PluginObject):
             static_path="web/static"
         )
 
-        if self.config.get("hostname", "0.0.0.0") == "0.0.0.0":
-            self.interface = ""
-        else:
-            self.interface = self.config.get("hostname")
+        if self.config.get("hosted", False):
+            hosted = self.config["hosted"]
 
-        self.listen_port = self.config.get("port", 8080)
+            if isinstance(hosted, dict):
+                self.interface = os.environ.get(hosted["hostname"], False)
+                self.port = os.environ.get(hosted["port"], False)
+
+                if not self.interface:
+                    self.logger.error(
+                        "Unknown env var: %s" % hosted["hostname"]
+                    )
+                    return False
+                if not self.port:
+                    self.logger.error(
+                        "Unknown env var: %s" % hosted["port"]
+                    )
+                    return False
+            else:
+                if hosted in ["openshift"]:
+                    self.interface = os.environ.get("OPENSHIFT__IP", False)
+                    self.port = os.environ.get("OPENSHIFT__PORT", False)
+
+                    if not self.interface:
+                        self.logger.error(
+                            "Unknown env var: OPENSHIFT__IP - Are you on "
+                            "OpenShift?"
+                        )
+                        return False
+                    if not self.port:
+                        self.logger.error(
+                            "Unknown env var: OPENSHIFT__PORT - Are you on "
+                            "OpenShift?"
+                        )
+                        return False
+                else:
+                    self.logger.error("Unknown hosted service: %s" % hosted)
+                    return False
+
+        else:
+            if self.config.get("hostname", "0.0.0.0").strip() == "0.0.0.0":
+                self.interface = ""
+            else:
+                self.interface = self.config.get("hostname")
+
+            self.listen_port = self.config.get("port", 8080)
+
+        return True
 
     def start(self, _=None):
         self.stats.start()
