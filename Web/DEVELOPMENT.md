@@ -67,7 +67,7 @@ We'd create this as part of `myplugin` - in `routes.py`
     
         name = "hello"  # Name of the navbar entry (for display purposes)
     
-        def get(self):  # The HTTP method to respond to. Cold be PUT, POST, etc.
+        def get(self):  # The HTTP method to respond to. Could be PUT, POST, etc.
             self.finish("Hello, world!")
 ```
 
