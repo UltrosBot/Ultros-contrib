@@ -1,8 +1,8 @@
 name: Web interface
 current_version:
-    number: 1.0.1
+    number: 1.0.2
     info: >
-        Added support for OpenShift and binding to env vars
+        Added permissions for viewing plugins/packages/protocols on the index page
 description: >
     Provides a full web interface and REST API for Ultros.
      

@@ -32,3 +32,5 @@
     and API keys.
 1.0.1: >
     Added support for OpenShift and binding to env vars
+1.0.2: >
+    Added permissions for viewing plugins/packages/protocols on the index page

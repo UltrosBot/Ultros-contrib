@@ -122,7 +122,7 @@ W3validator:
         - "requests"
         packages: []
 Web:
-    version: 1.0.1
+    version: 1.0.2
     description: "An extensible web interface and REST API built on Bottle and Twisted HTTP."
     requires:
         modules:
