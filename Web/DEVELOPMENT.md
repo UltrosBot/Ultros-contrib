@@ -296,7 +296,7 @@ but there's a simplified example here as well.
             self.write_error(500, exception=failure)
 ```
 
-### Convenience functions amd properties
+### Convenience functions and properties
 
 Each route has a bunch of functions you can use. They're designed to make certain
 tasks easier, and should be used instead of reimplementing the things they do.
