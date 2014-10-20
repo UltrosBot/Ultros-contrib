@@ -14,3 +14,5 @@ triggers:
           - {trigger: "^channel trigger$", response: ["Ultros response!"]}
           - {trigger: "tentacle ra((pe)|(ep))", response: ["l-lewd", "lewd!", "{source}, why you gotta be so leeewwd?"], flags: "i"}
           - {trigger: "^pets Ultros", response: ["gently tentacles {source}", "gurgles~ ^-^", "flails tentacles"], trigger_types: {action: true}, response_type: "action", flags: "i"}
+          - {trigger: "^test trigger$", response: ["A response", {response: "responds", type: "action"}]}
+          - {trigger: "^test trigger 2$", response: ["actions", "actions vigorously", {response: "This is a message", type: "message"}], response_type: "action"}

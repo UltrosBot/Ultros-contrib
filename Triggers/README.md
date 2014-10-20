@@ -23,6 +23,8 @@ Triggers are a dict with the following keys:
 * `response` - A list of possible responses
 * `chance` - (Optional - default: 100) A percentage (0-100) that the trigger will fire
 * `flags` - (Optional - default: None) Single-character flags to pass to the regex engine
+* `trigger_types` - (Optional - default: {"message": True}) The type of message to trigger on (`message`, `action`, or `notice` (IRC-only))
+* `response_type` - (Optional - default: "message") The type of message to respond with (`message`, `action`, or `notice` (IRC-only))
 
 #### Flags
 
@@ -37,6 +39,10 @@ Triggers are a dict with the following keys:
 See Python re docs for more info.
 
 #### Response
+
+Responses can either be the response string, or a dict containing the `response`
+string and a per-response `type`. Any response without a `type` will use the trigger's
+`response_type`.
 
 Responses can contain dynamic content using `{key}`. Possible keys are:
 

@@ -158,6 +158,9 @@ class TriggersPlugin(plugin.PluginObject):
                     continue
 
                 response = random.choice(responses)
+                if isinstance(response, dict):
+                    response_type = response.get("type", response_type)
+                    response = response["response"]
                 response_type = response_type.lower()
 
                 flags_parsed = 0
