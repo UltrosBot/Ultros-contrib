@@ -315,6 +315,7 @@ tasks easier, and should be used instead of reimplementing the things they do.
     * `message` - A message to be shown on the top of the page you're sending the client to, provided it's
       a part of the web interface
     * `message_colour` - Colour of the above message, uses the colours from Semantic UI
+    * `redirect` - For the login page only, the page to go to after the user has logged in
 * `render(template_name, **kwargs)` - Render a template with the given arguments, and finish the response.
 * `set_session(key, remember=False)` - See the **Sessions** section
 * `write_error(status_code, **kwargs)` - Write an error message. You can usually just throw an exception instead.
