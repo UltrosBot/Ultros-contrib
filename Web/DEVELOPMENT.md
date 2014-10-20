@@ -27,7 +27,7 @@ Assuming you've imported `system.plugins.manager.PluginManager`...
     
             return self.plugman.get_plugin("web")
             
-        def setup():
+        def setup(self):
             self.plugman = PluginManager()  # Grab the plugin manager
             
             if self.web is None:  # If it's None, it's not loaded
@@ -84,7 +84,7 @@ We'd create this as part of `myplugin` - in `routes.py`
     
             return self.plugman.get_plugin("web")
             
-        def setup():
+        def setup(self):
             self.plugman = PluginManager()  # Grab the plugin manager
             
             if self.web is None:  # If it's None, it's not loaded
