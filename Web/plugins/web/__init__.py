@@ -376,7 +376,7 @@ class WebPlugin(PluginObject):
 
     def check_permission(self, perm, session=None):
         if session is None:
-            username = "/anonymous/"
+            username = None
         else:
             username = session["username"]
 

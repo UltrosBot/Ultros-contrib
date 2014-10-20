@@ -53,11 +53,11 @@ menu option unless you have the Factoids plugin enabled.
 Permissions
 -----------
 
-Right now, the web plugin only has one permission.
-
 * `web.admin` - Allows access to and use of the admin interface, including..
     * Access to the CPU and RAM graphs
     * Access to view and edit all of the loaded config and data files
+* `web.index.plugins` - Allows listing plugins and packages on the index page
+* `web.index.protocols` - Allows listing protocols on the index page
 
 Please don't give admin to anyone you wouldn't trust with your passwords and data.
 
