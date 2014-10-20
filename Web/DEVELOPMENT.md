@@ -177,7 +177,7 @@ end in `.html` and must be in [Mako template format](docs.makotemplates.org/en/l
             )
 ```
 
-Our template system inserts varous arguments into the template for you. Consider
+Our template system inserts various arguments into the template for you. Consider
 this list before you attempt to insert them yourself. Also, note that you cannot
 override any of these directly.
 
