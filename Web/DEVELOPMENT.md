@@ -253,11 +253,12 @@ can also pass a string in here, which is useful if you're using API keys - which
 
 ### Cross-site request forgery protection (XSRF)
 
-A fairly common attack vector nowadays is to inject some Javascript into a web page to forge requests
-to a website. This results in the attacker effectively being able to use the victim's session to fetch
-arbitrary routes on a web application - which can be quite nasty.
+A fairly common attack vector nowadays is cross-site request forgery - For example, tricking a user
+into clicking a link that submits a form on a target site, making the attacker admin, or.. Embedding
+a form into a page controlled by the attacker that gets submitted on page load.
 
-To combat this, we've added some easy tools to enable XSRF protection for any forms in your templates.
+To help combat this, we've added some easy tools to enable XSRF protection for any forms in your templates.
+It works by adding a required value to a form that the attacker is unable to guess.
 
 1. Use the `@check_xsrf` decorator with your `post()` and `put()` functions
 2. Within the declaration of your form in the page template, insert `${xsrf()}`
