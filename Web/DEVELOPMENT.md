@@ -258,7 +258,7 @@ into clicking a link that submits a form on a target site, making the attacker a
 a form into a page controlled by the attacker that gets submitted on page load.
 
 To help combat this, we've added some easy tools to enable XSRF protection for any forms in your templates.
-It works by adding a required value to a form that the attacker is unable to guess.
+This works by adding a required value to a form that the attacker is unable to guess.
 
 1. Use the `@check_xsrf` decorator with your `post()` and `put()` functions
 2. Within the declaration of your form in the page template, insert `${xsrf()}`
@@ -268,7 +268,7 @@ It works by adding a required value to a form that the attacker is unable to gue
 
 Ultros is built on Twisted, so you may wish (or need) to use Deferreds and other asynchronous calls
 and tools. As the web plugin uses Cyclone internally, you can simply use Cyclone's methods for doing
-this - a good example is in the [Factions plugin](https://github.com/UltrosBot/Ultros/blob/master/plugins/factoids/route.py),
+this - a good example is in the [Factoids plugin](https://github.com/UltrosBot/Ultros/blob/master/plugins/factoids/route.py),
 but there's a simplified example here as well.
 
 ```python
