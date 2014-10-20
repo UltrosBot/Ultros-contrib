@@ -177,7 +177,7 @@ class Route(RequestHandler):
                 error = []
 
                 for element in result:
-                    error.append("Line %s: %s" % element)
+                    error.append("Line %s: %s" % tuple(element))
 
                 error = "<br />\n".join(error)
 
