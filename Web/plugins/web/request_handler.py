@@ -50,6 +50,7 @@ class RequestHandler(Handler):
         return self.application.settings["template_loader"]
 
     def finish_json(self, _dict):
+        self.set_header("Content-Type", "application/json")
         return self.finish(json.dumps(_dict, sort_keys=True))
 
     def get_session_key(self):
