@@ -329,10 +329,12 @@ class WebPlugin(PluginObject):
         d.addCallback(lambda _: [self.load(), self.start()])
 
     def deactivate(self):
-        self.stop()
+        d = self.stop()
 
         self.handlers.clear()
         self.navbar_items.clear()
+
+        return d
 
     def log_request(self, request):
         log = self.logger.info
