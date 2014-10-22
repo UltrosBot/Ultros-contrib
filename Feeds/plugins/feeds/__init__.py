@@ -25,11 +25,10 @@ class FeedsPlugin(plugin.PluginObject):
     storage = None
 
     feeds = []
-    feed_times = {}
-    targets = {}
 
     failures = {}
-
+    feed_times = {}
+    targets = {}
     tasks = {}
 
     @property
@@ -63,10 +62,12 @@ class FeedsPlugin(plugin.PluginObject):
         reactor.callLater(30, self.delayed_setup)
 
     def delayed_setup(self):
-        self.targets = {}
         self.feeds = []
-        self.feed_times = {}
-        self.failures = {}
+
+        self.failures.clear()
+        self.feed_times.clear()
+        self.targets.clear()
+        self.tasks.clear()
 
         for name, target in self.config["targets"].items():
             proto = target["protocol"]
@@ -106,6 +107,10 @@ class FeedsPlugin(plugin.PluginObject):
             if self.failures[name] > 5:
                 self.logger.warn("Disabling update task for feed '%s' as "
                                  "there has been too many errors." % name)
+
+                if name in self.tasks:
+                    self.tasks[name].stop()
+
                 return
 
             d = feedparser.parse(feed["url"])
@@ -144,8 +149,10 @@ class FeedsPlugin(plugin.PluginObject):
             self.feed_times[name] = entry.updated
         except:
             self.logger.exception("Error in update task for feed '%s'." % name)
-            if name in self.tasks:
-                self.tasks[name].stop()
+
+            if name not in self.failures:
+                self.failures[name] = 0
+            self.failures[name] += 1
 
     def relay(self, protocol, target, target_type, message):
         p = self.factory_manager.get_protocol(protocol)
