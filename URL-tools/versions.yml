@@ -1,8 +1,8 @@
 0.0.1: >
     Initial version. This implements all the URL shorteners (hopefully).
-
 0.1.0: >
     Some fixes and removed bit.ly/j.mp support as they require OAuth tokens (which wasn't mentioned in the docs).
-
 0.2.0: >
     Add GitHub support and add requests to the module requirements
+0.2.1: >
+    Make plugin reload-friendly

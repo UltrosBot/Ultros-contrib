@@ -198,6 +198,13 @@ class URLToolsPlugin(plugin.PluginObject):
         self.logger.info("Enabled support for %s shortener(s)."
                          % len(shorteners_enabled))
 
+    def deactivate(self):
+        for shortener in self.config["shorteners"]:
+            self.urls.remove_shortener(shortener)
+
+        for site in self.config["sites"]["enabled"]:
+            self.urls.remove_handler(site)
+
     def do_get(self, url, params):
         self.logger.trace("URL: %s" % url)
         self.logger.trace("Params: %s" % params)
