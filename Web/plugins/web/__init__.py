@@ -202,9 +202,12 @@ class WebPlugin(PluginObject):
             self._disable_self()
             return
 
-        self.events.add_callback("ReactorStarted", self,
-                                 self.start,
-                                 0)
+        if not self.factory_manager.running:
+            self.events.add_callback(
+                "ReactorStarted", self, self.start, 0
+            )
+        else:
+            self.start()
 
     def load(self):
         if "secret" not in self.data:
@@ -327,6 +330,9 @@ class WebPlugin(PluginObject):
 
     def deactivate(self):
         self.stop()
+
+        self.handlers.clear()
+        self.navbar_items.clear()
 
     def log_request(self, request):
         log = self.logger.info

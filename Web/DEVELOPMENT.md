@@ -191,6 +191,8 @@ override any of these directly.
 * `nav_name` - The name of the page as defined in the class. This is used to
     work out which nav item should be marked as active.
 * `plugin` - The instance of the Web plugin. Also available as `self.plugin`.
+    In templates, this is a weakref. You'll need to use `plugin()`, and prepare
+    for that call to return `None`!
 * `session` - The session object, as detailed in the next section. 
 * `sessions` - Sessions manager instance.
 * `xsrf` - A function for making forms XSRF-protected.
