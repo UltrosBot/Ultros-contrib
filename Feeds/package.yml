@@ -1,8 +1,8 @@
 name: Feeds
 current_version:
-    number: 0.0.1
+    number: 0.0.2
     info: >
-        Initial version. Parses and relays feeds using three tokens.
+        Reload-friendly. Also cancels task when its feed breaks.
 description: >
     Allows you to check and relay RSS/ATOM feeds to a channel (or a user).
 files:

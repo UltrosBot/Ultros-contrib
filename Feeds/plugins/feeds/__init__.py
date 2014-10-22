@@ -4,6 +4,7 @@ __author__ = 'Gareth Coles'
 import feedparser
 
 from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 
 from system.decorators.threads import run_async_threadpool
 
@@ -28,6 +29,8 @@ class FeedsPlugin(plugin.PluginObject):
     targets = {}
 
     failures = {}
+
+    tasks = {}
 
     @property
     def urls(self):
@@ -86,7 +89,9 @@ class FeedsPlugin(plugin.PluginObject):
                 self.feeds.append(feed)
 
         for feed in self.feeds:
-            self.check_feed(feed)
+            task = LoopingCall(self.check_feed, feed)
+            self.tasks[feed["name"]] = task
+            task.start(feed["frequency"])
 
     @run_async_threadpool
     def check_feed(self, feed):
@@ -105,19 +110,14 @@ class FeedsPlugin(plugin.PluginObject):
 
             d = feedparser.parse(feed["url"])
 
-            # self.logger.debug("Feed object: %s" % d)
-            # self.logger.debug("Entries: %s" % d.entries)
-
             if name in self.feed_times:
                 last = self.feed_times[name]
                 if last == d.entries[0].updated:
-                    reactor.callLater(feed["frequency"], self.check_feed, feed)
                     return
             else:
                 self.feed_times[name] = d.entries[0].updated
                 self.logger.trace("Feed '%s' initialized." % name)
                 if not feed["instantly-relay"]:
-                    reactor.callLater(feed["frequency"], self.check_feed, feed)
                     return
 
             entry = d.entries[0]
@@ -142,11 +142,16 @@ class FeedsPlugin(plugin.PluginObject):
                 self.relay(target["protocol"], target["target"],
                            target["type"], formatted)
             self.feed_times[name] = entry.updated
-            reactor.callLater(feed["frequency"], self.check_feed, feed)
         except:
             self.logger.exception("Error in update task for feed '%s'." % name)
-            reactor.callLater(feed["frequency"], self.check_feed, feed)
+            if name in self.tasks:
+                self.tasks[name].stop()
 
     def relay(self, protocol, target, target_type, message):
         p = self.factory_manager.get_protocol(protocol)
         p.send_msg(target, message, target_type)
+
+    def deactivate(self):
+        for task in self.tasks.values():
+            task.stop()
+        self.tasks.clear()

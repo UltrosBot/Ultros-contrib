@@ -1,2 +1,4 @@
 0.0.1: >
     Initial version. Parses and relays feeds using three tokens.
+0.0.2: >
+    Reload-friendly. Also cancels task when its feed breaks.
