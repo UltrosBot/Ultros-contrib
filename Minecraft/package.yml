@@ -15,7 +15,6 @@ files:
 - plugins/minecraft.plug
 - plugins/minecraft/
 - plugins/minecraft/__init__.py
-- plugins/minecraft/minecraft_query.py
 requires:
     modules:
     - "mcstatus"
