@@ -28,13 +28,14 @@
 <div id="cpu_chart" class="ui attached fluid segment" style="height:400px;"></div>
 
 <script>
-    var mem_chart;
+    var mem_chart,
+        cpu_chart;
 
     function request_stat_data() {
         $.ajax({
             url: '/api/admin/get_stats',
             success: function(json) {
-                var points = point = JSON.parse(json);
+                var points = JSON.parse(json);
 
                 console.log(points);
 
