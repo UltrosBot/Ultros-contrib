@@ -15,13 +15,14 @@ The `minecraft.yml` file contains the following configuration..
   * `protocol` - Name of the protocol to relay to
   * `target` - Name of the target to relay to
   * `target-type` - Type of the target to relay to. This will usually be `user` or `channel`.
+  * `initial-relay` - Whether to relay there on startup with all of Mojang's statuses.
 
 ## Usage
 
 This package supplies the following command..
-* `mcquery <address> [port]` - Query a Minecraft server
+* `mcquery <address[:port]>` - Query a Minecraft server
   * `<address>` The IP or address of the server
-  * `[port]` The query port of the server. Defaults to 25565.
+  * `[port]` The query port of the server. Defaults to 25565 or the value of the SRV record.
   * Queries a Minecraft server and returns some information about it.
     * This plugin will output a full player list if `can-flood` is enabled for the current protocol.
 * The command will be output to the current channel - or in a private message, if used in one.

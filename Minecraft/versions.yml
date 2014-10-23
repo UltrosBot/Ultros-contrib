@@ -2,3 +2,7 @@
     Initial version. Everything works!
 0.0.2: >
     Added support for Textures and API.
+0.0.3: >
+    Query now uses Dinnerbone's mcstatus library from pip, and supports SRV records.
+    The syntax of the mcquery command has changed - specify the port as part of the
+    address where required.

@@ -1,8 +1,10 @@
 name: Minecraft
 current_version:
-    number: 0.0.2
+    number: 0.0.3
     info: >
-        Added support for Textures and API.
+        Query now uses Dinnerbone's mcstatus library from pip, and supports SRV records.
+        The syntax of the mcquery command has changed - specify the port as part of the
+        address where required.
 description: >
     Provides a command for checking the status of a Minecraft server and a Minecraft/Mojang
     server status watcher.
@@ -15,6 +17,7 @@ files:
 - plugins/minecraft/__init__.py
 - plugins/minecraft/minecraft_query.py
 requires:
-    modules: []
+    modules:
+    - "mcstatus"
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Minecraft/README.md

@@ -4,17 +4,18 @@ __author__ = 'Gareth Coles'
 import json
 import urllib
 
-from minecraft_query import MinecraftQuery
-from twisted.internet import reactor
+import system.plugin as plugin
+
+from mcstatus import MinecraftServer
 
 from system.command_manager import CommandManager
 from system.decorators.threads import run_async_threadpool
-
-import system.plugin as plugin
-
 from system.protocols.generic.user import User
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
+
+from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
 
 
 class MinecraftPlugin(plugin.PluginObject):
@@ -25,6 +26,8 @@ class MinecraftPlugin(plugin.PluginObject):
 
     status_url = "http://status.mojang.com/check"
     status_refresh_rate = 600
+
+    task = None
 
     statuses = {
         "minecraft.net": "???",
@@ -87,47 +90,47 @@ class MinecraftPlugin(plugin.PluginObject):
                                        "minecraft.query", default=True)
 
         if self.do_relay:
-            reactor.callLater(60, self.check_status)
+            reactor.callLater(30, self.start_relay)
+
+    def start_relay(self):
+        self.check_status(True)
+
+        self.task = LoopingCall(self.check_status)
+        self.task.start(self.status_refresh_rate)
+
+    def deactivate(self):
+        if self.task:
+            self.task.stop()
 
     @run_async_threadpool
     def query_command(self, protocol, caller, source, command, raw_args,
                       parsed_args):
         if len(parsed_args) < 1:
-            caller.respond("Usage: {CHARS}mcquery <address> [port]")
+            caller.respond("Usage: {CHARS}mcquery <address[:port]>")
         address = parsed_args[0]
-        port = "25565"
-        if len(parsed_args) > 1:
-            port = parsed_args[1]
-
         target = source
+
         if isinstance(source, User):
             target = caller
 
         try:
-            port = int(port)
-        except:
-            caller.respond("'%s' is not a number.")
-            return
-
-        try:
-            q = MinecraftQuery(address, int(port))
-            status = q.get_rules()
+            q = MinecraftServer.lookup(address)
+            status = q.status()
         except Exception as e:
             target.respond("Error retrieving status: %s" % e)
+            self.logger.exception("Error retrieving status")
             return
 
         done = ""
-        done += "[%s] %s | " % (status["version"], status["motd"])
-        done += "%s/%s " % (status["numplayers"], status["maxplayers"])
-        if "software" in status:
-            done += "| %s " % status["software"]
-        if "plugins" in status:
-            done += "| %s plugins" % len(status["plugins"])
+        done += "[%s] %s | " % (status.version.name, status.description)
+        done += "%s/%s " % (status.players.online, status.players.max)
+        if "plugins" in status.raw:
+            done += "| %s plugins" % len(status.raw["plugins"])
 
         target.respond(done)
-        if protocol.can_flood and "players" in status \
-           and len(status["players"]):
-            players = ", ".join(status["players"])
+
+        if protocol.can_flood and status.players.sample:
+            players = ", ".join([x.name for x in status.players.sample])
             target.respond("Players: %s" % players)
 
     @run_async_threadpool
@@ -159,42 +162,28 @@ class MinecraftPlugin(plugin.PluginObject):
                                                             + len(offline)
                                                             + len(problems)))
 
-            message = "Mojang status report "
-            times = 0
-            for element in online:
-                if times:
-                    message += "| %s » Online " % element
-                else:
-                    message += "[ %s » Online " % element
-                times += 1
-            for element in problems:
-                if times:
-                    message += "| %s » Problems " % element
-                else:
-                    message += "[ %s » Problems " % element
-                times += 1
-            for element in offline:
-                if times:
-                    message += "| %s » Offline " % element
-                else:
-                    message += "[ %s » Offline " % element
-                times += 1
+            parts = []
 
-            if times:
-                message += "]"
+            for element in online:
+                parts.append("%s » Online" % element)
+            for element in problems:
+                parts.append("%s » Problems" % element)
+            for element in offline:
+                parts.append("%s » Offline" % element)
+
+            if parts:
+                message = "Mojang status report [%s]" % " | ".join(parts)
                 self.relay_message(message, firstparse)
 
             self.statuses = parsed_statuses
-        except:
+        except Exception:
             self.logger.exception("Error checking Mojang status")
-        finally:
-            reactor.callLater(self.status_refresh_rate, self.check_status)
 
     def relay_message(self, message, first=False):
         for target in self.relay_targets:
             proto = self.factory_manager.get_protocol(target["protocol"])
             if not proto:
                 self.logger.warn("Protocol not found: %s" % target["protocol"])
-            if first and not target["initial-relay"]:
+            if first and not target.get("initial-relay", False):
                 continue
             proto.send_msg(target["target"], message, target["target-type"])
