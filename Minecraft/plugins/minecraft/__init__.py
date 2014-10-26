@@ -121,8 +121,13 @@ class MinecraftPlugin(plugin.PluginObject):
             self.logger.exception("Error retrieving status")
             return
 
+        servername = status.description
+
+        if isinstance(servername, dict):
+            servername = servername.get("text", "<Unknown server name>")
+
         done = ""
-        done += "[%s] %s | " % (status.version.name, status.description)
+        done += "[%s] %s | " % (status.version.name, servername)
         done += "%s/%s " % (status.players.online, status.players.max)
         if "plugins" in status.raw:
             done += "| %s plugins" % len(status.raw["plugins"])
