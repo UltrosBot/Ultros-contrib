@@ -26,7 +26,7 @@ abbreviations: [TCP, UDP, HTTP, SSL, FTP, SQL, XML, RSS, IRC, EXE, COM, SMTP, US
   CSS, PCI, AGP, API, UNIX, BASIC, DDOS, DNS, SSH, MAC, DOS, DNS, HTML, IP, CORS,
   CRUD, SOAP, SAAS, ASIC, BSD, GNU, CSI, CLR, CLI, JS, CGI, DVD, EFI, BIOS, CMOS,
   EOF, EOL, EULA, FLAC, GDI, HDD, SSD, RAM, JPEG, KVM, LILO, GRUB, MSB, NTP, OOP,
-  PGP, RSA, NSA, PPI, PPC, PCRE, RIP, RTSP, SCSI, SMS, SVG, TLS, UX, VM, VPN, WYSIWIG,
+  PGP, RSA, NSA, PPI, PPC, PCRE, RIP, RTSP, SCSI, SMS, SVG, TLS, UX, VM, VPN, WYSIWYG,
   XMPP, XUL, ZIF]
 adjectives: [primary, auxiliary, virtual, digital, wireless, encrypted, open-source,
   neural, optical, bluetooth, peer-to-peer, binary, secondary, proprietary, functional,
