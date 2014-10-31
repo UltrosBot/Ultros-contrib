@@ -1,0 +1,17 @@
+name: Blowfish
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version.
+description: >
+    Add support for Blowfish-CDC encrypted messages a la mIRC and Eggdrop
+files:
+- config/plugins/blowfish.yml.example
+- plugins/blowfish/
+- plugins/blowfish/__init__.py
+- plugins/blowfish.plug
+requires:
+    modules:
+    - "Crypto:pycrypto"
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Blowfish/README.md

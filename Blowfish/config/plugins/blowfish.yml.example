@@ -1,0 +1,9 @@
+# The name of your protocol
+protocol_name:
+  # Global key, will be used everywhere if present
+  # You can override this with other keys in the targets section
+  global: test1234
+  targets:
+    # The name of your target, and its key.
+    # This can be the name of a channel or of a user
+    "#channel": test1234

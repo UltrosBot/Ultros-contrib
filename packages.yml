@@ -19,6 +19,13 @@ AoS-Helper:
     requires:
         modules: []
         packages: []
+Blowfish:
+    version: 0.0.1
+    description: "Add support for Blowfish-CDC encrypted messages a la mIRC and Eggdrop"
+    requires:
+        modules:
+        - "Crypto:pycrypto"
+        pacakges: []
 Domai.nr:
     version: 0.2.0
     description: "Domainr API integration."
