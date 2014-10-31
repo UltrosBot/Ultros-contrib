@@ -18,7 +18,8 @@ from Crypto.Cipher import Blowfish
 import system.plugin as plugin
 
 from system.event_manager import EventManager
-from system.events.general import PreMessageReceived, MessageSent
+from system.events.general import PreMessageReceived, MessageSent, \
+    ActionReceived, ActionSent
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
@@ -68,6 +69,14 @@ class BlowfishPlugin(plugin.PluginObject):
             "MessageSent", self, self.message_sent, 10001
         )
 
+        self.events.add_callback(
+            "ActionReceived", self, self.message_sent, 10001
+        )
+
+        self.events.add_callback(
+            "ActionSent", self, self.message_sent, 10001
+        )
+
     def pre_message(self, event=PreMessageReceived):
         if not event.caller:
             return
@@ -94,6 +103,49 @@ class BlowfishPlugin(plugin.PluginObject):
                 event.cancelled = True
 
     def message_sent(self, event=MessageSent):
+        if not event.caller:
+            return
+
+        key = self.get_target(event.caller.name, event.target.name)
+        if not key:
+            key = self.get_global(event.caller.name)
+        if key:
+            message = event.message
+
+            try:
+                result = self.encode(key, message)
+            except Exception:
+                self.logger.exception("Unable to encode message")
+                event.cancelled = True
+            else:
+                event.message = "+OK %s" % result
+
+    def action_received(self, event=ActionReceived):
+        if not event.caller:
+            return
+
+        target = event.target
+        if not target:
+            target = event.source
+
+        key = self.get_target(event.caller.name, target)
+        if not key:
+            key = self.get_global(event.caller.name)
+        if key:
+            if event.message.startswith("+OK "):
+                message = event.message[4:]
+
+                try:
+                    result = self.decode(key, message)
+                except Exception:
+                    self.logger.exception("Unable to decode message")
+                    event.cancelled = True
+                else:
+                    event.message = result
+            else:
+                event.cancelled = True
+
+    def action_sent(self, event=ActionSent):
         if not event.caller:
             return
 
