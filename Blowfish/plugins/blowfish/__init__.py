@@ -1,7 +1,7 @@
 # coding=utf-8
 
 """
-Blowfish-CDC support, as seen in Eggdrop and mIRC scripts.
+Blowfish-CBC support, as seen in Eggdrop and mIRC scripts.
 
 Adds support for messages of the form "+OK <encrypted message>" for configured
 targets, and will also send encrypted responses there.
@@ -26,7 +26,7 @@ from system.storage.manager import StorageManager
 
 class BlowfishPlugin(plugin.PluginObject):
     """
-    Blowfish-CDC support, as seen in Eggdrop and mIRC scripts
+    Blowfish-CBC support, as seen in Eggdrop and mIRC scripts
     """
 
     config = None

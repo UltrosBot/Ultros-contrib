@@ -21,7 +21,7 @@ AoS-Helper:
         packages: []
 Blowfish:
     version: 0.0.1
-    description: "Add support for Blowfish-CDC encrypted messages a la mIRC and Eggdrop"
+    description: "Add support for Blowfish-CBC encrypted messages a la mIRC and Eggdrop"
     requires:
         modules:
         - "Crypto:pycrypto"

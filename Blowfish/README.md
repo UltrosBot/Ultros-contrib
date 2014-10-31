@@ -1,7 +1,7 @@
 Blowfish
 ========
 
-A lot of clients and bots have scripts/plugins for Blowfish-CDC enciphering. While I personally
+A lot of clients and bots have scripts/plugins for Blowfish-CBC enciphering. While I personally
 don't see the merits of such a thing over (for example) OTR, clients such as mIRC and bots
 such as Eggdrop have extensions that support messages of this ilk, and so we decided to add
 similar support to Ultros to keep it compatible.

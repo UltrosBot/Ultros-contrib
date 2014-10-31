@@ -3,7 +3,7 @@ core:
   module: blowfish
   dependencies: []
 info:
-  description: mIRC/Eggdrop Blowfish-CDC support plugin
+  description: mIRC/Eggdrop Blowfish-CBC support plugin
   author: Gareth Coles
   version: 0.0.1
   website: https://github.com/UltrosBot/Ultros-contrib/tree/master/Blowfish/

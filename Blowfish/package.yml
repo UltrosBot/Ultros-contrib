@@ -4,7 +4,7 @@ current_version:
     info: >
         Initial version.
 description: >
-    Add support for Blowfish-CDC encrypted messages a la mIRC and Eggdrop
+    Add support for Blowfish-CBC encrypted messages a la mIRC and Eggdrop
 files:
 - config/plugins/blowfish.yml.example
 - plugins/blowfish/
