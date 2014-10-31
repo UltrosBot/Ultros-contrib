@@ -135,34 +135,35 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
                                 self.control_chars, self.nickname
                             )
 
-                            for case, default in Switch(result[0]):
-                                if case(CommandState.RateLimited):
+                            for c, d in Switch(result[0]):
+                                if c(CommandState.RateLimited):
                                     self.log.debug("Command rate-limited")
                                     user.respond("That command has been "
                                                  "rate-limited, please try "
                                                  "again later.")
                                     return  # It was a command
-                                if case(CommandState.NotACommand):
+                                if c(CommandState.NotACommand):
                                     self.log.debug("Not a command")
                                     break
-                                if case(CommandState.UnknownOverridden):
-                                    self.log.debug("Unknown command overridden")
+                                if c(CommandState.UnknownOverridden):
+                                    self.log.debug("Unknown command "
+                                                   "overridden")
                                     return  # It was a command
-                                if case(CommandState.Unknown):
+                                if c(CommandState.Unknown):
                                     self.log.debug("Unknown command")
                                     break
-                                if case(CommandState.Success):
+                                if c(CommandState.Success):
                                     self.log.debug("Command ran successfully")
                                     return  # It was a command
-                                if case(CommandState.NoPermission):
+                                if c(CommandState.NoPermission):
                                     self.log.debug("No permission to run "
                                                    "command")
                                     return  # It was a command
-                                if case(CommandState.Error):
+                                if c(CommandState.Error):
                                     user.respond("Error running command: "
-                                                     "%s" % result[1])
+                                                 "%s" % result[1])
                                     return  # It was a command
-                                if default:
+                                if d:
                                     self.log.debug("Unknown command state: "
                                                    "%s" % result[0])
                                     break
