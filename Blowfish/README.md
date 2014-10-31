@@ -19,13 +19,6 @@ not to keep your discussions of tentacle porn safe.
 I repeat: **Do not use this for critical communications that need to be secure. Use a real
 method of encryption instead.**
 
-## How it works
-
-I've prepared a simple chart below to explain how it works. If you're doing this manually, remember
-to prefix your encrypted messages with `+OK `.
-
-[![](https://www.lucidchart.com/publicSegments/view/545358e2-fb64-4bc6-9fea-5f350a00c0e0/image.png)](https://www.lucidchart.com/publicSegments/view/545358e2-fb64-4bc6-9fea-5f350a00c0e0/image.png)
-
 ## Configuration
 
 Blowfish has a fairly simple configuration.
@@ -40,3 +33,10 @@ Blowfish has a fairly simple configuration.
 
 Simply use this plugin with your client/bot's script. Messages should be of the form `+OK message`,
 where `message` is the enciphered message.
+
+## How it works
+
+I've prepared a simple chart below to explain how it works. If you're doing this manually, remember
+to prefix your encrypted messages with `+OK `.
+
+[![](https://www.lucidchart.com/publicSegments/view/545358e2-fb64-4bc6-9fea-5f350a00c0e0/image.png)](https://www.lucidchart.com/publicSegments/view/545358e2-fb64-4bc6-9fea-5f350a00c0e0/image.png)
