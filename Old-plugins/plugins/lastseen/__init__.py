@@ -4,6 +4,8 @@ __author__ = "Gareth Coles"
 import math
 import time
 
+from kitchen.text.converters import to_unicode
+
 from system.command_manager import CommandManager
 from system.event_manager import EventManager
 
@@ -80,7 +82,8 @@ class LastseenPlugin(plugin.PluginObject):
 
     def _get_user_txn(self, txn, user, protocol):
         user = user.lower()
-        txn.execute("SELECT * FROM users WHERE user=? AND protocol=?",
+        user = to_unicode(user)
+        txn.execute(u"SELECT * FROM users WHERE user=? AND protocol=?",
                     (user, protocol))
         r = txn.fetchone()
         return r
@@ -143,6 +146,8 @@ class LastseenPlugin(plugin.PluginObject):
 
     def _insert_or_update_user(self, txn, user, protocol):
         user = user.lower()
+        user = to_unicode(user)
+
         txn.execute("SELECT * FROM users WHERE user=? AND protocol=?",
                     (user, protocol))
         r = txn.fetchone()
