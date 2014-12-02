@@ -177,12 +177,19 @@ class WebPlugin(PluginObject):
             r"/admin/files/(config|data)/(.*)",
             "plugins.web.routes.admin.file.Route"
         )
-        self.add_handler(  # TODO: API routes
+        self.add_handler(
             r"/api/admin/get_stats",
             "plugins.web.routes.api.admin.get_stats.Route"
         )
 
         self.add_navbar_entry("admin", "/admin", "settings")
+
+        # API routes
+
+        self.add_api_handler(
+            r"/plugins/web/get_username",
+            "plugins.web.routes.api.plugins.web.get_username.Route"
+        )
 
         # Stuff routes might find useful
 
@@ -361,6 +368,13 @@ class WebPlugin(PluginObject):
 
     ## Public API functions
 
+    def add_api_handler(self, pattern, handler):
+        if not pattern.startswith("/"):
+            pattern = "/%s" % pattern
+        pattern = "/api/([A-Za-z0-9]{1,})%s" % pattern
+
+        return self.add_handler(pattern, handler)
+
     def add_handler(self, pattern, handler):
         self.logger.debug("Adding route: %s -> %s" % (pattern, handler))
 
@@ -393,6 +407,18 @@ class WebPlugin(PluginObject):
         return self.commands.perm_handler.check(
             perm, username, "web", "plugin-web"
         )
+
+    def remove_api_handlers(self, *names):
+        patterns = []
+
+        for pattern in names:
+            if not pattern.startswith("/"):
+                pattern = "/%s" % pattern
+            pattern = "/api/([A-Za-z0-9]{1,})%s" % pattern
+
+            patterns.append(pattern)
+
+        return self.remove_handlers(*patterns)
 
     def remove_handlers(self, *names):
         found = False
