@@ -18,7 +18,7 @@ feeds:  # Set up your feeds here
 targets:  # Set up your targets here
   irc-esper-ultros:  # Name of your target, to refer to above
     protocol: irc-esper  # Name of the protocol
-    target: "#Ultros"  # Name of the target
+    target: "#Ultros"  # Name of the target (use null without quotes for single-channel protocols such as Mumble)
     type: channel  # Type of target. Supports "user" and "protocol".
                    # Be aware of protocol-specific sending methods here. Do you really want to /notice users your feed updates on IRC?
   irc-esper-feeds:  # A second target definition
