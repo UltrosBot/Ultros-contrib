@@ -359,7 +359,7 @@ class WebPlugin(PluginObject):
         # Check if this is an API method and hide the key if so
 
         matched = re.match(r"/api/v[0-9]/([a-zA-Z0-9]+)/.*", path)
-        
+
         if matched:
             key = matched.groups()[0]
             user = self.api_keys.get_username(key)
