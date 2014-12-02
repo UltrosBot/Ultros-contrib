@@ -9,6 +9,7 @@ We're at 1.0.0! Cyclone <3
 __author__ = "Gareth Coles"
 
 import os
+import re
 
 from cyclone.web import Application
 
@@ -353,12 +354,27 @@ class WebPlugin(PluginObject):
         elif status_code >= 400:
             log = self.logger.warn
 
+        path = request.request.path
+
+        # Check if this is an API method and hide the key if so
+
+        matched = re.match(r"/api/v[0-9]/([a-zA-Z0-9]+)/.*", path)
+        key = matched.groups()[0]
+
+        if matched:
+            user = self.api_keys.get_username(key)
+
+            if user:
+                path = path.replace(key, "<API: %s>" % user)
+            else:
+                path = path.replace(key, "<API: Invalid key>")
+
         log(
             "[%s] %s %s -> HTTP %s"
             % (
                 request.request.remote_ip,
                 request.request.method,
-                request.request.path,
+                path,
                 request.get_status()
             )
         )
@@ -368,10 +384,10 @@ class WebPlugin(PluginObject):
 
     ## Public API functions
 
-    def add_api_handler(self, pattern, handler):
+    def add_api_handler(self, pattern, handler, version=1):
         if not pattern.startswith("/"):
             pattern = "/%s" % pattern
-        pattern = "/api/([A-Za-z0-9]{1,})%s" % pattern
+        pattern = "/api/v%s/([A-Za-z0-9]+)%s" % (version, pattern)
 
         return self.add_handler(pattern, handler)
 
@@ -399,7 +415,7 @@ class WebPlugin(PluginObject):
     def check_permission(self, perm, session=None):
         if session is None:
             username = None
-        elif isinstance(session, str):
+        elif isinstance(session, str) or isinstance(session, unicode):
             username = session
         else:
             username = session["username"]
@@ -408,13 +424,20 @@ class WebPlugin(PluginObject):
             perm, username, "web", "plugin-web"
         )
 
-    def remove_api_handlers(self, *names):
+    def remove_api_handlers(self, *names, **kwargs):
+        """
+        :param names:
+        :param version:
+        :return:
+        """
+
+        version = kwargs.get("version", 1)
         patterns = []
 
         for pattern in names:
             if not pattern.startswith("/"):
                 pattern = "/%s" % pattern
-            pattern = "/api/([A-Za-z0-9]{1,})%s" % pattern
+            pattern = "/api/v%s/([A-Za-z0-9]+)%s" % (version, pattern)
 
             patterns.append(pattern)
 
