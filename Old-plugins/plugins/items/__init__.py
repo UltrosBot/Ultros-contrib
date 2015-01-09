@@ -58,10 +58,16 @@ class ItemsPlugin(plugin.PluginObject):
                                        "items.count", default=True)
 
     def _load(self):
+        reload(JSONType)
+        reload(SQLiteType)
+
         if self.storage_type == "json":
             self.handler = JSONType(self, self.storage, self.logger)
         else:
             self.handler = SQLiteType(self, self.storage, self.logger)
+
+    def deactivate(self):
+        del self.handler
 
     @RateLimiter(5, 0, 10)  # TODO: Real command rate limiter
     def give_command(self, *args, **kwargs):
