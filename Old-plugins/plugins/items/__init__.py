@@ -59,12 +59,12 @@ class ItemsPlugin(plugin.PluginObject):
 
     def _load(self):
         reload(json_type)
-        reload(sqlite_type.SQLiteType)
+        reload(sqlite_type)
 
         if self.storage_type == "json":
-            self.handler = json_type.JSONType(self, self.storage, self.logger)
+            self.handler = json_type.Type(self, self.storage, self.logger)
         else:
-            self.handler = sqlite_type.SQLiteType(
+            self.handler = sqlite_type.Type(
                 self, self.storage, self.logger
             )
 
