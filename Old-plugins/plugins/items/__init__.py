@@ -9,8 +9,8 @@ import system.plugin as plugin
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
-from .json_type import Type as JSONType
-from .sqlite_type import Type as SQLiteType
+import plugins.items.json_type as json_type
+import plugins.items.sqlite_type as sqlite_type
 
 
 class ItemsPlugin(plugin.PluginObject):
@@ -58,13 +58,15 @@ class ItemsPlugin(plugin.PluginObject):
                                        "items.count", default=True)
 
     def _load(self):
-        reload(JSONType)
-        reload(SQLiteType)
+        reload(json_type)
+        reload(sqlite_type.SQLiteType)
 
         if self.storage_type == "json":
-            self.handler = JSONType(self, self.storage, self.logger)
+            self.handler = json_type.JSONType(self, self.storage, self.logger)
         else:
-            self.handler = SQLiteType(self, self.storage, self.logger)
+            self.handler = sqlite_type.SQLiteType(
+                self, self.storage, self.logger
+            )
 
     def deactivate(self):
         del self.handler
