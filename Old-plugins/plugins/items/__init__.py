@@ -54,6 +54,8 @@ class ItemsPlugin(plugin.PluginObject):
                                        "items.give", default=True)
         self.commands.register_command("get", self.get_command, self,
                                        "items.get", default=True)
+        self.commands.register_command("items", self.count_command, self,
+                                       "items.count", default=True)
 
     def _load(self):
         if self.storage_type == "json":
@@ -61,10 +63,14 @@ class ItemsPlugin(plugin.PluginObject):
         else:
             self.handler = SQLiteType(self, self.storage, self.logger)
 
-    @RateLimiter(5, 0, 10)
+    @RateLimiter(5, 0, 10)  # TODO: Real command rate limiter
     def give_command(self, *args, **kwargs):
         return self.handler.give_command(*args, **kwargs)
 
-    @RateLimiter(5, 0, 10)
+    @RateLimiter(5, 0, 10)  # TODO: Real command rate limiter
     def get_command(self, *args, **kwargs):
         return self.handler.get_command(*args, **kwargs)
+
+    @RateLimiter(5, 0, 10)  # TODO: Real command rate limiter
+    def count_command(self, *args, **kwargs):
+        return self.handler.count_command(*args, **kwargs)

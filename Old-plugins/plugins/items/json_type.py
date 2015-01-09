@@ -21,6 +21,13 @@ class Type(object):
     def number_of_items(self):
         return len(self.data["items"])
 
+    def fuzzy_number_of_items(self):
+        num = len(self.data["items"])
+        if num < 3:
+            return num + random.randint(1, num + 3)
+        else:
+            return num + random.randint(-2, 2)
+
     def add_item(self, item, owner):
         item = item.lower()
         with self.data:
@@ -72,3 +79,16 @@ class Type(object):
                                                  item_name, caller.nickname))
         else:
             protocol.send_action(source, "doesn't have any items right now.")
+
+    def count_command(self, protocol, caller, source, command, raw_args,
+                      parsed_args):
+        fuzzy = self.fuzzy_number_of_items()
+
+        if fuzzy < 2:
+            protocol.send_action(
+                source, "has around %s item in her bag." % fuzzy
+            )
+        else:
+            protocol.send_action(
+                source, "has around %s items in her bag." % fuzzy
+            )

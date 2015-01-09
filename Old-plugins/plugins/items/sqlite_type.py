@@ -1,5 +1,7 @@
 __author__ = 'Gareth Coles'
 
+import random
+
 from system.storage.formats import DBAPI
 
 
@@ -101,4 +103,41 @@ class Type(object):
 
         d.addCallbacks(self._get_callback, self._get_callback_fail,
                        callbackArgs=(caller, source, protocol),
+                       errbackArgs=(source, protocol))
+
+    def _count_txn(self, txn):
+        txn.execute("SELECT COUNT(*) FROM items")
+        r = txn.fetchone()
+
+        return r[0]
+
+    def _count_callback(self, result, source, protocol):
+        if result < 1:
+            protocol.send_action(source, "doesn't have any items right now.")
+        else:
+            if result < 3:
+                fuzzy = result + random.randint(1, result + 3)
+            else:
+                fuzzy = result + random.randint(-2, 2)
+
+            if fuzzy < 2:
+                protocol.send_action(
+                    source, "has around %s item in her bag." % fuzzy
+                )
+            else:
+                protocol.send_action(
+                    source, "has around %s items in her bag." % fuzzy
+                )
+
+    def _count_callback_fail(self, failure, source, protocol):
+        protocol.send_action(source, "attempts to count the items in her "
+                                     "bag but is startled by a loud voice: "
+                                     "\"%s\"" % failure.getErrorMessage())
+
+    def count_command(self, protocol, caller, source, command, raw_args,
+                      parsed_args):
+        d = self.data.runInteraction(self._count_txn)
+
+        d.addCallbacks(self._count_callback, self._count_callback_fail,
+                       callbackArgs=(source, protocol),
                        errbackArgs=(source, protocol))
