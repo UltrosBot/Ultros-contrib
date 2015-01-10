@@ -2,7 +2,6 @@ __author__ = 'Jim'
 
 
 import json
-import mpmath
 import urllib
 
 import system.plugin as plugin
@@ -11,7 +10,7 @@ from system import command_manager
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 from datetime import datetime, timedelta
-#from japan import loli_maids
+# from japan import loli_maids
 
 
 class MoneyPlugin(plugin.PluginObject):
@@ -41,8 +40,6 @@ class MoneyPlugin(plugin.PluginObject):
         self.config.add_callback(self._load)
 
     def _load(self):
-        mpmath.mp.dps = self.precision
-
         self.rates_table_updated = datetime.now()
         self.rates_table = self.get_rates_table(ignore_time=True)
 
@@ -120,7 +117,7 @@ class MoneyPlugin(plugin.PluginObject):
                         self.rates_table[start_currency]  # calculate the
                     # conversion rate
 
-                    r = mpmath.mpf(start_val) * rate
+                    r = start_val * rate
                     formatted = format(float(r), "0.%sf" % self.precision)
 
                     done.append("%s %s" % (formatted, i))
