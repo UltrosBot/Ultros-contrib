@@ -3,11 +3,11 @@
 __author__ = "Adam Guy"
 
 import random
-
-from system.protocols.generic.channel import Channel
-from system.command_manager import CommandManager
-
 import system.plugin as plugin
+
+from system.command_manager import CommandManager
+from system.protocols.generic.channel import Channel
+from system.protocols.generic.protocol import ChannelsProtocol
 
 
 class RoulettePlugin(plugin.PluginObject):
@@ -23,7 +23,7 @@ class RoulettePlugin(plugin.PluginObject):
                                        "russianroulette.rroulette",
                                        aliases=["roulette"], default=True)
 
-    def addChannel(self, channel):
+    def getChannel(self, channel):
         if channel not in self.channels.keys():
             players = []
             curplayers = []
@@ -35,26 +35,42 @@ class RoulettePlugin(plugin.PluginObject):
                     "chambers": chambers, "curplayers": curplayers}
 
             self.channels[channel] = data
+        return self.channels[channel]
+
+    def setChambers(self, channel, chambers):
+        chan = self.getChannel(channel)
+        chan["chambers"] -= 1
+        self.channels[channel] = chambers
 
     def play(self, protocol, caller, source, command, raw_args,
              parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
         self.logger.trace("Caller: %s" % repr(caller))
         self.logger.trace("Source: %s" % repr(source))
         self.logger.trace("Result: %s" % isinstance(source, Channel))
+
         if not isinstance(source, Channel):
             caller.respond("This command may only be used in a channel.")
             return
 
-        self.addChannel(source.name)
+        chan = self.getChannel("{}/{}".format(protocol.name, source.name))
 
-        chambers_left = self.channels[source.name]["chambers"]
+        chambers_left = chan["chambers"]
 
         random.seed()
 
         if random.randint(1, chambers_left) == 1:
             # Boom!
-            source.respond("BANG")
+            if isinstance(protocol, ChannelsProtocol):
+                attempt = protocol.channel_kick(caller, source, "BANG")
+
+                if not attempt:
+                    source.respond("BANG")
+            else:
+                attempt = protocol.global_kick(caller, "BANG")
+
+                if not attempt:
+                    source.respond("BANG")
+
             protocol.send_action(source, "*reloads the gun*")
             chambers_left = 6
             source.respond(
@@ -68,4 +84,7 @@ class RoulettePlugin(plugin.PluginObject):
                 '*click* You\'re safe for now. There are %s chambers left. '
                 'You have a %s%% chance of dying.'
                 % (chambers_left, int(100.0 / chambers_left)))
-        self.channels[source.name]["chambers"] = chambers_left
+
+        self.setChambers(
+            "{}/{}".format(protocol.name, source.name), chambers_left
+        )
