@@ -81,7 +81,7 @@ class MoneyPlugin(plugin.PluginObject):
             # entered one or none:
             caller.respond(
                 "Usage: {CHARS}money <value> <start currency> [<end currency 1"
-                "> <end currency 2>...] i.e: money 15 GBP USD")
+                "> <end currency 2>...] i.e: {CHARS}money 15 GBP USD")
         else:  # 2 args or more:
             self.rates_table = self.get_rates_table()
             # update the rates table if we need to.
@@ -113,9 +113,9 @@ class MoneyPlugin(plugin.PluginObject):
                     if i not in self.rates_table:
                         caller.respond("Unknown currency: %s" % i.upper())
                         return
-                    rate = self.rates_table[i] / \
-                        self.rates_table[start_currency]  # calculate the
-                    # conversion rate
+                    rate = (
+                        self.rates_table[i] / self.rates_table[start_currency]
+                    )  # calculate the conversion rate
 
                     r = start_val * rate
                     formatted = format(float(r), "0.%sf" % self.precision)
