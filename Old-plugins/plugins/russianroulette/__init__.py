@@ -25,22 +25,12 @@ class RoulettePlugin(plugin.PluginObject):
 
     def getChannel(self, channel):
         if channel not in self.channels.keys():
-            players = []
-            curplayers = []
-            shots = 0
-            deaths = 0
-            chambers = 6
-
-            data = {"players": players, "shots": shots, "deaths": deaths,
-                    "chambers": chambers, "curplayers": curplayers}
-
-            self.channels[channel] = data
+            self.channels[channel] = {"players": [], "shots": 0, "deaths": 0,
+                                      "chambers": 6, "curplayers": []}
         return self.channels[channel]
 
     def setChambers(self, channel, chambers):
-        chan = self.getChannel(channel)
-        chan["chambers"] -= 1
-        self.channels[channel] = chambers
+        self.channels[channel]["chambers"] = chambers
 
     def play(self, protocol, caller, source, command, raw_args,
              parsed_args):
