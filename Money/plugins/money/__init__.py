@@ -86,7 +86,11 @@ class MoneyPlugin(plugin.PluginObject):
             self.rates_table = self.get_rates_table()
             # update the rates table if we need to.
 
-            start_val = args[0]  # the amount of money to convert from
+            try:
+                start_val = float(args[0])
+            except Exception:
+                caller.respond("{} is not a number!".format(args[0]))
+                return
             start_currency = args[1]  # the currency that the above refers to
             start_currency = start_currency.upper()  # uppercase dat
 
