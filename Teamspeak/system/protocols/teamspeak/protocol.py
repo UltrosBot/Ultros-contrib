@@ -3,7 +3,7 @@
 import utils.teamspeak as utils
 
 from collections import deque
-from utils.log import getLogger
+from system.logging.logger import getLogger
 from system.decorators.threads import run_async_threadpool
 
 from twisted.internet import reactor

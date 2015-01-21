@@ -19,7 +19,7 @@ from system.protocols.inter.user import User
 from system.protocols.inter.channel import Channel
 from system.translations import Translations
 
-from utils.log import getLogger
+from system.logging.logger import getLogger
 from utils.switch import Switch
 _ = Translations().get()
 
