@@ -90,11 +90,13 @@ Old-plugins:
     requires:
         modules: []
         packages: []
-Teamspeak:
+Translate:
     version: 0.0.1
-    description: "/!\\ UNFINISHED /!\\ Provides a (somewhat hacky and slow) protocol for connecting to Teamspeak via the ServerQuery protocol."
+    description: "Google Translate via Goslate"
     requires:
-        modules: []
+        modules:
+        - futures
+        - goslate
         packages: []
 Triggers:
     version: 0.3.0

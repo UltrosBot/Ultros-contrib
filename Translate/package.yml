@@ -1,0 +1,16 @@
+name: Translate
+current_version:
+    number: 0.0.1
+    info: Initial commit
+description: >
+    Google Translate via Goslate
+files:
+- plugins/translate/
+- plugins/translate/__init__.py
+- plugins/translate.plug
+requires:
+    modules:
+    - futures
+    - goslate
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Translate/README.md
