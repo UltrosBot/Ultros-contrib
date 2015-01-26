@@ -44,3 +44,6 @@ class TranslatePlugin(PluginObject):
             source.respond("[{}] {}".format(to_lang, translation))
         except Error as e:
             source.respond("Translation error: {}".format(e))
+        except Exception as e:
+            self.logger.exception("Translation error")
+            source.respond("Translation error: {}".format(e))
