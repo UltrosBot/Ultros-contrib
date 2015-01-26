@@ -25,7 +25,7 @@ Blowfish:
     requires:
         modules:
         - "Crypto:pycrypto"
-        pacakges: []
+        packages: []
 Domai.nr:
     version: 0.2.0
     description: "Domainr API integration."
