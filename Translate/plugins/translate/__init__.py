@@ -41,9 +41,9 @@ class TranslatePlugin(PluginObject):
         try:
             translation = self.goslate.translate(text, to_lang, from_lang)
 
-            source.respond("[{}] {}".format(to_lang, translation))
+            source.respond(u"[{}] {}".format(to_lang, translation))
         except Error as e:
-            source.respond("Translation error: {}".format(e))
+            source.respond(u"Translation error: {}".format(e))
         except Exception as e:
             self.logger.exception("Translation error")
-            source.respond("Translation error: {}".format(e))
+            source.respond(u"Translation error: {}".format(e))
