@@ -30,13 +30,13 @@ class TranslatePlugin(PluginObject):
             return
 
         langs = parsed_args[0]
-        text = " ".join(parsed_args[1:])
+        text = u" ".join(parsed_args[1:])
 
-        if ":" in langs:
-            split = langs.split(":")
+        if u":" in langs:
+            split = langs.split(u":")
             from_lang, to_lang = split[0], split[1]
         else:
-            from_lang, to_lang = "", langs
+            from_lang, to_lang = u"", langs
 
         try:
             translation = self.goslate.translate(text, to_lang, from_lang)
