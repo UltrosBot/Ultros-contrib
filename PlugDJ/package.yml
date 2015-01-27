@@ -1,0 +1,26 @@
+name: PlugDJ
+current_version:
+    number: 0.0.1
+    info: >
+        Pre-release version. Not done, but functional.
+description: >
+    Provides a protocol that uses Selenium to interface with the plug.dj site and API
+files:
+# Folders
+- system/protocols/plugdj/
+
+# Files
+- config/protocols/plugdj.yml.example
+
+- system/events/plugdj.py
+- system/protocols/plugdj/__init__.py
+- system/protocols/plugdj/channel.py
+- system/protocols/plugdj/drivers.py
+- system/protocols/plugdj/inject.js
+- system/protocols/plugdj/protocol.py
+- system/protocols/plugdj/user.py
+requires:
+    modules:
+    - selenium
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/PlugDJ/README.md

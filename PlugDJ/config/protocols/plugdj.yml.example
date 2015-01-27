@@ -1,0 +1,30 @@
+main:
+  protocol-type: plugdj
+  can-flood: no
+
+identity:  # Your login details
+  email: "user@email.ext"
+  password: "Pa$$wurd123"
+
+channel: "channel_url_portion"  # Your channel
+
+selenium:
+  # Your driver can be any of the following:
+  #   Firefox, Chrome, IE, Opera, Safari, PhantomJS, Android, or Remote
+  # We test with Firefox, so we can't guarantee that the others work, but you're
+  # free to try them. All defaults below assume Firefox.
+  driver: "Firefox"
+
+  # Args and kwargs are passed directly to the driver. This is for advanced users
+  # only. Feel free to omit them from this file entirely if you don't need them.
+  args: []  # Optional arguments for the web driver
+  kwargs:  # Optional keyword arguments for the web driver
+    firefox_profile: null  # Automatically use a new profile
+    firefox_binary: null  # Automatically detect the binary
+    timeout: 30
+    capabilities: null
+    proxy: null
+
+control_chars: "." # What messages must be prefixed with to count as a command.
+                   # This doesn't have to be just one character!
+                   # You can also use {NICK} in place of the bot's current nick.
