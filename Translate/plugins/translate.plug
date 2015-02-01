@@ -1,0 +1,10 @@
+core:
+  name: Translate
+  module: translate
+  dependencies: []
+info:
+  description: "Google Translate via Goslate"
+  author: Gareth Coles
+  version: 0.0.1
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Translate
+  copyright: See Ultros' license

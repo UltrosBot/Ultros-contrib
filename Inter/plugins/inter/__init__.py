@@ -1,6 +1,8 @@
 __author__ = 'Gareth Coles'
 
 
+from twisted.internet import reactor
+
 import system.plugin as plugin
 
 from system.command_manager import CommandManager
@@ -78,9 +80,14 @@ class ReplPlugin(plugin.PluginObject):
         self.commands.register_command("players", self.players_command, self,
                                        "inter.players", default=True)
 
-        self.events.add_callback("ReactorStarted", self, self.first_load, 0)
+        if not reactor.running:
+            self.events.add_callback(
+                "ReactorStarted", self, self.first_load, 0
+            )
+        else:
+            self.first_load()
 
-    def first_load(self, event):
+    def first_load(self, _=None):
         if not self.reload():
             self.logger.error(_("Disabling.."))
             self._disable_self()
