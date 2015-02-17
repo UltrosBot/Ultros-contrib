@@ -132,8 +132,7 @@ class DrunkPlugin(plugin.PluginObject):
         drink = " ".join(args)
         drinkl = drink.lower()
         if drinkl in self._drinks:
-            # TODO: Action
-            source.respond("*drinks %s*" % drink)
+            protocol.send_action(source, "drinks {}".format(drink))
             self._drunktalk.drunkenness += self._drinks[drinkl]
         else:
             caller.respond("I don't have any of that.")

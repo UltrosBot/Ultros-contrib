@@ -53,6 +53,7 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
     def __init__(self, name, factory, config):
         NoChannelsProtocol.__init__(self, name, factory, config)
 
+        self.name = name
         self.log = getLogger(self.name)
         self.event_manager = EventManager()
         self.command_manager = CommandManager()
@@ -438,7 +439,12 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
             {
                 "action": "chat",
                 "message": message,
-                "user": str(self.ourselves)
+                "user": str(self.ourselves),
+                "primaryGroup": self.name,
+                "prefix": "",
+                "suffix": "",
+                "UUID": "N/A",
+                "world": self.name
             }
         )
 
@@ -449,7 +455,12 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
             {
                 "action": "chat",
                 "message": message,
-                "user": str(user)
+                "user": str(user),
+                "primaryGroup": self.name,
+                "prefix": "",
+                "suffix": "",
+                "UUID": "N/A",
+                "world": self.name
             }
         )
 
@@ -464,7 +475,12 @@ class Protocol(LineOnlyReceiver, NoChannelsProtocol):
             {
                 "action": "chat",
                 "message": "*%s*" % message,
-                "user": str(user)
+                "user": str(user),
+                "primaryGroup": self.name,
+                "prefix": "",
+                "suffix": "",
+                "UUID": "N/A",
+                "world": self.name
             }
         )
 
