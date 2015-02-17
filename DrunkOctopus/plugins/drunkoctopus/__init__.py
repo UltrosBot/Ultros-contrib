@@ -304,8 +304,12 @@ class DrunkTalk(object):
                 if self._roll(self._c_shift_mixup):
                     # Function to check if it's possible to shift-swap a
                     # position
-                    suitable = lambda p, s: msgl[p] in (
-                        self._unshifted_chars if s else self._shifted_chars)
+
+                    def suitable(p, s):
+                        return msgl[p] in (
+                            self._unshifted_chars if s
+                            else self._shifted_chars
+                        )
 
                     # Change current character (shift late)
                     pos = x
