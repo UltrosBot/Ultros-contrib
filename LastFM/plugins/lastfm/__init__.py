@@ -216,8 +216,10 @@ class LastFMPlugin(plugin.PluginObject):
             else:
                 track = tracks
             # Check if track is currently playing, or was played recently
-            now_playing = ("@attr" in track and "nowplaying" in track["@attr"]
-                           and bool(track["@attr"]["nowplaying"]))
+            now_playing = (
+                "@attr" in track and "nowplaying" in track["@attr"] and
+                bool(track["@attr"]["nowplaying"])
+            )
             just_played = ("date" in track and (
                 datetime.utcnow() - datetime.utcfromtimestamp(
                     float(track["date"]["uts"])
