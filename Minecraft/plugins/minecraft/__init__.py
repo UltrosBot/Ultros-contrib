@@ -163,9 +163,9 @@ class MinecraftPlugin(plugin.PluginObject):
                         else:
                             offline.append(self.status_friendly_names[key])
 
-            self.logger.trace("%s status changes found." % (len(online)
-                                                            + len(offline)
-                                                            + len(problems)))
+            self.logger.trace("%s status changes found." % (len(online) +
+                                                            len(offline) +
+                                                            len(problems)))
 
             parts = []
 
