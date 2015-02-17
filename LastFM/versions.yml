@@ -16,3 +16,5 @@
     Fixed an(other) edge-case in the LastFM API
 0.3.2: >
     Fixed yet another edge-case in the LastFM API
+0.3.3: >
+    Support Last.FM short URLs for tracks

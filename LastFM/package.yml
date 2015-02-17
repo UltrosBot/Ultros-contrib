@@ -1,8 +1,8 @@
 name: LastFM
 current_version:
-    number: 0.3.2
+    number: 0.3.3
     info: >
-        Fixed yet another edge-case in the LastFM API
+        Support Last.FM short URLs for tracks
 description: >
     LastFM API integration. Current features:
     - Now Playing, including stats

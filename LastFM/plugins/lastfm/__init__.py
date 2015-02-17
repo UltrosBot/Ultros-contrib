@@ -4,6 +4,8 @@ __author__ = 'Sean'
 
 import treq
 
+from lib.crypto import newbase60 as nb60
+
 from system.command_manager import CommandManager
 
 import system.plugin as plugin
@@ -279,6 +281,15 @@ class LastFMPlugin(plugin.PluginObject):
                 duration = int(track["duration"])
             if "url" in track:
                 url = track["url"]
+            if "id" in track:
+                try:
+                    fragment = nb60.numtosxg(int(track["id"]))
+                    url = "http://last.fm/+t{}".format(fragment)
+                except:
+                    self.logger.exception(
+                        "Error getting short URL; using long one."
+                    )
+
             if "toptags" in track and isinstance(track["toptags"], dict):
                 # type check due to an irregularity in the LastFM API: http://
                 # www.last.fm/group/Last.fm+Web+Services/forum/21604/_/2231458
