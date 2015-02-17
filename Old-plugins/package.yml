@@ -18,6 +18,7 @@ files:
 - plugins/brainfuck/
 - plugins/geoip/
 - plugins/items/
+- plugins/items/types/
 - plugins/lastseen/
 - plugins/russianroulette/
 - config/plugins/brainfuck.yml.example
@@ -29,8 +30,8 @@ files:
 - plugins/geoip/__init__.py
 - plugins/geoip.plug
 - plugins/items/__init__.py
-- plugins/items/json_type.py
-- plugins/items/sqlite_type.py
+- plugins/items/types/json_type.py
+- plugins/items/types/sqlite_type.py
 - plugins/items.plug
 - plugins/lastseen/__init__.py
 - plugins/lastseen.plug
