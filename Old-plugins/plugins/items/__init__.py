@@ -9,8 +9,8 @@ import system.plugin as plugin
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
-import plugins.items.json_type as json_type
-import plugins.items.sqlite_type as sqlite_type
+from plugins.items.types import json_type
+from plugins.items.types import sqlite_type
 
 
 class ItemsPlugin(plugin.PluginObject):
