@@ -1,6 +1,8 @@
 Ultros-contrib
 ==============
 
+Builds: [On Bamboo](http://bamboo.gserv.me/browse/ULTROS-CONTRIB/latest)
+
 This repo contains packages for Ultros that have either been contributed by people other than the core development team,
 or that the core team considers to be extra functionality.
 
