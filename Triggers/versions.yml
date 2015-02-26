@@ -4,3 +4,5 @@
     + Configurable trigger/response types (message, notice, action)
 0.3.0: >
     + Per-response type
+0.4.0: >
+    + Additional response types (channel/global kick/ban)

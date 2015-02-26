@@ -1,8 +1,8 @@
 name: Triggers
 current_version:
-    number: 0.3.0
+    number: 0.4.0
     info: >
-        + Per-response type
+        + Additional response types (channel/global kick/ban)
 description: >
     Configurable trigger responses
 files:

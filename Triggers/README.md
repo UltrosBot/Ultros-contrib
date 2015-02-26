@@ -24,7 +24,7 @@ Triggers are a dict with the following keys:
 * `chance` - (Optional - default: 100) A percentage (0-100) that the trigger will fire
 * `flags` - (Optional - default: None) Single-character flags to pass to the regex engine
 * `trigger_types` - (Optional - default: {"message": True}) The type of message to trigger on (`message`, `action`, or `notice` (IRC-only))
-* `response_type` - (Optional - default: "message") The type of message to respond with (`message`, `action`, or `notice` (IRC-only))
+* `response_type` - (Optional - default: "message") The type of event to respond with (`message`, `action`, `notice` (IRC-only), `channel_kick`, `channel_ban`, `global_kick`, or `global_ban`)
 
 #### Flags
 

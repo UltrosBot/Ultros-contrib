@@ -215,6 +215,50 @@ class TriggersPlugin(plugin.PluginObject):
                                 "Cannot respond with notice on protocol: '%s'"
                                 % protocol.name
                             )
+                    elif response_type == "channel_kick":
+                        attempted = protocol.channel_kick(
+                            source,
+                            channel=_channel,
+                            reason=response_formatted
+                        )
+                        if not attempted:
+                            self.logger.warning(
+                                "Couldn't kick %s from %s" % (
+                                    source,
+                                    _channel
+                                )
+                            )
+                    elif response_type == "channel_ban":
+                        attempted = protocol.channel_ban(
+                            source,
+                            channel=_channel,
+                            reason=response_formatted
+                        )
+                        if not attempted:
+                            self.logger.warning(
+                                "Couldn't ban %s from %s" % (
+                                    source,
+                                    _channel
+                                )
+                            )
+                    elif response_type == "global_kick":
+                        attempted = protocol.global_kick(
+                            source,
+                            reason=response_formatted
+                        )
+                        if not attempted:
+                            self.logger.warning(
+                                "Couldn't global kick %s" % source
+                            )
+                    elif response_type == "global_ban":
+                        attempted = protocol.global_ban(
+                            source,
+                            reason=response_formatted
+                        )
+                        if not attempted:
+                            self.logger.warning(
+                                "Couldn't global ban %s" % source
+                            )
                     else:
                         self.logger.error(
                             "Invalid response_type '%s'" % response_type
