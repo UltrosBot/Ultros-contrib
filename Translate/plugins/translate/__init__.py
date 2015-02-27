@@ -2,6 +2,8 @@ __author__ = 'Gareth Coles'
 
 from goslate import Goslate, Error
 
+from kitchen.text.converters import to_unicode
+
 from system.decorators.threads import run_async_threadpool
 from system.command_manager import CommandManager
 from system.plugins.plugin import PluginObject
@@ -30,7 +32,7 @@ class TranslatePlugin(PluginObject):
             return
 
         langs = parsed_args[0]
-        text = u" ".join(parsed_args[1:])
+        text = u" ".join([to_unicode(x) for x in parsed_args[1:]])
 
         if u":" in langs:
             split = langs.split(u":")
