@@ -10,7 +10,7 @@ from system.storage.manager import StorageManager
 from system.storage.formats import YAML
 
 
-class TwilioPlugin(plugin.PluginObject):
+class WebhooksPlugin(plugin.PluginObject):
 
     config = None
     data = None
