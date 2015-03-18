@@ -24,9 +24,9 @@
     <link href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/css/semantic.min.css" rel="stylesheet">
     <script src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/javascript/semantic.min.js"></script>
 
-    <!-- IntroJS CSS and JS -->
-    <link href="//cdnjs.cloudflare.com/ajax/libs/intro.js/0.6.0/introjs.min.css" rel="stylesheet">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/intro.js/0.6.0/intro.min.js"></script>
+    <!-- Bootstrap-Tour CSS and JS -->
+    <link href="//cdn.jsdelivr.net/bootstrap-tour/0.10.2/css/bootstrap-tour-standalone.min.css" rel="stylesheet">
+    <script src="//cdn.jsdelivr.net/bootstrap-tour/0.10.2/js/bootstrap-tour-standalone.min.js"></script>
 
     <!-- Other CSS -->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
@@ -36,6 +36,7 @@
     <!-- Other JS -->
     <script src="//mottie.github.io/tablesorter/dist/js/jquery.tablesorter.min.js"></script>
     <script src="//code.highcharts.com/highcharts.js"></script>
+    <script src="/static/tour.js"></script>
 
     % if extra_css is not UNDEFINED:
     <!-- Route-specific CSS -->
@@ -143,10 +144,65 @@
     });
     </script>
 
-    <!-- IntroJS stuff -->
+    <!-- Bootstrap Tour stuff -->
     <script>
-        $(".page-help").click(function() {
-            introJs(".page-help-item").start();
+        // Set up global tour
+
+        addTourStep("global", {
+            element: "#home-logo",
+            title: "Returning home",
+            content: "You may click on this logo to return to the main page at any time."
+        });
+
+        addTourStep("global", {
+            element: "#nav-list",
+            title: "Getting around",
+            content: "Click on one of the items here to go to its corresponding page. The current page is highlighted in green."
+        });
+
+    % if session:
+        addTourStep("global", {
+            element: "#account",
+            title: "Your account",
+            placement: "bottom",
+            content: "As you're logged in, click here to view your account settings."
+        });
+
+        addTourStep("global", {
+            element: "#logout",
+            title: "Logout",
+            placement: "bottom",
+            content: "Click here to log out of your account at any time."
+        });
+    % else:
+        addTourStep("global", {
+            element: "#login",
+            title: "Login",
+            placement: "left",
+            content: "Click here to log into your account. You may create one by using the <strong>register</strong> command on a chat network."
+        });
+    % endif
+
+        addTourStep("global", {
+            element: ".this-page-help",
+            title: "Getting help",
+            content: "If you need more help, click here to see the page-specific tour."
+        });
+
+        // Set up handler for page-based tour
+        $(".this-page-help").click(function(e) {
+            e.preventDefault();
+
+            endTour("global");
+            startTour("page");
+        });
+
+        // Set up handler for global tour
+        $(".page-help").click(function(e) {
+            e.preventDefault();
+
+            endTour("page");
+            startTour("global");
         });
     </script>
 </body>

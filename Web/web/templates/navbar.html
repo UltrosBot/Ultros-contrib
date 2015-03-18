@@ -3,6 +3,9 @@
         <%page args="items={}"/>
 
 <div id="mobile-menu" class="ui pointing fluid menu">
+    <a class="item menu-toggle" href="#">
+        <i class="fa fa-bars icon"></i>
+    </a>
     % if nav_name == "home":
     <a class="green active item hide-full" href="/">
         <i class="home icon"></i>
@@ -32,40 +35,37 @@
     <a class="hidden item"></a>
 
     <div class="right menu">
-% if session:
         <a class="hidden item"></a>
 
+% if session:
     % if nav_name == "account":
-        <a class="blue active item add-popup global-page-item" title="Account" data-position="bottom center" href="/account"
-           data-step="2" data-info="Click here to see your account settings."
+        <a class="blue active item add-popup" title="Account" data-position="bottom center" href="/account"
+                id="account"
         >
             ${session["username"]}
         </a>
     % else:
-        <a class="item add-popup global-page-item" title="Account" data-position="bottom center" href="/account"
-           data-step="2" data-info="Click here to see your account settings."
+        <a class="item add-popup" title="Account" data-position="bottom center" href="/account"
+                id="account"
         >
             ${session["username"]}
         </a>
     % endif
-        <a class="red item add-popup global-page-item" title="Logout" data-position="bottom left" href="/logout"#
-           data-step="3" data-info="Click here to log out at any time."
+        <a class="red item add-popup" title="Logout" data-position="bottom left" href="/logout"
+                id="logout"
         >
             <i class="red alternate unlock icon"></i>
         </a>
-
 % else:
-        <a class="hidden item"></a>
-
     % if nav_name == "login":
-        <a class="blue active item add-popup global-page-item" title="Login" data-position="bottom left" href="/login"
-           data-step="2" data-info="Click here to go to the login page."
+        <a class="blue active item add-popup" title="Login" data-position="bottom left" href="/login"
+                id="login"
         >
             <i class="lock icon"></i>
         </a>
     % else:
-        <a class="item add-popup global-page-item" title="Login" data-position="bottom left" href="/login"
-           data-step="2" data-info="Click here to go to the login page."
+        <a class="item add-popup" title="Login" data-position="bottom left" href="/login"
+                id="login"
         >
             <i class="lock icon"></i>
             Login
@@ -77,17 +77,15 @@
 
 <div id="menu" class="ui thin vertical sidebar menu active">
 
-    <div class="ui attached fluid vertical menu segment global-page-item"
-           data-step="1" data-info="Welcome to the Ultros web interface!
-                                    You can click here or the 'Home' item below
-                                    to return to the main page at any time."
+    <div class="ui attached fluid vertical menu segment">
+        <a class="item" href="/" style="height: 50px;"
+                id="home-logo"
         >
-        <a class="item" href="/" style="height: 50px;">
             <img class="icon" src="/static/ultros-logo.png">
         </a>
     </div>
 
-    <div class="ui attached fluid vertical menu segment">
+    <div id="nav-list" class="ui attached fluid vertical menu segment">
     % if nav_name == "home":
         <a class="green active item" href="/">
             <i class="home icon"></i>
@@ -116,8 +114,13 @@
     </div>
 
     <!-- Page help item -->
-    <a class="help item" href="#">
+    <a class="this-page-help item" href="#">
         <i class="fa fa-question-circle icon"></i>
         Page Help
+    </a>
+
+    <a class="page-help item" href="#">
+        <i class="fa fa-question-circle icon"></i>
+        Interface Help
     </a>
 </div>
