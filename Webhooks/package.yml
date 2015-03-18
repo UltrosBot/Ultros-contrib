@@ -1,0 +1,24 @@
+name: Webhooks
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version.
+description: >
+    Provides webhooks support for the Web plugin, so that other services may trigger messages.
+files:
+# Configuration
+- config/plugins/webhooks/
+- config/plugins/webhooks/github/
+- config/plugins/webhooks/gogs/
+- config/plugins/webhooks.yml.example
+- config/plugins/webhooks/github/hook.yml.example
+- config/plugins/webhooks/gogs/hook.yml.example
+# Plugin
+- plugins/webhooks.plug
+- plugins/webhooks/
+- plugins/webhooks/__init__.py
+requires:
+    modules: []
+    packages:
+    - "Web"
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Webhooks/README.md

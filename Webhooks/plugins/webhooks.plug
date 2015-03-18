@@ -1,0 +1,11 @@
+core:
+  name: Webhooks
+  module: webhooks
+  dependencies:
+  - "Web"
+info:
+  description: Provides webhooks support for the Web plugin, so that other services may trigger messages.
+  author: Gareth Coles
+  version: 0.0.1
+  website: https://github.com/UltrosBot/Ultros-contrib/blob/master/Webhooks
+  copyright: See Ultros' license
