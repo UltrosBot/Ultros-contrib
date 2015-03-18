@@ -36,15 +36,21 @@
         <a class="hidden item"></a>
 
     % if nav_name == "account":
-        <a class="blue active item add-popup" title="Account" data-position="bottom center" href="/account">
+        <a class="blue active item add-popup global-page-item" title="Account" data-position="bottom center" href="/account"
+           data-step="2" data-info="Click here to see your account settings."
+        >
             ${session["username"]}
         </a>
     % else:
-        <a class="item add-popup" title="Account" data-position="bottom center" href="/account">
+        <a class="item add-popup global-page-item" title="Account" data-position="bottom center" href="/account"
+           data-step="2" data-info="Click here to see your account settings."
+        >
             ${session["username"]}
         </a>
     % endif
-        <a class="red item add-popup" title="Logout" data-position="bottom left" href="/logout">
+        <a class="red item add-popup global-page-item" title="Logout" data-position="bottom left" href="/logout"#
+           data-step="3" data-info="Click here to log out at any time."
+        >
             <i class="red alternate unlock icon"></i>
         </a>
 
@@ -52,11 +58,15 @@
         <a class="hidden item"></a>
 
     % if nav_name == "login":
-        <a class="blue active item add-popup" title="Login" data-position="bottom left" href="/login">
+        <a class="blue active item add-popup global-page-item" title="Login" data-position="bottom left" href="/login"
+           data-step="2" data-info="Click here to go to the login page."
+        >
             <i class="lock icon"></i>
         </a>
     % else:
-        <a class="item add-popup" title="Login" data-position="bottom left" href="/login">
+        <a class="item add-popup global-page-item" title="Login" data-position="bottom left" href="/login"
+           data-step="2" data-info="Click here to go to the login page."
+        >
             <i class="lock icon"></i>
             Login
         </a>
@@ -67,7 +77,11 @@
 
 <div id="menu" class="ui thin vertical sidebar menu active">
 
-    <div class="ui attached fluid vertical menu segment">
+    <div class="ui attached fluid vertical menu segment global-page-item"
+           data-step="1" data-info="Welcome to the Ultros web interface!
+                                    You can click here or the 'Home' item below
+                                    to return to the main page at any time."
+        >
         <a class="item" href="/" style="height: 50px;">
             <img class="icon" src="/static/ultros-logo.png">
         </a>
@@ -102,7 +116,7 @@
     </div>
 
     <!-- Page help item -->
-    <a class="item" href="#">
+    <a class="help item" href="#">
         <i class="fa fa-question-circle icon"></i>
         Page Help
     </a>
