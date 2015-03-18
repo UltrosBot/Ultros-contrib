@@ -8,7 +8,7 @@
         <div>&nbsp;</div>
 
     % if plugins:
-        <div class="ui fluid attached segment">
+        <div id="plugins-section" class="ui fluid attached segment">
             <h4 class="ui header">Packages and plugins</h4>
         </div>
         <div class="ui fluid attached segment">
@@ -33,7 +33,7 @@ import operator
         <div>&nbsp;</div>
 
     % if factories:
-        <div class="ui fluid attached segment">
+        <div id="protocols-section" class="ui fluid attached segment">
             <h4 class="ui header">Protocols</h4>
         </div>
         <div class="ui fluid attached segment">
@@ -59,6 +59,26 @@ inst = isinstance(factories[name].protocol, ChannelsProtocol)
             </ul>
         </div>
     % endif
+
+    <!-- Page help stuff -->
+    <script>
+    % if plugins:
+        addTourStep("page", {
+            element: "#plugins-section",
+            title: "Packages and plugins",
+            placement: "bottom",
+            content: "This section is a list of installed packages and enabled plugins. You may click on a plugin to go to its documentation URL."
+        });
+    % endif
+    % if factories:
+        addTourStep("page", {
+            element: "#protocols-section",
+            title: "Protocols",
+            placement: "bottom",
+            content: "This section is a list of connected protocols, and the number of channels they have (where appropriate)"
+        });
+    % endif
+    </script>
 
 <%block name="title">Ultros | Index</%block>
 <%block name="header">
