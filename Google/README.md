@@ -1,0 +1,16 @@
+Google
+======
+
+This plugin allows you to do quick Google searches that return up to four results at a time.
+
+## Configuration
+
+* This plugin has nothing to configure.
+
+## Commands and permissions
+
+* `google [:page] <query>` - Do a quick search
+    * Permission: `google.google`
+    * Arguments:
+        * `:page` - Optional argument, specify the page you want (for example, `:2`)
+        * `query` - The search query, including spaces

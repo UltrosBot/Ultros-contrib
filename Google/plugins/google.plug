@@ -1,0 +1,10 @@
+core:
+  name: Google
+  module: google
+  dependencies: [URLs]
+info:
+  description: Plugin to do quick Google searches
+  author: Gareth Coles
+  version: 0.0.2
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Google
+  copyright: See Ultros' license
