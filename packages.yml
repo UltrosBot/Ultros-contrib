@@ -46,6 +46,13 @@ Feeds:
         modules:
         - "feedparser"
         packages: []
+Google:
+    version: 0.0.1
+    description: "Allows you to do quick Google searches that return up to four results at a time."
+    requires:
+        modules:
+        - "treq"
+        packages: []
 Heartbleed:
     version: 0.0.1
     description: "Checks if a host is vulnerable to the Heartbleed vulnerability."
