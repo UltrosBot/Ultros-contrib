@@ -6,3 +6,5 @@
     Added client_id to request.
 0.2.0: >
     Added permission nodes to determine command output location.
+0.2.1: >
+    API endpoint update.

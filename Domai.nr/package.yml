@@ -1,8 +1,8 @@
 name: Domai.nr
 current_version:
-    number: 0.2.0
+    number: 0.2.1
     info: >
-        Added permission nodes to determine command output location.
+        API endpoint update.
 description: >
     Domainr API integration. Current features:
     - Search
