@@ -69,6 +69,7 @@ files:
 - web/static/codemirror-compressed.js
 - web/static/custom.css
 - web/static/eclipse.css
+- web/static/tour.js
 - web/static/ultros.png
 - web/static/ultros-logo.png
 - web/templates/account.html
