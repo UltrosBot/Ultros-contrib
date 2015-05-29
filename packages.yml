@@ -92,7 +92,7 @@ Money:
         modules: []
         packages: []
 Old-plugins:
-    version: 0.0.6
+    version: 0.0.7
     description: "Rewritten versions of most of the old plugins from the original Ultros."
     requires:
         modules: []

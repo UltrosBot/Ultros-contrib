@@ -52,7 +52,7 @@ This package will contain most of the plugins from the old iteration of Ultros, 
   * Command - `seen` (Perm: `seen.seen`)
     * Check when a user was last seen being active.
     * `seen <username>`
-* Memos - 1 command, and 1 permission - **Not implemented yet**
+* Memos - 1 command, and 1 permission
   * Command - `memo` (Perm: `memo.send`)
     * Send a memo to a user, for them to see next time they send a message.
     * `memo <username> <message>`

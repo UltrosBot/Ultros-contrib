@@ -1,8 +1,8 @@
 name: Old-plugins
 current_version:
-    number: 0.0.6
+    number: 0.0.7
     info: >
-        Updated for new command handler signature
+        Added memos plugin by NotMeh
 description: >
     Rewritten versions of most of the old plugins from the original Ultros.
 
@@ -12,6 +12,7 @@ description: >
     - GeoIP: A simple (but kind-of-accurate) GeoIP lookup plugin using freegeoip.net
     - Items: The classic give/get plugin
     - Lastseen: When were you last on?
+    - Memos: Send a message for a user to recieve later
     - Russian-roulette: Bang!
 files:
 - plugins/ass/
@@ -20,21 +21,32 @@ files:
 - plugins/items/
 - plugins/items/types/
 - plugins/lastseen/
+- plugins/memos/
 - plugins/russianroulette/
+
 - config/plugins/brainfuck.yml.example
 - config/plugins/items.yml.example
+
 - plugins/ass/__init__.py
 - plugins/ass.plug
+
 - plugins/brainfuck/__init__.py
 - plugins/brainfuck.plug
+
 - plugins/geoip/__init__.py
 - plugins/geoip.plug
+
 - plugins/items/__init__.py
 - plugins/items/types/json_type.py
 - plugins/items/types/sqlite_type.py
 - plugins/items.plug
+
 - plugins/lastseen/__init__.py
 - plugins/lastseen.plug
+
+- plugins/memos/__init__.py
+- plugins/memos.plug
+
 - plugins/russianroulette/__init__.py
 - plugins/russianroulette.plug
 requires:
