@@ -6,6 +6,7 @@ import socket
 import urllib
 
 import system.plugin as plugin
+from system.decorators.threads import run_async_threadpool
 
 
 class GeoIPPlugin(plugin.PluginObject):
@@ -18,6 +19,7 @@ class GeoIPPlugin(plugin.PluginObject):
             "geoip", self.command, self, "geoip.command", default=True
         )
 
+    @run_async_threadpool
     def command(self, protocol, caller, source, command, raw_args,
                 args):
         if args is None:
