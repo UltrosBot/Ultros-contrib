@@ -4,24 +4,24 @@ __author__ = "Gareth Coles"
 import json
 import urllib
 
-from system.command_manager import CommandManager
-
 import system.plugin as plugin
 
 
 class GeoIPPlugin(plugin.PluginObject):
 
     commands = None
-    api_url = "http://freegeoip.net/json/%s"
+    api_url = "https://www.telize.com/geoip/%s"
 
     def setup(self):
-        self.commands = CommandManager()
-        self.commands.register_command("geoip", self.command, self,
-                                       "geoip.command", default=True)
+        self.commands.register_command(
+            "geoip", self.command, self, "geoip.command", default=True
+        )
 
     def command(self, protocol, caller, source, command, raw_args,
-                parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
+                args):
+        if args is None:
+            args = raw_args.split()
+
         if len(args) < 1:
             caller.respond("Usage: {CHARS}geoip <address>")
         else:
@@ -35,14 +35,15 @@ class GeoIPPlugin(plugin.PluginObject):
                 source.respond("%s | Not found" % args[0])
             else:
                 parsed = json.loads(data)
-                country = parsed["country_name"]
-                region = parsed["region_name"]
-                city = parsed["city"]
+                country = parsed.get("country", None)
+                region = parsed.get("region", None)
+                city = parsed.get("city", None)
+                isp = parsed.get("isp", None)
 
-                if not country and not city and not region:
+                if not country and not city and not region and not isp:
                     source.respond("%s | Not found" % args[0])
 
-                source.respond("%s | %s, %s, %s" % (args[0],
-                                                    city or "???",
-                                                    region or "???",
-                                                    country or "???"))
+                source.respond("%s | %s, %s, %s (%s)" % (
+                    args[0], city or "???", region or "???", country or "???",
+                    isp or "Unknown ISP"
+                ))
