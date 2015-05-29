@@ -28,6 +28,8 @@ files:
 - plugins/web/routes/admin/
 - plugins/web/routes/api/
 - plugins/web/routes/api/admin/
+- plugins/web/routes/api/plugins/
+- plugins/web/routes/api/plugins/web/
 # Plugin - files
 - plugins/web/__init__.py
 - plugins/web/apikeys.py
@@ -59,6 +61,9 @@ files:
 - plugins/web/routes/api/__init__.py
 - plugins/web/routes/api/admin/__init__.py
 - plugins/web/routes/api/admin/get_stats.py
+- plugins/web/routes/api/plugins/__init__.py
+- plugins/web/routes/api/plugins/web/__init__.py
+- plugins/web/routes/api/plugins/web/get_username.py
 # Assets - folders
 - web/
 - web/static/
