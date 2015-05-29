@@ -27,7 +27,7 @@ class GeoIPPlugin(plugin.PluginObject):
             caller.respond("Usage: {CHARS}geoip <address>")
         else:
             try:
-                args = socket.gethostbyname(args[0])
+                args[0] = socket.gethostbyname(args[0])
             except socket.gaierror:
                 source.respond("%s | Unknown host" % args[0])
                 return
