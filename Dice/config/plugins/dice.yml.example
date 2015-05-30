@@ -1,0 +1,4 @@
+max_dice: 100
+max_sides: 2147483647
+default_dice: 1
+default_sides: 6

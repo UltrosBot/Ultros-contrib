@@ -1,0 +1,10 @@
+core:
+  name: Dice
+  module: dice
+  dependencies: []
+info:
+  description: "Dice roll command. Supports arbitrary amount of dice and sides."
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Dice
+  copyright: BSD 3-Clause

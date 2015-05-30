@@ -1,0 +1,16 @@
+name: Dice
+current_version:
+    number: 0.1.0
+    info: >
+        Initial version. Basic dice roll command.
+description: >
+    Dice roll command. Supports arbitrary amount of dice and sides.
+files:
+- plugins/dice/
+- plugins/dice/__init__.py
+- plugins/dice.plug
+- config/plugins/dice.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Dice/README.md

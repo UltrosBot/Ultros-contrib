@@ -26,6 +26,12 @@ Blowfish:
         modules:
         - "Crypto:pycrypto"
         packages: []
+Dice:
+    version: 0.1.1
+    description: "Dice roll command. Supports arbitrary amount of dice and sides."
+    requires:
+        modules: []
+        packages: []
 Domai.nr:
     version: 0.2.1
     description: "Domainr API integration."
