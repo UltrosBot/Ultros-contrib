@@ -33,7 +33,7 @@ class NotEnoughSides(DiceError):
 class DicePlugin(plugin.PluginObject):
 
     _MODS_REGEX = re.compile(
-            r"(?P<sort>s)|(?P<total>t)|(?:\^(?P<high>\d+))|(?:v(?P<low>\d+))"
+        r"(?P<sort>s)|(?P<total>t)|(?:\^(?P<high>\d+))|(?:v(?P<low>\d+))"
     )
     _ROLL_REGEX = re.compile(
         r"^(?P<dice>\d+)?(?:d(?P<sides>\d+))?(?P<mods>(?:t|s|\^\d+|v\d+)*)?$"
@@ -51,7 +51,7 @@ class DicePlugin(plugin.PluginObject):
         ### Initial config load
         try:
             self._config = self._storage.get_file(self, "config", YAML,
-                                                 "plugins/dice.yml")
+                                                  "plugins/dice.yml")
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
@@ -65,11 +65,11 @@ class DicePlugin(plugin.PluginObject):
 
         ### Register commands
         self._commands.register_command("roll",
-                                       self.roll_cmd,
-                                       self,
-                                       "dice.roll",
-                                       aliases=["dice"],
-                                       default=True)
+                                        self.roll_cmd,
+                                        self,
+                                        "dice.roll",
+                                        aliases=["dice"],
+                                        default=True)
 
     @property
     def max_dice(self):
@@ -91,7 +91,7 @@ class DicePlugin(plugin.PluginObject):
         target.respond("Dice: %s" % msg)
 
     def roll_cmd(self, protocol, caller, source, command, raw_args,
-                       parsed_args):
+                 parsed_args):
         try:
             result = self.roll(raw_args)
             self._respond(source, str(result))
