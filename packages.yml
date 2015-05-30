@@ -27,7 +27,7 @@ Blowfish:
         - "Crypto:pycrypto"
         packages: []
 Dice:
-    version: 0.1.1
+    version: 0.1.0
     description: "Dice roll command. Supports arbitrary amount of dice and sides."
     requires:
         modules: []
