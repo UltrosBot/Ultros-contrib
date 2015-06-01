@@ -21,13 +21,17 @@ files:
 # Plugin - folders
 - plugins/web/
 - plugins/web/routes/
+
 - plugins/web/routes/account/
 - plugins/web/routes/account/apikeys/
 - plugins/web/routes/account/password/
 - plugins/web/routes/account/users/
+
 - plugins/web/routes/admin/
+
 - plugins/web/routes/api/
 - plugins/web/routes/api/admin/
+
 - plugins/web/routes/api/plugins/
 - plugins/web/routes/api/plugins/web/
 # Plugin - files
@@ -40,27 +44,36 @@ files:
 - plugins/web/sessions.py
 - plugins/web/stats.py
 - plugins/web/template_loader.py
+
 - plugins/web/routes/__init__.py
 - plugins/web/routes/index.py
 - plugins/web/routes/login.py
 - plugins/web/routes/login-reset.py
 - plugins/web/routes/logout.py
+
 - plugins/web/routes/account/__init__.py
 - plugins/web/routes/account/index.py
+
 - plugins/web/routes/account/apikeys/__init__.py
 - plugins/web/routes/account/apikeys/create.py
 - plugins/web/routes/account/apikeys/delete.py
+
 - plugins/web/routes/account/password/__init__.py
 - plugins/web/routes/account/password/change.py
+
 - plugins/web/routes/account/users/__init__.py
 - plugins/web/routes/account/users/logout.py
+
 - plugins/web/routes/admin/__init__.py
 - plugins/web/routes/admin/file.py
 - plugins/web/routes/admin/files.py
 - plugins/web/routes/admin/index.py
+
 - plugins/web/routes/api/__init__.py
+
 - plugins/web/routes/api/admin/__init__.py
 - plugins/web/routes/api/admin/get_stats.py
+
 - plugins/web/routes/api/plugins/__init__.py
 - plugins/web/routes/api/plugins/web/__init__.py
 - plugins/web/routes/api/plugins/web/get_username.py
@@ -77,6 +90,7 @@ files:
 - web/static/tour.js
 - web/static/ultros.png
 - web/static/ultros-logo.png
+
 - web/templates/account.html
 - web/templates/base.html
 - web/templates/generic.html
@@ -84,6 +98,7 @@ files:
 - web/templates/login.html
 - web/templates/login-reset.html
 - web/templates/navbar.html
+
 - web/templates/admin/file.html
 - web/templates/admin/files.html
 - web/templates/admin/index.html
