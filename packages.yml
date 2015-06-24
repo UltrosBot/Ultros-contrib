@@ -75,7 +75,8 @@ Jargon:
     version: 1.0.0
     description: "Generates jargon sentences."
     requires:
-        modules: []
+        modules:
+        - "boltons"
         packages: []
 LastFM:
     version: 0.3.3

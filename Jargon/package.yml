@@ -11,6 +11,6 @@ files:
 - plugins/jargon.plug
 - config/plugins/jargon.yml.example
 requires:
-    modules: []
+    modules: ["boltons"]
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Jargon/README.md
