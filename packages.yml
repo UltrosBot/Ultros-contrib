@@ -72,7 +72,7 @@ Inter:
         modules: []
         packages: []
 Jargon:
-    version: 0.1.2
+    version: 1.0.0
     description: "Generates jargon sentences."
     requires:
         modules: []

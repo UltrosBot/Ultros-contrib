@@ -1,69 +1,466 @@
-formats:
-- format: If we can just %s the %s %s, we can %s the %s %s %s!
-  types: [verb, adjective, noun, verb, adjective, abbreviation, noun]
-- format: I'll %s the %s %s %s - that should %s the %s %s.
-  types: [verb, adjective, abbreviation, noun, verb, abbreviation, noun]
-- format: Use the %s %s %s to %s the %s, then you can %s the %s %s.
-  types: [adjective, abbreviation, noun, verb, noun, verb, adjective, noun]
-- format: He's %s the %s with a %s %s! Stop him by %s the %s %s %s.
-  types: [verbing, noun, adjective, noun, verbing, adjective, abbreviation, noun]
-- format: The %s %s is down! Hurry and %s the %s %s so we can %s the %s %s!
-  types: [abbreviation, noun, verb, adjective, noun, verb, abbreviation, noun]
-- format: You %s the %s %s while I'm %s the %s %s %s, then we can %s the %s %s.
-  types: [verb, adjective, noun, verbing, adjective, abbreviation, noun, verb, abbreviation,
-    noun]
-- format: Hey, %s the %s %s won't do anything until we can %s the %s %s %s.
-  types: [verbing, adjective, noun, verb, adjective, abbreviation, noun]
-- format: If I %s the %s %s %s then that should %s the %s %s.
-  types: [verb, adjective, abbreviation, noun, verb, abbreviation, noun]
-- format: You can't %s the %s without %s the %s %s %s!
-  types: [verb, noun, verbing, adjective, abbreviation, noun]
-- format: Quick, we need to %s the %s %s before he can %s the %s %s %s!
-  types: [verb, adjective, noun, verb, adjective, abbreviation, noun]
-- format: If I can just %s the %s %s, I can %s the %s %s. Damn. But wait... If I can %s their %s with a %s %s then... JACKPOT!
-  types: [verb, adjective, noun, abbreviation, abbreviation, noun, verb, noun, adjective, noun]
-abbreviations: [TCP, UDP, HTTP, SSL, FTP, SQL, XML, RSS, IRC, EXE, COM, SMTP, USB,
-  CSS, PCI, AGP, API, UNIX, BASIC, DDOS, DNS, SSH, MAC, DOS, DNS, HTML, IP, CORS,
-  CRUD, SOAP, SAAS, ASIC, BSD, GNU, CSI, CLR, CLI, JS, CGI, DVD, EFI, BIOS, CMOS,
-  EOF, EOL, EULA, FLAC, GDI, HDD, SSD, RAM, JPEG, KVM, LILO, GRUB, MSB, NTP, OOP,
-  PGP, RSA, NSA, PPI, PPC, PCRE, RIP, RTSP, SCSI, SMS, SVG, TLS, UX, VM, VPN, WYSIWYG,
-  XMPP, XUL, ZIF]
-adjectives: [primary, auxiliary, virtual, digital, wireless, encrypted, open-source,
-  neural, optical, bluetooth, peer-to-peer, binary, secondary, proprietary, functional,
-  progressive, ethernet, tertiary, portable, infected, broken, extraneous, random,
-  cabled, autonomous, obnoxious, syntactical, anecdotal, juxtaposed, object-oriented,
-  assembly, compiled, concurrent, declarative, esoteric, interactive, multiparadigm,
-  scripted, visual, flux]
-nouns: [protocol, microchip, port, socket, interface, firewall, system, application,
-  bus, capacitor, matrix, driver, program, array, motherboard, processor, backdoor,
-  handshake, server, virus, bug, worm, mouse potato, spam, agile, linux, firefox,
-  rootkit, microprocessor, wiretap, wi-fi, compiler, data, tranceiver, dispatch,
-  spyware, malware, magnetron, robot, transformer, collider, zetaflop, kilobyte,
-  nibble, megahertz, teraflop, gigahertz, python, C++]
-verbs:
-- {plain: hack}
-- {plain: bypass}
-- {plain: compress}
-- {plain: extract}
-- {plain: connect}
-- {plain: disconnect}
-- {plain: copy}
-- {plain: connect}
-- {plain: overclock}
-- {plain: spool}
-- {plain: install}
-- {plain: read}
-- {ing: shredding, plain: shred}
-- {ing: deleting, plain: delete}
-- {ing: writing, plain: write}
-- {ing: overwriting, plain: overwrite}
-- {ing: simulating, plain: simulate}
-- {ing: executing, plain: execute}
-- {ing: programming, plain: program}
-- {ing: formatting, plain: format}
-- {ing: tabbing, plain: tab}
-- {ing: wiring up, plain: wire up}
-- {ing: overriding, plain: override}
-- {ing: calculating, plain: calculate}
-- {ing: programming, plain: program}
-- {ing: parsing, plain: parse}
+version: 2  # Config format version
+
+default: technology  # Key to the categories dict below - None/missing will result in random
+per_category_permissions: true  # Use jargon.jargon.<category> as permission (in addition to jargon.jargon)
+
+categories:
+  technology:
+    names: [technology, tech, programming]  # The key is used as the name if omitted
+    formats:
+      - "If we can just {verb} the {adjective} {noun}, we can {verb} the {adjective} {abbreviation} {noun}!"
+      - "I'll {verb} the {adjective} {abbreviation} {noun} - that should {verb} the {abbreviation} {noun}."
+      - "Use the {adjective} {abbreviation} {noun} to {verb} the {noun}, then you can {verb} the {adjective} {noun}."
+      - "He's {verb.ing} the {noun} with a {adjective} {noun}! Stop him by {verb.ing} the {adjective} {abbreviation} {noun}."
+      - "The {abbreviation} {noun} is down! Hurry and {verb} the {adjective} {noun} so we can {verb} the {abbreviation} {noun}!"
+      - "You {verb} the {adjective} {noun} while I'm {verb.ing} the {adjective} {abbreviation} {noun}, then we can {verb} the {abbreviation} {noun}."
+      - "Hey, {verb.ing} the {adjective} {noun} won't do anything until we can {verb} the {adjective} {abbreviation} {noun}."
+      - "If I {verb} the {adjective} {abbreviation} {noun} then that should {verb} the {abbreviation} {noun}."
+      - "You can't {verb} the {noun} without {verb.ing} the {adjective} {abbreviation} {noun}!"
+      - "Quick, we need to {verb} the {adjective} {noun} before he can {verb} the {adjective} {abbreviation} {noun}!"
+      - "If I can just {verb} the {adjective} {noun}, I can {abbreviation} the {abbreviation} {noun}. Damn. But wait... If I can {verb} their {noun} with a {adjective} {noun} then... JACKPOT!"
+    words:
+      adjective: [primary, auxiliary, virtual, digital, wireless, encrypted, open-source,
+        neural, optical, bluetooth, peer-to-peer, binary, secondary, proprietary,
+        functional, progressive, ethernet, tertiary, portable, infected, broken, extraneous,
+        random, cabled, autonomous, obnoxious, syntactical, anecdotal, juxtaposed,
+        object-oriented, assembly, compiled, concurrent, declarative, esoteric, interactive,
+        multiparadigm, scripted, visual, flux]
+      noun: [protocol, microchip, port, socket, interface, firewall, system, application,
+        bus, capacitor, matrix, driver, program, array, motherboard, processor, backdoor,
+        handshake, server, virus, bug, worm, mouse potato, spam, agile, linux, firefox,
+        rootkit, microprocessor, wiretap, wi-fi, compiler, data, tranceiver, dispatch,
+        spyware, malware, magnetron, robot, transformer, collider, zetaflop, kilobyte,
+        nibble, megahertz, teraflop, gigahertz, python, C++]
+      verb:
+        # If only the base is given, the dictionary may be omitted
+        - hack
+        - bypass
+        - compress
+        - extract
+        - connect
+        - disconnect
+        - copy
+        - connect
+        - overclock
+        - spool
+        - install
+        # If a form is missing, the plugin will attempt to create it from the base
+        # Possible verb forms are [base, past, past_participle, present, present_participle]
+        # The following aliases are allowed in sentence format, but the main form must be used here:
+        # s => present
+        # ing => present_participle
+        # ed => past
+        - {base: read, past: read}
+        - {base: shred, past: shredded, present_participle: shredding}
+        - {base: delete, past: deleted, present_participle: deleting}
+        - {base: write, past: wrote, present_participle: writing}
+        - {base: overwrite, past: overwrote, present_participle: overwriting}
+        - {base: simulate, past: simulated, present_participle: simulating}
+        - {base: execute, past: executed, present_participle: executing}
+        - {base: format, pasted: formatted, present_participle: formatting}
+        - {base: tab, past: tabbed, present_participle: tabbing}
+        - {base: wire up, past: wired up, present_participle: wiring up}
+        - {base: override, past: overrode, present_participle: overriding}
+        - {base: calculate, past: calculated, present_participle: calculating}
+        - {base: program, past: programmed, present_participle: programming}
+        - {base: parse, past: parsed, present_participle: parsing}
+      # Arbitrary word types can be added. They are treated similar to the above, but without special logic.
+      # i.e. If you have a dict word, then you /must/ use a dict lookup, e.g. {foo: one, bar: two} must be used
+      # as type.foo or type.bar - type on its own will not work.
+      abbreviation: [TCP, UDP, HTTP, SSL, FTP, SQL, XML, RSS, IRC, EXE, COM, SMTP,
+        USB, CSS, PCI, AGP, API, UNIX, BASIC, DDOS, DNS, SSH, MAC, DOS, DNS, HTML,
+        IP, CORS, CRUD, SOAP, SAAS, ASIC, BSD, GNU, CSI, CLR, CLI, JS, CGI, DVD, EFI,
+        BIOS, CMOS, EOF, EOL, EULA, FLAC, GDI, HDD, SSD, RAM, JPEG, KVM, LILO, GRUB,
+        MSB, NTP, OOP, PGP, RSA, NSA, PPI, PPC, PCRE, RTSP, SCSI, SMS, SVG, TLS,
+        UX, VM, VPN, WYSIWYG, XMPP, XUL, ZIF]
+  corporate:
+    names: ["corporate", "corporate bullshit", "corporate bs", "corporate buzzword", "corporate buzzwords", "buzzword", "buzzwords"]
+    options:
+      capitalise_start: true
+    formats:
+      - "{adjective} and {adjective} {noun.plural} {adverb} {verb.present} our {staff}."
+      - "We need to {adverb} {verb} a {adjective}, {adjective} {noun} to {verb} with our {adjective} {noun.plural}."
+      - "It is our {goal} to {adverb} {verb} the {scope} {adjective} {noun} with our {adjective} {noun.plural}."
+      - "Our {adjective} {noun.plural} will {verb} the {scope} {noun} with its {adverb} {adjective} {noun}."
+      - "Our {staff} believes that what we need to {adverb} {verb} the {adjective} {noun} is some {adjective}, {adjective} {noun.plural}."
+      - "The only way to {adverb} {verb} the {scope} {noun} is with {adjective} {noun.plural}."
+      - "We are {adverb} {verb.ing} the {adjective} {noun} with {adjective} and {adjective} {noun.plural}."
+    words:
+      adverb:
+        - appropriately
+        - assertively
+        - authoritatively
+        - collaboratively
+        - compellingly
+        - competently
+        - completely
+        - continually
+        - conveniently
+        - credibly
+        - disruptively
+        - distinctively
+        - dramatically
+        - dynamically
+        - efficiently
+        - energistically
+        - enthusiastically
+        - fungibly
+        - globally
+        - holisticly
+        - interactively
+        - intrinsically
+        - monotonectally
+        - objectively
+        - proactively
+        - professionally
+        - progressively
+        - quickly
+        - rapidiously
+        - seamlessly
+        - synergistically
+        - uniquely
+      adjective:
+        - "24/7"
+        - accurate
+        - adaptive
+        - alternative
+        - B2B
+        - B2C
+        - backend
+        - backwards-compatible
+        - best-of-breed
+        - big data
+        - bleeding-edge
+        - bricks-and-clicks
+        - business
+        - clicks-and-mortar
+        - client-based
+        - client-centred
+        - client-centric
+        - client-focused
+        - collaborative
+        - compelling
+        - competitive
+        - cooperative
+        - corporate
+        - cost effective
+        - covalent
+        - cross-functional
+        - cross-media
+        - cross-platform
+        - cross-unit
+        - customer directed
+        - customised
+        - cutting-edge
+        - disruptive
+        - distinctive
+        - distributed
+        - diverse
+        - dynamic
+        - e-business
+        - economically sound
+        - effective
+        - efficient
+        - elastic
+        - emerging
+        - empowered
+        - enabled
+        - end-to-end
+        - enterprise
+        - enterprise-wide
+        - equity invested
+        - error-free
+        - ethical
+        - excellent
+        - exceptional
+        - expansive
+        - extensible
+        - extensive
+        - flexible
+        - focused
+        - frictionless
+        - frontend
+        - fully researched
+        - fully tested
+        - functional
+        - functionalised
+        - fungible
+        - future-proof
+        - global
+        - goal-oriented
+        - granular
+        - high-payoff
+        - hyperscale
+        - high-quality
+        - highly efficient
+        - holistic
+        - horizontal
+        - impactful
+        - inexpensive
+        - innovative
+        - integrated
+        - interactive
+        - interdependent
+        - intermandated
+        - interoperable
+        - intuitive
+        - just-in-time
+        - leading-edge
+        - leveraged
+        - long-term high-impact
+        - low-risk high-yield
+        - magnetic
+        - maintainable
+        - market positioning
+        - market-driven
+        - mission-critical
+        - multidisciplinary
+        - multifunctional
+        - multimedia based
+        - next-generation
+        - NoSQL
+        - on-demand
+        - one-to-one
+        - open-source
+        - optimal
+        - orthogonal
+        - out-of-the-box
+        - outsourced
+        - parallel
+        - performance-based
+        - plug-and-play
+        - premier
+        - premium
+        - principle-centred
+        - proactive
+        - process-centric
+        - professional
+        - progressive
+        - prospective
+        - quality
+        - real-time
+        - reliable
+        - resource-maximising
+        - revolutionary
+        - robust
+        - scalable
+        - seamless
+        - stand-alone
+        - standardised
+        - standards compliant
+        - state of the art
+        - sticky
+        - strategic
+        - superior
+        - sustainable
+        - synergistic
+        - tactical
+        - team building
+        - team driven
+        - technically sound
+        - timely
+        - top-line
+        - transparent
+        - turnkey
+        - ubiquitous
+        - unique
+        - user-centric
+        - user friendly
+        - value-added
+        - vertical
+        - viral
+        - virtual
+        - visionary
+        - web-enabled
+        - web-ready
+        - wireless
+        - world-class
+        - worldwide
+      noun:
+        - action item
+        - alignment
+        - application
+        - architecture
+        - benefit
+        - best practice
+        - {singular: "catalyst for change", plural: "catalysts for change"}
+        - channel
+        - cloud
+        - {singular: "community", plural: "communities"}
+        - {singular: "content", plural: "content"}
+        - {singular: "core competency", plural: "core competencies"}
+        - customer service
+        - {singular: "data", plural: "data"}
+        - deliverable
+        - e-business
+        - e-market
+        - e-tailer
+        - e-service
+        - experience
+        - {singular: "functionality", plural: "functionalities"}
+        - {singular: "fungibility", plural: "fungibilities"}
+        - {singular: "growth strategy", plural: "growth strategies"}
+        - {singular: "human capital", plural: "human capital"}
+        - idea
+        - imperative
+        - {singular: "infomediary", plural: "infomediaries"}
+        - {singular: "information", plural: "information"}
+        - infrastructure
+        - initiative
+        - innovation
+        - {singular: "intellectual capital", plural: "intellectual capital"}
+        - interface
+        - {singular: "leadership", plural: "leadership"}
+        - leadership skill
+        - manufactured product
+        - market
+        - material
+        - meta-service
+        - {singular: "methodology", plural: "methodologies"}
+        - {singular: "method of empowerment", plural: "methods of empowerment"}
+        - metric
+        - {singular: "mindshare", plural: "mindshare"}
+        - model
+        - network
+        - niche
+        - niche market
+        - {singular: "opportunity", plural: "opportunities"}
+        - {singular: '"outside the box" thinking', plural: '"outside the box" thinking'}
+        - paradigm
+        - partnership
+        - platform
+        - portal
+        - {singular: "potentiality", plural: "potentialities"}
+        - process improvement
+        - {singular: "process", plural: "processes"}
+        - product
+        - quality vector
+        - relationship
+        - resource
+        - result
+        - {singular: "ROI", plural: "ROI"}
+        - scenario
+        - schema
+        - service
+        - solution
+        - source
+        - strategic theme area
+        - {singular: "storage", plural: "storage"}
+        - supply chain
+        - {singular: "synergy", plural: "synergy"}
+        - system
+        - {singular: "technology", plural: "technologies"}
+        - testing procedure
+        - {singular: "total linkage", plural: "total linkage"}
+        - user
+        - value
+        - vortal
+        - {singular: "way of thinking", plural: "way of thinking"}
+        - web service
+      verb:
+        - actualise
+        - administrate
+        - aggregate
+        - architect
+        - benchmark
+        - brand
+        - {base: build, past: built}
+        - cloudify
+        - communicate
+        - conceptualise
+        - coordinate
+        - create
+        - cultivate
+        - customise
+        - deliver
+        - deploy
+        - develop
+        - disintermediate
+        - disrupt
+        - disseminate
+        - {base: drive, past: drove}
+        - embrace
+        - e-enable
+        - empower
+        - enable
+        - engage
+        - engineer
+        - enhance
+        - envisioneer
+        - evolve
+        - expedite
+        - exploit
+        - extend
+        - fabricate
+        - facilitate
+        - fashion
+        - formulate
+        - foster
+        - generate
+        - {base: grow, past: grew}
+        - harness
+        - impact
+        - implement
+        - incentivise
+        - incubate
+        - initiate
+        - innovate
+        - integrate
+        - iterate
+        - {base: "leverage existing", past: "leveraged existing", present: "leverages existing", present_participle: "leveraging existing"}
+        - {base: "leverage other's", past: "leveraged other's", present: "leverages other's", present_participle: "leveraging other's"}
+        - maintain
+        - maximise
+        - {base: mesh, present: meshes}
+        - monetise
+        - morph
+        - negotiate
+        - network
+        - optimize
+        - orchestrate
+        - pontificate
+        - predominate
+        - productise
+        - promote
+        - {base: "provide access to", past: "provided access to", present: "provides access to", present_participle: "providing access to"}
+        - pursue
+        - recapitalise
+        - reconceptualise
+        - redefine
+        - re-engineer
+        - reformulate
+        - regenerate
+        - reinvent
+        - repurpose
+        - revolutionise
+        - scale
+        - seize
+        - {base: simplify, past: simplified, present: simplifies}
+        - strategise
+        - streamline
+        - {base: supply, past: supplied, present: supplies}
+        - syndicate
+        - synergise
+        - synthesise
+        - target
+        - transform
+        - transition
+        - {base: unleash, present: unleashes}
+        - utilise
+        - visualise
+        - whiteboard
+      staff:
+        - CEO
+        - CTO
+        - COO
+        - Chief Thought Leader
+        - Lead Information Manager
+        - Head Community Engineer
+        - Shareholder
+      goal:
+        - aim
+        - goal
+        - mission
+      scope:
+        - global
+        - local
