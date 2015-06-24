@@ -1,7 +1,7 @@
 version: 2  # Config format version
 
 default: technology  # Key to the categories dict below - None/missing will result in random
-per_category_permissions: true  # Use jargon.jargon.<category> as permission (in addition to jargon.jargon)
+per_category_permissions: false  # Use jargon.jargon.<category> as permission (in addition to jargon.jargon)
 
 categories:
   technology:
