@@ -27,7 +27,7 @@ class GooglePlugin(plugin.PluginObject):
         :rtype: int
         """
 
-        return self._config["result_limit"]
+        return self._config["result_limit"] if self._config else None
 
     def setup(self):
         try:
