@@ -26,28 +26,30 @@
     </thead>
     <tbody>
     % for _filename, _file in _files.items():
-        <tr>
-        % if _file.get().representation is None:
-            <td style="width: 45%">${_filename | h}</td>
+        % if _file.get().exists:
+            <tr>
+            % if _file.get().representation is None:
+                <td style="width: 45%">${_filename | h}</td>
 
-            <td style="width: 15%" class="negative">No</td>
-        % else:
-            <td style="width: 45%">
-                <a href="/admin/files/${_type | h}/${_filename | h}">
-                    ${_filename | h}
-                </a>
-            </td>
+                <td style="width: 15%" class="negative">No</td>
+            % else:
+                <td style="width: 45%">
+                    <a href="/admin/files/${_type | h}/${_filename | h}">
+                        ${_filename | h}
+                    </a>
+                </td>
 
-            <td style="width: 15%" class="positive">Yes</td>
+                <td style="width: 15%" class="positive">Yes</td>
+            % endif
+                <td style="width: 15%">${_file.get().format | h}</td>
+
+            % if _file.get().mtime:
+                <td style="width: 25%; text-align: right; border-left: 1px solid #999; font-family: monospace;">${_file.get().mtime.strftime("%d %b, %Y - %H:%M:%S") | h}</td>
+            % else:
+                <td style="width: 25%; text-align: right; border-left: 1px solid #999; font-family: monospace;">Unknown</td>
+            % endif
+            </tr>
         % endif
-            <td style="width: 15%">${_file.get().format | h}</td>
-
-        % if _file.get().mtime:
-            <td style="width: 25%; text-align: right; border-left: 1px solid #999; font-family: monospace;">${_file.get().mtime.strftime("%d %b, %Y - %H:%M:%S") | h}</td>
-        % else:
-            <td style="width: 25%; text-align: right; border-left: 1px solid #999; font-family: monospace;">Unknown</td>
-        % endif
-        </tr>
     % endfor
     </tbody>
 </table>
