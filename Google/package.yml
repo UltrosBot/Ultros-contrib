@@ -6,6 +6,7 @@ current_version:
 description: >
     Allows you to do quick Google searches that return up to four results at a time.
 files:
+- config/plugins/google.yml.example
 - plugins/google/
 - plugins/google/__init__.py
 - plugins/google/search.py

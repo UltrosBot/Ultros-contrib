@@ -1,0 +1,4 @@
+# How many results are acceptable per page, at most?
+# This should be greater than 0 and less than 4 - Google only returns a max of 4 results for some reason
+
+result_limit: 4

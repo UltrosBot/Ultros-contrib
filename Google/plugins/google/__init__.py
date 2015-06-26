@@ -4,12 +4,15 @@ import treq
 import system.plugin as plugin
 
 from system.decorators.threads import run_async_threadpool
+from system.storage.formats import YAML
 
 from kitchen.text.converters import to_unicode
 from search import get_results, parse_results
 
 
 class GooglePlugin(plugin.PluginObject):
+    _config = None
+
     @property
     def urls(self):
         """
@@ -18,11 +21,43 @@ class GooglePlugin(plugin.PluginObject):
 
         return self.plugins.get_plugin("urls")
 
+    @property
+    def num_results(self):
+        """
+        :rtype: int
+        """
+
+        return self._config["result_limit"]
+
     def setup(self):
+        try:
+            self._config = self.storage.get_file(
+                self, "config", YAML, "plugins/google.yml"
+            )
+        except Exception:
+            self.logger.exception("Error loading configuration!")
+            self.logger.error("Disabling...")
+            self._disable_self()
+            return
+        if not self._config.exists:
+            self.logger.warn("Unable to find config/plugins/google.yml")
+            self.logger.warn("Defaulting to 4 results per page.")
+
+        self._config.add_callback(self.reload)
+        self.reload()
+
         self.commands.register_command(
             "google", self.google_command, self, "google.google",
             ["g", "search"], True
         )
+
+    def reload(self):
+        try:
+            self._config.reload()
+        except Exception:
+            self.logger.exception("Error reloading configuration!")
+            return False
+        return True
 
     def google_command(self, protocol, caller, source, command, raw_args,
                        parsed_args):
@@ -41,7 +76,7 @@ class GooglePlugin(plugin.PluginObject):
                 else:
                     query = " ".join(raw_args.split(" ")[1:])
 
-        d = get_results(query, page)
+        d = get_results(query, page, self.num_results)
         d.addCallback(self.google_response_callback, protocol, caller, source)
         d.addErrback(self.google_response_callback_failed, protocol, caller,
                      source)
@@ -58,7 +93,7 @@ class GooglePlugin(plugin.PluginObject):
 
     @run_async_threadpool
     def google_json_callback(self, result, protocol, caller, source):
-        results = parse_results(result)
+        results = parse_results(result, self.num_results)
 
         for title, url in results.iteritems():
             source.respond(u"[{}] {}".format(self.urls.tinyurl(url),
