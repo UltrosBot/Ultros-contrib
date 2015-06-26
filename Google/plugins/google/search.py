@@ -25,7 +25,7 @@ def parse_results(json, limit=None):
         limit = 4
 
     result = {}
-    i = 0
+    i = 1
 
     for r in json["responseData"]["results"]:
         if i > limit:
