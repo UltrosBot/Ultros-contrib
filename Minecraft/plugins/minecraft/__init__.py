@@ -187,8 +187,12 @@ class MinecraftPlugin(plugin.PluginObject):
     def relay_message(self, message, first=False):
         for target in self.relay_targets:
             proto = self.factory_manager.get_protocol(target["protocol"])
+
             if not proto:
                 self.logger.warn("Protocol not found: %s" % target["protocol"])
+                continue
+
             if first and not target.get("initial-relay", False):
                 continue
+
             proto.send_msg(target["target"], message, target["target-type"])
