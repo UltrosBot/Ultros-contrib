@@ -294,7 +294,7 @@ class WebPlugin(PluginObject):
             if self.config.get("hostname", "0.0.0.0").strip() == "0.0.0.0":
                 self.interface = ""
             else:
-                self.interface = self.config.get("hostname")
+                self.interface = self.config["hostname"]
 
             self.listen_port = self.config.get("port", 8080)
 
