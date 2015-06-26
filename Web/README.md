@@ -31,6 +31,11 @@ to `web.yml`. Next, open it up, and fill it out as follows..
 * `port` - The port to listen on. Make sure it's accessible!
 * `public_address` - An address that can be used to connect. Make sure this is set,
   some plugins need it!
+* `x_forwarded_for` - Whether to use the `X-Forwarded-For` or `X-Real-Ip` headers to
+  determine the IP address of any connecting users.
+    * Do not enable this unless you are behind a properly-configured reverse proxy,
+      such as Nginx or Apache, and have secured the port you're listening on from
+      outside interference. **Failure to do so could result in some security exploits**.
 * `reset_message` - A message to show to anyone that attempts to reset their password
   on the login page.
 * `hosted` - Using OpenShift or some other provider? This is the place to set up the

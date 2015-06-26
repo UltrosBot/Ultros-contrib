@@ -236,7 +236,7 @@ class WebPlugin(PluginObject):
             list(self.handlers.items()),  # Handler list
 
             ## General settings
-            xheaders=True,
+            xheaders=self.config.get("x_forwarded_for", False),
             log_function=log_function,
             gzip=True,  # Are there browsers that don't support this now?
             # error_handler=ErrorHandler,

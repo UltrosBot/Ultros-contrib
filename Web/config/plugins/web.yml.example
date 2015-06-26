@@ -10,10 +10,18 @@ output_requests: yes  # Whether to output requests or not
 # a browser to make sure it works. If it doesn't, correct it!
 public_address: "http://localhost:8080"
 
+# Check X-Forwarded-For and X-Real-Ip headers for the IP address of the user
+# Only use this if you're behind a reverse proxy such as nginx or apache,
+# and have closed the above port or are only listening on localhost
+#
+# DO NOT ENABLE THIS UNLESS YOU KNOW WHAT YOU ARE DOING - MAY CAUSE SECURITY
+# ISSUES FOR WEB PLUGINS NOT SECURED BEHIND A REVERSE PROXY
+x_forwarded_for: false
+
 # reset_message: >
 #   Blah blah blah talk to xyz to reset your password.
 #
-#   Please fill this out! It'll be show to anyone who clicks the "reset"
+#   Please fill this out! It'll be shown to anyone who clicks the "reset"
 #   button on the login page.
 
 # Whether to use environment variables for binding. Comment this out or set
