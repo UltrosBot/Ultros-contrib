@@ -8,9 +8,12 @@ If I can just overclock the Unix Django, I can BASIC the DDOS root,. Damn. But w
 * `version` - The config format version. This is version 2. Old style configs (implicit version 1) will still work.
 * `default` - The default category if not given in the command. Leaving this out will result in a random category.
 * `per_category_permissions` - Whether or not to require a permission for each individual category/type.
+* `prefix_response` - Whether or not messages should be prefixed with "[Jargon] ". This is important if any of your jargon phrases begin with characters/phrases that could trigger other bots.
 * `categories` - A dict of categories/types of jargon
     * `<category name>`
         * `names` - An optional list of names to be used instead of the category name above. The first entry is used as the name for `per_category_permissions`.
+        * `options` - An optional dict of extra options
+            * `capitalise_start` - Uppercase the first letter of generated jargon.
         * `formats` - A list of format strings. See the Format section for details.
         * `words` - A dict of word types
             * `<word type>` - A list of words of a specific type. See the Format section for details.
