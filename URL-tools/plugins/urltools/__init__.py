@@ -15,6 +15,11 @@ from system.plugins.manager import PluginManager
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
+from plugins.urltools.shorteners import is_gd
+from plugins.urltools.shorteners import nazrin
+from plugins.urltools.shorteners import v_gd
+from plugins.urltools.shorteners import waa_ai
+
 # Attempt to guess the locale.
 locale.setlocale(locale.LC_ALL, "")
 
@@ -137,10 +142,15 @@ class URLToolsPlugin(plugin.PluginObject):
 
     @property
     def urls(self):
+        """
+        :rtype: plugins.urls.URLsPlugin
+        """
+
         return self.plugman.get_plugin("URLs")
 
     def setup(self):
         self.storage = StorageManager()
+
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/urltools.yml")
@@ -153,10 +163,15 @@ class URLToolsPlugin(plugin.PluginObject):
         self.sites["youtube.com"] = self.site_youtube
         self.sites["github.com"] = self.site_github
 
-        self.shorteners["is.gd"] = self.shortener_isgd
-        self.shorteners["nazr.in"] = self.shortener_nazrin
-        self.shorteners["v.gd"] = self.shortener_vgd
-        self.shorteners["waa.ai"] = self.shortener_waaai
+        reload(is_gd)
+        reload(nazrin)
+        reload(v_gd)
+        reload(waa_ai)
+
+        self.shorteners["is.gd"] = is_gd.shortener
+        self.shorteners["nazr.in"] = nazrin.shortener
+        self.shorteners["v.gd"] = v_gd.shortener
+        self.shorteners["waa.ai"] = waa_ai.shortener
 
         self.plugman = PluginManager()
 
@@ -164,11 +179,9 @@ class URLToolsPlugin(plugin.PluginObject):
         self.config.add_callback(self._load)
 
     def _load(self):
-        shorteners = self.config["shorteners"]
         sites = self.config["sites"]
 
         sites_enabled = []
-        shorteners_enabled = []
 
         for site in sites["enabled"]:
             if site.lower() == "osu.ppy.sh":
@@ -180,29 +193,27 @@ class URLToolsPlugin(plugin.PluginObject):
                 self.api_details["osu"] = sites["apikeys"]["osu"]
             sites_enabled.append(site)
 
-        for shortener in shorteners["enabled"]:
-            # This is for checking API keys and settings
-            shorteners_enabled.append(shortener)
-
         self.logger.debug("Registering with the URLs plugin..")
 
         for site in sites_enabled:
             self.urls.add_handler(site, self.sites[site])
 
-        self.logger.info("Enabled support for %s site(s)."
-                         % len(sites_enabled))
+        self.logger.info(
+            "Enabled support for %s site(s)." % len(sites_enabled)
+        )
 
-        for shortener in shorteners_enabled:
-            self.urls.add_shortener(shortener, self.shorteners[shortener])
+        for shortener in self.shorteners.itervalues():
+            self.urls.add_shortener(shortener)
 
-        self.logger.info("Enabled support for %s shortener(s)."
-                         % len(shorteners_enabled))
+        self.logger.info(
+            "Enabled support for %s shortener(s)." % len(self.shorteners)
+        )
 
     def deactivate(self):
-        for shortener in self.config["shorteners"]:
+        for shortener in self.shorteners.iterkeys():
             self.urls.remove_shortener(shortener)
 
-        for site in self.config["sites"]["enabled"]:
+        for site in self.sites.itervalues():
             self.urls.remove_handler(site)
 
     def do_get(self, url, params):
@@ -224,54 +235,6 @@ class URLToolsPlugin(plugin.PluginObject):
         r = urllib2.urlopen(request)
         data = r.read()
         self.logger.trace("Response: %s" % data)
-        return data
-
-    def shortener_isgd(self, url):
-        # Domain: is.gd
-        # URL: /create.php
-        # Params: url, format=simple
-        # Response: Text, shortened URL
-
-        params = {"url": url, "format": "simple"}
-
-        data = self.do_get("http://is.gd/create.php", params)
-
-        return data
-
-    def shortener_nazrin(self, url):
-        # Domain: nazr.in
-        # URL: /api/shorten
-        # Params: url
-        # Response: Text, shortened URL
-
-        params = {"url": url}
-
-        data = self.do_get("http://nazr.in/api/shorten", params)
-
-        return data
-
-    def shortener_vgd(self, url):
-        # Domain: v.gd
-        # URL: /create.php
-        # Params: url, format=simple
-        # Response: Text, shortened URL
-
-        params = {"url": url, "format": "simple"}
-
-        data = self.do_get("http://v.gd/create.php", params)
-
-        return data
-
-    def shortener_waaai(self, url):
-        # Domain: api.waa.ai
-        # URL: /
-        # Params: url
-        # Response: Text, shortened URL
-
-        params = {"url": url}
-
-        data = self.do_get("http://api.waa.ai/", params)
-
         return data
 
     def gh_user(self, d):

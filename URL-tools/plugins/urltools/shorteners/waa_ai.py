@@ -1,0 +1,43 @@
+from txrequests import Session
+from plugins.urls.shorteners import shortener
+
+reload(shortener)
+
+__author__ = 'Gareth Coles'
+
+class WaaAiShortener(shortener.Shortener):
+    base_url = "http://api.waa.ai/"
+    name = "waa.ai"
+
+    def do_shorten(self, context):
+        session = Session()
+
+        params = {"url": context["url"].text}
+
+        d = session.get(self.base_url, params=params)
+
+        d.addCallbacks(
+            self.shorten_success, self.shorten_error
+        )
+
+        return d
+
+    def shorten_success(self, response):
+        """
+        :type response: requests.Response
+        """
+
+        return response.text
+
+    def shorten_error(self, error):
+        """
+        :type error: twisted.python.failure.Failure
+        """
+
+        self.urls_plugin.logger.warning(
+            "[is.gd] Error fetching URL: {0}".format(error.getErrorMessage())
+        )
+
+        return error
+
+shortener = WaaAiShortener
