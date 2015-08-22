@@ -1,4 +1,6 @@
 # coding=utf-8
+from plugins.urls import Priority
+
 __author__ = 'Gareth Coles'
 
 import json
@@ -19,6 +21,8 @@ from plugins.urltools.shorteners import is_gd
 from plugins.urltools.shorteners import nazrin
 from plugins.urltools.shorteners import v_gd
 from plugins.urltools.shorteners import waa_ai
+
+from handlers.github import GithubHandler
 
 # Attempt to guess the locale.
 locale.setlocale(locale.LC_ALL, "")
@@ -149,34 +153,36 @@ class URLToolsPlugin(plugin.PluginObject):
         return self.plugman.get_plugin("URLs")
 
     def setup(self):
-        self.storage = StorageManager()
-
-        try:
-            self.config = self.storage.get_file(self, "config", YAML,
-                                                "plugins/urltools.yml")
-        except Exception:
-            self.logger.exception("Unable to load the configuration!")
-            self._disable_self()
-            return
-
-        self.sites["osu.ppy.sh"] = self.site_osu
-        self.sites["youtube.com"] = self.site_youtube
-        self.sites["github.com"] = self.site_github
-
-        reload(is_gd)
-        reload(nazrin)
-        reload(v_gd)
-        reload(waa_ai)
-
-        self.shorteners["is.gd"] = is_gd.shortener
-        self.shorteners["nazr.in"] = nazrin.shortener
-        self.shorteners["v.gd"] = v_gd.shortener
-        self.shorteners["waa.ai"] = waa_ai.shortener
-
+        # self.storage = StorageManager()
+        #
+        # try:
+        #     self.config = self.storage.get_file(self, "config", YAML,
+        #                                         "plugins/urltools.yml")
+        # except Exception:
+        #     self.logger.exception("Unable to load the configuration!")
+        #     self._disable_self()
+        #     return
+        #
+        # self.sites["osu.ppy.sh"] = self.site_osu
+        # self.sites["youtube.com"] = self.site_youtube
+        # self.sites["github.com"] = self.site_github
+        #
+        # reload(is_gd)
+        # reload(nazrin)
+        # reload(v_gd)
+        # reload(waa_ai)
+        #
+        # self.shorteners["is.gd"] = is_gd.shortener
+        # self.shorteners["nazr.in"] = nazrin.shortener
+        # self.shorteners["v.gd"] = v_gd.shortener
+        # self.shorteners["waa.ai"] = waa_ai.shortener
+        #
         self.plugman = PluginManager()
+        #
+        # self._load()
+        # self.config.add_callback(self._load)
 
-        self._load()
-        self.config.add_callback(self._load)
+        self.urls.add_handler(GithubHandler(self), Priority.EARLY)
 
     def _load(self):
         sites = self.config["sites"]
