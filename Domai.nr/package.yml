@@ -1,8 +1,8 @@
 name: Domai.nr
 current_version:
-    number: 0.2.1
+    number: "DELETED"
     info: >
-        API endpoint update.
+        EOL plugin
 description: >
     Domainr API integration. Current features:
     - Search
@@ -11,6 +11,9 @@ files:
 - plugins/domainr/
 - plugins/domainr/__init__.py
 - plugins/domainr.plug
+- plugins/domainr/README.md
+dont_skip:
+- plugins/domainr/README.md
 requires:
     modules: [
         treq

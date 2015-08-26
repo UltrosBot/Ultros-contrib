@@ -8,3 +8,5 @@
     Added permission nodes to determine command output location.
 0.2.1: >
     API endpoint update.
+DELETED: >
+    EOL plugin

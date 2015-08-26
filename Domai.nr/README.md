@@ -1,6 +1,10 @@
 Domai.nr
 ===========
 
+This plugin has been EOLed. See `plugins/domainr/README.md` for details.
+
+-----------
+
 This plugin allows integration with the Domainr API.
 
 ## Commands and permissions
