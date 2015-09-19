@@ -6,3 +6,5 @@
     + Per-response type
 0.4.0: >
     + Additional response types (channel/global kick/ban)
+0.5.0: >
+    + Optional per-trigger permissions

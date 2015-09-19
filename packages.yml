@@ -113,7 +113,7 @@ Translate:
         - goslate
         packages: []
 Triggers:
-    version: 0.4.0
+    version: 0.5.0
     description: "Configurable trigger responses"
     requires:
         modules: []
