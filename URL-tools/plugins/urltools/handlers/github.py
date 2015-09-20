@@ -123,6 +123,7 @@ class GithubHandler(URLHandler):
             [owner, repo, commits, *branch]
             [owner, repo, commits, *branch, *path]
             [owner, repo, commit, *hash]
+            [owner, repo, compare, *hashes]
             [owner, repo, issues]
             [owner, repo, issues, *issue]
             [owner, repo, pulls]
@@ -152,8 +153,13 @@ class GithubHandler(URLHandler):
                 else:
                     pass  # Specific file in a branch
             elif target[2] == "commit":
-                if len(target) == 3:
+                if len(target) == 4:
                     pass  # Specific commit
+            elif target[2] == "compare":
+                if len(target) == 4:
+                    left, right = target[3].split("...", 1)
+                    pass  # Comparison of two commits
+                # GitHub 404s without two commits to compare, so do nothing
             elif target[2] == "issues":
                 if len(target) == 3:
                     pass  # Issue list
@@ -259,6 +265,10 @@ class GithubHandler(URLHandler):
 
     @inlineCallbacks
     def gh_repo_commit_hash(self, owner, repo, hash):
+        pass
+
+    @inlineCallbacks
+    def gh_repo_compare(self, owner, repo, left, right):
         pass
 
     @inlineCallbacks
