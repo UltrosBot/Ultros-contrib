@@ -74,6 +74,10 @@ strings = {
     "PULLS_PULL": u"[GitHub pull request] %s/%s/%s by %s (%s) - %s",
 }
 
+DEFAULT_HEADERS = {
+    "Accept": "application/json"
+}
+
 RANDOM_SAMPLE_SIZE = 5
 
 COMMIT_HASH_REGEX = re.compile(
@@ -275,7 +279,9 @@ class GithubHandler(URLHandler):
     @inlineCallbacks
     def gh_user(self, user):  # User or org
         try:  # Let's see if it's a user
-            r = yield self.session.get(URL_USER.format(user))
+            r = yield self.session.get(
+                URL_USER.format(user), headers=DEFAULT_HEADERS
+            )
             data = r.json()
 
             pprint.pprint(data)
@@ -290,7 +296,9 @@ class GithubHandler(URLHandler):
                 "Checking to see if they're an organisation instead."
             )
 
-            r = yield self.session.get(URL_ORG.format(user))
+            r = yield self.session.get(
+                URL_ORG.format(user), headers=DEFAULT_HEADERS
+            )
             data = r.json()
 
             pprint.pprint(data)
@@ -300,123 +308,213 @@ class GithubHandler(URLHandler):
 
     @inlineCallbacks
     def gh_repo(self, owner, repo):
-        r = yield self.session.get(URL_REPO.format(owner, repo))
+        # Preview header for licensing info
+        headers = DEFAULT_HEADERS
+        headers["Accept"] = "application/vnd.github.drax-preview+json"
+
+        r = yield self.session.get(
+            URL_REPO.format(owner, repo), headers=headers
+        )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_commits(self, owner, repo):
-        r = yield self.session.get(URL_COMMITS.format(owner, repo))
+        r = yield self.session.get(
+            URL_COMMITS.format(owner, repo), headers=DEFAULT_HEADERS
+        )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_commits_branch(self, owner, repo, branch):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_commits_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_commit_hash(self, owner, repo, hash):
-        r = yield self.session.get(URL_COMMIT.format(owner, repo, hash))
+        r = yield self.session.get(
+            URL_COMMIT.format(owner, repo, hash), headers=DEFAULT_HEADERS
+        )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_compare(self, owner, repo, left, right):
         r = yield self.session.get(
-            URL_COMMIT_RANGE.format(owner, repo, left, right)
+            URL_COMMIT_RANGE.format(owner, repo, left, right),
+            headers=DEFAULT_HEADERS
         )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_issues(self, owner, repo):
-        r = yield self.session.get(URL_ISSUES.format(owner, repo))
+        r = yield self.session.get(
+            URL_ISSUES.format(owner, repo), headers=DEFAULT_HEADERS
+        )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_issues_issue(self, owner, repo, issue):  # TODO: State?
-        r = yield self.session.get(URL_ISSUE.format(owner, repo, issue))
+        r = yield self.session.get(
+            URL_ISSUE.format(owner, repo, issue), headers=DEFAULT_HEADERS
+        )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_pulls(self, owner, repo):
-        r = yield self.session.get(URL_PULLS.format(owner, repo))
+        r = yield self.session.get(
+            URL_PULLS.format(owner, repo), headers=DEFAULT_HEADERS
+        )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_pulls_pull(self, owner, repo, pull):  # TODO: State?
-        r = yield self.session.get(URL_PULL.format(owner, repo, pull))
+        r = yield self.session.get(
+            URL_PULL.format(owner, repo, pull), headers=DEFAULT_HEADERS
+        )
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_labels(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_labels_label(self, owner, repo, label):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_milestones(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_milestones_milestone(self, owner, repo, milestone):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_tree_branch(self, owner, repo, branch):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_tree_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_blob_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_blob_hash_path(self, owner, repo, hash, path):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_blame_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_watchers(self, owner, repo):
         # Use random.sample() for examples
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_stargazers(self, owner, repo):
         # Use random.sample() for examples
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_wiki(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_pulse(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_graphs(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_settings(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_releases(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_releases_latest(self, owner, repo):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_releases_tag(self, owner, repo, tag):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     @inlineCallbacks
     def gh_repo_releases_download(self, owner, repo, tag, filename):
-        r = yield self.session.get()  # TODO: URL
+        r = yield self.session.get(
+            headers=DEFAULT_HEADERS
+        )  # TODO: URL
+        data = r.json()
 
     def reload(self):
         self.teardown()
