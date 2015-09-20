@@ -206,16 +206,22 @@ class GithubHandler(URLHandler):
                     )
             elif target[2] == "releases":
                 if len(target) == 3:
-                    pass  # Releases list
+                    message = yield self.gh_repo_releases(target[0], target[1])
                 elif len(target) == 4:
                     if target[3] == "latest":
-                        pass  # Latest release
+                        message = yield self.gh_repo_releases_latest(
+                            target[0], target[1]
+                        )
                 elif len(target) == 5:
                     if target[3] == "tag":
-                        pass  # Release tag (check this)
+                        message = yield self.gh_repo_releases_tag(
+                            target[0], target[1], target[4]
+                        )
                 elif len(target) == 6:
                     if target[3] == "download":
-                        pass  # Release download (check this)
+                        message = yield self.gh_repo_releases_download(
+                            target[0], target[1], target[4], target[5]
+                        )
             elif target[2] == "wiki":
                 message = yield self.gh_repo_wiki(target[0], target[1])
             elif target[2] == "pulse":
