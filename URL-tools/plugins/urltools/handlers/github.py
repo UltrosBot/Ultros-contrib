@@ -132,6 +132,11 @@ class GithubHandler(URLHandler):
             [owner, repo, labels, *label]
             [owner, repo, milestones]
             [owner, repo, milestones, *milestone]
+            [owner, repo, releases]
+            [owner, repo, releases, tag, *tag]
+            [owner, repo, releases, latest]
+            [owner, repo, releases, download, *tag, *file]
+            [owner, repo, tags]
             [owner, repo, wiki]+  (Treat as bare)
             [owner, repo, pulse]+  (Treat as bare)
             [owner, repo, graphs]+  (Treat as bare)
@@ -199,6 +204,18 @@ class GithubHandler(URLHandler):
                     message = yield self.gh_repo_milestones_milestone(
                         target[0], target[1], target[3]
                     )
+            elif target[2] == "releases":
+                if len(target) == 3:
+                    pass  # Releases list
+                elif len(target) == 4:
+                    if target[3] == "latest":
+                        pass  # Latest release
+                elif len(target) == 5:
+                    if target[3] == "tag":
+                        pass  # Release tag (check this)
+                elif len(target) == 6:
+                    if target[3] == "download":
+                        pass  # Release download (check this)
             elif target[2] == "wiki":
                 message = yield self.gh_repo_wiki(target[0], target[1])
             elif target[2] == "pulse":
@@ -277,105 +294,123 @@ class GithubHandler(URLHandler):
 
     @inlineCallbacks
     def gh_repo(self, owner, repo):
-        pass
+        r = yield self.session.get(URL_REPO.format(owner, repo))
 
     @inlineCallbacks
     def gh_repo_commits(self, owner, repo):
-        pass
+        r = yield self.session.get(URL_COMMITS.format(owner, repo))
 
     @inlineCallbacks
     def gh_repo_commits_branch(self, owner, repo, branch):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_commits_branch_path(self, owner, repo, branch, path):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_commit_hash(self, owner, repo, hash):
-        pass
+        r = yield self.session.get(URL_COMMIT.format(owner, repo, hash))
 
     @inlineCallbacks
     def gh_repo_compare(self, owner, repo, left, right):
-        pass
+        r = yield self.session.get(
+            URL_COMMIT_RANGE.format(owner, repo, left, right)
+        )
 
     @inlineCallbacks
     def gh_repo_issues(self, owner, repo):
-        pass
+        r = yield self.session.get(URL_ISSUES.format(owner, repo))
 
     @inlineCallbacks
-    def gh_repo_issues_issue(self, owner, repo, issue):
-        pass
+    def gh_repo_issues_issue(self, owner, repo, issue):  # TODO: State?
+        r = yield self.session.get(URL_ISSUE.format(owner, repo, issue))
 
     @inlineCallbacks
     def gh_repo_pulls(self, owner, repo):
-        pass
+        r = yield self.session.get(URL_PULLS.format(owner, repo))
 
     @inlineCallbacks
-    def gh_repo_pulls_pull(self, owner, repo, pull):
-        pass
+    def gh_repo_pulls_pull(self, owner, repo, pull):  # TODO: State?
+        r = yield self.session.get(URL_PULL.format(owner, repo, pull))
 
     @inlineCallbacks
     def gh_repo_labels(self, owner, repo):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_labels_label(self, owner, repo, label):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_milestones(self, owner, repo):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_milestones_milestone(self, owner, repo, milestone):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_tree_branch(self, owner, repo, branch):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_tree_branch_path(self, owner, repo, branch, path):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_blob_branch_path(self, owner, repo, branch, path):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_blob_hash_path(self, owner, repo, hash, path):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_blame_branch_path(self, owner, repo, branch, path):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_watchers(self, owner, repo):
         # Use random.sample() for examples
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_stargazers(self, owner, repo):
         # Use random.sample() for examples
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_wiki(self, owner, repo):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_pulse(self, owner, repo):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_graphs(self, owner, repo):
-        pass
+        r = yield self.session.get()  # TODO: URL
 
     @inlineCallbacks
     def gh_repo_settings(self, owner, repo):
-        pass
+        r = yield self.session.get()  # TODO: URL
+
+    @inlineCallbacks
+    def gh_repo_releases(self, owner, repo):
+        r = yield self.session.get()  # TODO: URL
+
+    @inlineCallbacks
+    def gh_repo_releases_latest(self, owner, repo):
+        r = yield self.session.get()  # TODO: URL
+
+    @inlineCallbacks
+    def gh_repo_releases_tag(self, owner, repo, tag):
+        r = yield self.session.get()  # TODO: URL
+
+    @inlineCallbacks
+    def gh_repo_releases_download(self, owner, repo, tag, filename):
+        r = yield self.session.get()  # TODO: URL
 
     def reload(self):
         self.teardown()
