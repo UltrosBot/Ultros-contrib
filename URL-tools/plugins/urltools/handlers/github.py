@@ -147,70 +147,98 @@ class GithubHandler(URLHandler):
 
             if target[2] == "commits":
                 if len(target) == 3:
-                    pass  # Commit list
+                    message = yield self.gh_repo_commits(target[0], target[1])
                 elif len(target) == 4:
-                    pass  # Specific branch
+                    message = yield self.gh_repo_commits_branch(
+                        target[0], target[1], target[3]
+                    )
                 else:
-                    pass  # Specific file in a branch
+                    message = yield self.gh_repo_commits_branch_path(
+                        target[0], target[1], target[3], target[4]
+                    )
             elif target[2] == "commit":
                 if len(target) == 4:
-                    pass  # Specific commit
+                    message = yield self.gh_repo_commit_hash(
+                        target[0], target[1], target[3]
+                    )
             elif target[2] == "compare":
                 if len(target) == 4:
                     left, right = target[3].split("...", 1)
-                    pass  # Comparison of two commits
+                    message = yield self.gh_repo_compare(
+                        target[0], target[1], left, right
+                    )
                 # GitHub 404s without two commits to compare, so do nothing
             elif target[2] == "issues":
                 if len(target) == 3:
-                    pass  # Issue list
+                    message = yield self.gh_repo_issues(target[0], target[1])
                 else:
-                    pass  # Specific issue
+                    message = yield self.gh_repo_issues_issue(
+                        target[0], target[1], target[3]
+                    )
             elif target[2] == "pulls":
-                pass  # Pull request list
+                message = yield self.gh_repo_pulls(target[0], target[1])
             elif target[2] == "pull":
                 if len(target) == 4:
-                    pass  # Specific PR
+                    message = yield self.gh_repo_pulls_pull(
+                        target[0], target[1], target[3]
+                    )
                 # GitHub 404s without a PR ID, so do nothing
             elif target[2] == "labels":
                 if len(target) == 3:
-                    pass  # Label list
+                    message = yield self.gh_repo_labels(target[0], target[1])
                 else:
-                    pass  # Specific label
+                    message = yield self.gh_repo_labels_label(
+                        target[0], target[1], target[3]
+                    )
             elif target[2] == "milestones":
                 if len(target) == 3:
-                    pass  # Milestone list
+                    message = yield self.gh_repo_milestones(
+                        target[0], target[1]
+                    )
                 else:
-                    pass  # Specific milestone
+                    message = yield self.gh_repo_milestones_milestone(
+                        target[0], target[1], target[3]
+                    )
             elif target[2] == "wiki":
-                pass  # Wiki page
-            elif target[2] == "puse":
-                pass  # Pulse page
+                message = yield self.gh_repo_wiki(target[0], target[1])
+            elif target[2] == "pulse":
+                message = yield self.gh_repo_pulse(target[0], target[1])
             elif target[2] == "graphs":
-                pass  # Graphs page
+                message = yield self.gh_repo_graphs(target[0], target[1])
             elif target[2] == "settings":
-                pass  # Settings page
+                message = yield self.gh_repo_settings(target[0], target[1])
             elif target[2] == "tree":
                 if len(target) == 4:
-                    pass  # File tree of specific branch
+                    message = yield self.gh_repo_tree_branch(
+                        target[0], target[1], target[3]
+                    )
                 elif len(target) == 5:
-                    pass  # Specific path of specific branch
+                    message = yield self.gh_repo_tree_branch_path(
+                        target[0], target[1], target[3], target[4]
+                    )
                 # GitHub 404s without a branch, so do nothing
             elif target[2] == "blob":
                 if len(target) == 5:
                     # Could be either a branch and path, or hash and path
                     if COMMIT_HASH_REGEX.match(target[4]):
-                        pass  # It's a file under a specific commit hash
+                        message = yield self.gh_repo_blob_hash_path(
+                            target[0], target[1], target[3], target[4]
+                        )
                     else:
-                        pass  # It's a file under a specific branch
+                        message = yield self.gh_repo_blob_branch_path(
+                            target[0], target[1], target[3], target[4]
+                        )
                 # GitHub 404s without a hash/branch and path, so do nothing
             elif target[2] == "blame":
                 if len(target) == 5:
-                    pass  # Blame page
+                    message = yield self.gh_repo_blame_branch_path(
+                        target[0], target[1], target[3], target[4]
+                    )
                 # GitHub 404s without a branch and path, so do nothing
             elif target[2] == "watchers":
-                pass  # Watchers page
+                message = yield self.gh_repo_watchers(target[0], target[1])
             elif target[2] == "stargazers":
-                pass  # Stargazers page
+                message = yield self.gh_repo_stargazers(target[0], target[1])
 
         # At this point, if `message` isn't set then we don't understand the
         # url, and so we'll just allow it to pass down to the other handlers
@@ -331,6 +359,22 @@ class GithubHandler(URLHandler):
     @inlineCallbacks
     def gh_repo_stargazers(self, owner, repo):
         # Use random.sample() for examples
+        pass
+
+    @inlineCallbacks
+    def gh_repo_wiki(self, owner, repo):
+        pass
+
+    @inlineCallbacks
+    def gh_repo_pulse(self, owner, repo):
+        pass
+
+    @inlineCallbacks
+    def gh_repo_graphs(self, owner, repo):
+        pass
+
+    @inlineCallbacks
+    def gh_repo_settings(self, owner, repo):
         pass
 
     def reload(self):
