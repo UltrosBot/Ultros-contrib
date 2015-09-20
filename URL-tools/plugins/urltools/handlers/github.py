@@ -1,7 +1,5 @@
 # coding=utf-8
 import pprint
-
-import random
 import re
 
 from twisted.internet.defer import inlineCallbacks, returnValue
@@ -78,6 +76,10 @@ strings = {
 
 RANDOM_SAMPLE_SIZE = 5
 
+COMMIT_HASH_REGEX = re.compile(
+    "[a-fA-F0-9]{40}", flags=str_to_regex_flags("ui")
+)
+
 
 class GithubHandler(URLHandler):
     criteria = {
@@ -141,10 +143,77 @@ class GithubHandler(URLHandler):
             [owner, repo, watchers]
             [owner, repo, stargazers]
             """
-            pass
 
-        context["event"].target.respond(message)
-        returnValue(False)
+            if target[2] == "commits":
+                if len(target) == 3:
+                    pass  # Commit list
+                elif len(target) == 4:
+                    pass  # Specific branch
+                else:
+                    pass  # Specific file in a branch
+            elif target[2] == "commit":
+                if len(target) == 3:
+                    pass  # Specific commit
+            elif target[2] == "issues":
+                if len(target) == 3:
+                    pass  # Issue list
+                else:
+                    pass  # Specific issue
+            elif target[2] == "pulls":
+                pass  # Pull request list
+            elif target[2] == "pull":
+                if len(target) == 4:
+                    pass  # Specific PR
+                # GitHub 404s without a PR ID, so do nothing
+            elif target[2] == "labels":
+                if len(target) == 3:
+                    pass  # Label list
+                else:
+                    pass  # Specific label
+            elif target[2] == "milestones":
+                if len(target) == 3:
+                    pass  # Milestone list
+                else:
+                    pass  # Specific milestone
+            elif target[2] == "wiki":
+                pass  # Wiki page
+            elif target[2] == "puse":
+                pass  # Pulse page
+            elif target[2] == "graphs":
+                pass  # Graphs page
+            elif target[2] == "settings":
+                pass  # Settings page
+            elif target[2] == "tree":
+                if len(target) == 4:
+                    pass  # File tree of specific branch
+                elif len(target) == 5:
+                    pass  # Specific path of specific branch
+                # GitHub 404s without a branch, so do nothing
+            elif target[2] == "blob":
+                if len(target) == 5:
+                    # Could be either a branch and path, or hash and path
+                    if COMMIT_HASH_REGEX.match(target[4]):
+                        pass  # It's a file under a specific commit hash
+                    else:
+                        pass  # It's a file under a specific branch
+                # GitHub 404s without a hash/branch and path, so do nothing
+            elif target[2] == "blame":
+                if len(target) == 5:
+                    pass  # Blame page
+                # GitHub 404s without a branch and path, so do nothing
+            elif target[2] == "watchers":
+                pass  # Watchers page
+            elif target[2] == "stargazers":
+                pass  # Stargazers page
+
+        # At this point, if `message` isn't set then we don't understand the
+        # url, and so we'll just allow it to pass down to the other handlers
+
+        if message:
+            context["event"].target.respond(message)
+            returnValue(False)
+        else:
+            returnValue(True)
 
     @inlineCallbacks
     def gh_user(self, user):  # User or org
