@@ -18,11 +18,25 @@ URL_REPO = BASE_URL + "/repos/{0}/{1}"
 
 URL_RELEASES = URL_REPO + "/releases"
 URL_RELEASE = URL_RELEASES + "/{2}"
+URL_RELEASE_FILE = URL_RELEASES + "/assets/{2}"
 
 URL_ISSUES = URL_REPO + "/issues"
 URL_ISSUES_OPEN = URL_ISSUES + "?state=open"
 URL_ISSUES_CLOSED = URL_ISSUES + "?state=closed"
 URL_ISSUE = URL_ISSUES + "/{2}"
+
+URL_LABELS = URL_REPO + "/labels"
+URL_LABEL = URL_LABELS + "/{2}"
+
+URL_MILESTONES = URL_REPO + "/milestones"
+URL_MILESTONE = URL_MILESTONES + "/{2}"
+
+URL_TREE = URL_REPO + "/git/trees/{2}"
+
+URL_BLOB = URL_REPO + "/git/blobs/{2}"
+
+URL_WATCHERS = URL_REPO + "/subscribers"  # Sigh
+URL_STARGAZERS = URL_REPO + "/stargazers"
 
 URL_COMMITS = URL_REPO + "/commits"
 URL_COMMIT = URL_COMMITS + "/{2}"
@@ -315,7 +329,7 @@ class GithubHandler(URLHandler):
         r = yield self.session.get(
             URL_REPO.format(owner, repo), headers=headers
         )
-        data = r.json()
+        data = r.json()  # "watchers_count" and "subscribers_count"
 
     @inlineCallbacks
     def gh_repo_commits(self, owner, repo):
@@ -327,13 +341,16 @@ class GithubHandler(URLHandler):
     @inlineCallbacks
     def gh_repo_commits_branch(self, owner, repo, branch):
         r = yield self.session.get(
+            URL_COMMIT.format(owner, repo, branch),  # Yeah, I know.
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_commits_branch_path(self, owner, repo, branch, path):
+        # No way to specify a path, maybe content API?
         r = yield self.session.get(
+            URL_COMMIT.format(owner, repo, branch),
             headers=DEFAULT_HEADERS
         )  # TODO: URL
         data = r.json()
@@ -361,7 +378,7 @@ class GithubHandler(URLHandler):
         data = r.json()
 
     @inlineCallbacks
-    def gh_repo_issues_issue(self, owner, repo, issue):  # TODO: State?
+    def gh_repo_issues_issue(self, owner, repo, issue):  # TODO: State w/query?
         r = yield self.session.get(
             URL_ISSUE.format(owner, repo, issue), headers=DEFAULT_HEADERS
         )
@@ -375,7 +392,7 @@ class GithubHandler(URLHandler):
         data = r.json()
 
     @inlineCallbacks
-    def gh_repo_pulls_pull(self, owner, repo, pull):  # TODO: State?
+    def gh_repo_pulls_pull(self, owner, repo, pull):  # TODO: State w/query?
         r = yield self.session.get(
             URL_PULL.format(owner, repo, pull), headers=DEFAULT_HEADERS
         )
@@ -384,134 +401,149 @@ class GithubHandler(URLHandler):
     @inlineCallbacks
     def gh_repo_labels(self, owner, repo):
         r = yield self.session.get(
+            URL_LABELS.format(owner, repo),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_labels_label(self, owner, repo, label):
         r = yield self.session.get(
+            URL_LABEL.format(owner, repo, label),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_milestones(self, owner, repo):
         r = yield self.session.get(
+            URL_MILESTONES.format(owner, repo),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_milestones_milestone(self, owner, repo, milestone):
         r = yield self.session.get(
+            URL_MILESTONE.format(owner, repo, milestone),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_tree_branch(self, owner, repo, branch):
         r = yield self.session.get(
+            URL_TREE.format(owner, repo, branch),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_tree_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get(
+        # No way to specify a path, maybe content API?
+        r = yield self.session.get(  # Don't see a way to specify a path :U
+            URL_TREE.format(owner, repo, branch),
             headers=DEFAULT_HEADERS
         )  # TODO: URL
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_blob_branch_path(self, owner, repo, branch, path):
+        # Maybe content API?
         r = yield self.session.get(
+            None,  # Can't find an appropriate API call
             headers=DEFAULT_HEADERS
         )  # TODO: URL
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_blob_hash_path(self, owner, repo, hash, path):
-        r = yield self.session.get(
+        # No way to specify a path, maybe content API?
+        r = yield self.session.get(  # Don't see a way to specify a path :U
+            URL_BLOB.format(owner, repo, hash),
             headers=DEFAULT_HEADERS
         )  # TODO: URL
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_blame_branch_path(self, owner, repo, branch, path):
+        # Maybe content API?
         r = yield self.session.get(
+            None,  # Can't find an appropriate API call
             headers=DEFAULT_HEADERS
         )  # TODO: URL
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_watchers(self, owner, repo):
-        # Use random.sample() for examples
+        # Use random.sample() for examples (api only returns 30)
         r = yield self.session.get(
+            URL_WATCHERS.format(owner, repo),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_stargazers(self, owner, repo):
-        # Use random.sample() for examples
+        # Use random.sample() for examples (api only returns 30)
         r = yield self.session.get(
+            URL_STARGAZERS.format(owner, repo),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_wiki(self, owner, repo):
-        r = yield self.session.get(
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
-        data = r.json()
+        # No API call, so let's delegate.
+        d = yield self.gh_repo(owner, repo)
+        returnValue(d)
 
     @inlineCallbacks
     def gh_repo_pulse(self, owner, repo):
-        r = yield self.session.get(
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
-        data = r.json()
+        # No API call, so let's delegate.
+        d = yield self.gh_repo(owner, repo)
+        returnValue(d)
 
     @inlineCallbacks
     def gh_repo_graphs(self, owner, repo):
-        r = yield self.session.get(
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
-        data = r.json()
+        # No API call, so let's delegate.
+        d = yield self.gh_repo(owner, repo)
+        returnValue(d)
 
     @inlineCallbacks
     def gh_repo_settings(self, owner, repo):
-        r = yield self.session.get(
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
-        data = r.json()
+        # No API call, so let's delegate.
+        d = yield self.gh_repo(owner, repo)
+        returnValue(d)
 
     @inlineCallbacks
     def gh_repo_releases(self, owner, repo):
         r = yield self.session.get(
+            URL_RELEASES.format(owner, repo),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_releases_latest(self, owner, repo):
         r = yield self.session.get(
+            URL_RELEASE.format(owner, repo, "latest"),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_releases_tag(self, owner, repo, tag):
         r = yield self.session.get(
+            URL_RELEASE.format(owner, repo, tag),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
 
     @inlineCallbacks
     def gh_repo_releases_download(self, owner, repo, tag, filename):
         r = yield self.session.get(
+            None,  # Can't find an appropriate API
             headers=DEFAULT_HEADERS
         )  # TODO: URL
         data = r.json()
