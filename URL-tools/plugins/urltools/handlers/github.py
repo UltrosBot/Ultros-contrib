@@ -18,7 +18,12 @@ URL_REPO = BASE_URL + "/repos/{0}/{1}"
 
 URL_RELEASES = URL_REPO + "/releases"
 URL_RELEASE = URL_RELEASES + "/{2}"
+URL_RELEASE_TAGS = URL_RELEASES + "/tags/{2}"
 URL_RELEASE_FILE = URL_RELEASES + "/assets/{2}"
+
+URL_TAGS = URL_REPO + "/tags"
+
+URL_GET_CONTENTS = URL_REPO + "/contents/{2}"
 
 URL_ISSUES = URL_REPO + "/issues"
 URL_ISSUES_OPEN = URL_ISSUES + "?state=open"
@@ -40,7 +45,7 @@ URL_STARGAZERS = URL_REPO + "/stargazers"
 
 URL_COMMITS = URL_REPO + "/commits"
 URL_COMMIT = URL_COMMITS + "/{2}"
-URL_COMMIT_RANGE = URL_COMMITS + "/{2}...{3}"
+URL_COMMIT_RANGE = URL_REPO + "/compare/{2}...{3}"
 
 URL_PULLS = URL_REPO + "/pulls"
 URL_PULLS_OPEN = URL_PULLS + "?state=open"
@@ -206,6 +211,8 @@ class GithubHandler(URLHandler):
                         target[0], target[1], target[3]
                     )
                 # GitHub 404s without a PR ID, so do nothing
+            elif target[2] == "tags":
+                message = yield self.gh_repo_tags(target[0], target[1])
             elif target[2] == "labels":
                 if len(target) == 3:
                     message = yield self.gh_repo_labels(target[0], target[1])
@@ -261,7 +268,7 @@ class GithubHandler(URLHandler):
             elif target[2] == "blob":
                 if len(target) == 5:
                     # Could be either a branch and path, or hash and path
-                    if COMMIT_HASH_REGEX.match(target[4]):
+                    if COMMIT_HASH_REGEX.match(target[3]):
                         message = yield self.gh_repo_blob_hash_path(
                             target[0], target[1], target[3], target[4]
                         )
@@ -284,7 +291,7 @@ class GithubHandler(URLHandler):
         # At this point, if `message` isn't set then we don't understand the
         # url, and so we'll just allow it to pass down to the other handlers
 
-        if message:
+        if message and isinstance(message, basestring):
             context["event"].target.respond(message)
             returnValue(False)
         else:
@@ -331,12 +338,18 @@ class GithubHandler(URLHandler):
         )
         data = r.json()  # "watchers_count" and "subscribers_count"
 
+        pprint.pprint(data)
+        returnValue("Repo!")
+
     @inlineCallbacks
     def gh_repo_commits(self, owner, repo):
         r = yield self.session.get(
             URL_COMMITS.format(owner, repo), headers=DEFAULT_HEADERS
         )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Commits!")
 
     @inlineCallbacks
     def gh_repo_commits_branch(self, owner, repo, branch):
@@ -346,14 +359,20 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Commits on {}!".format(branch))
+
     @inlineCallbacks
     def gh_repo_commits_branch_path(self, owner, repo, branch, path):
-        # No way to specify a path, maybe content API?
         r = yield self.session.get(
-            URL_COMMIT.format(owner, repo, branch),
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
+            URL_COMMITS.format(owner, repo),
+            headers=DEFAULT_HEADERS,
+            params={"sha": branch, "path": path}
+        )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Commits on {} at {}!".format(branch, path))
 
     @inlineCallbacks
     def gh_repo_commit_hash(self, owner, repo, hash):
@@ -361,6 +380,9 @@ class GithubHandler(URLHandler):
             URL_COMMIT.format(owner, repo, hash), headers=DEFAULT_HEADERS
         )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Commit at {}!".format(hash))
 
     @inlineCallbacks
     def gh_repo_compare(self, owner, repo, left, right):
@@ -370,12 +392,18 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Comparing commits: {} and {}".format(left, right))
+
     @inlineCallbacks
     def gh_repo_issues(self, owner, repo):
         r = yield self.session.get(
             URL_ISSUES.format(owner, repo), headers=DEFAULT_HEADERS
         )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Issues!")
 
     @inlineCallbacks
     def gh_repo_issues_issue(self, owner, repo, issue):  # TODO: State w/query?
@@ -384,6 +412,9 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Issue #{}".format(issue))
+
     @inlineCallbacks
     def gh_repo_pulls(self, owner, repo):
         r = yield self.session.get(
@@ -391,12 +422,18 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Pull request!")
+
     @inlineCallbacks
     def gh_repo_pulls_pull(self, owner, repo, pull):  # TODO: State w/query?
         r = yield self.session.get(
             URL_PULL.format(owner, repo, pull), headers=DEFAULT_HEADERS
         )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Pull #{}".format(pull))
 
     @inlineCallbacks
     def gh_repo_labels(self, owner, repo):
@@ -406,6 +443,9 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Labels!")
+
     @inlineCallbacks
     def gh_repo_labels_label(self, owner, repo, label):
         r = yield self.session.get(
@@ -413,6 +453,9 @@ class GithubHandler(URLHandler):
             headers=DEFAULT_HEADERS
         )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Label: {}".format(label))
 
     @inlineCallbacks
     def gh_repo_milestones(self, owner, repo):
@@ -422,6 +465,9 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Milestones!")
+
     @inlineCallbacks
     def gh_repo_milestones_milestone(self, owner, repo, milestone):
         r = yield self.session.get(
@@ -429,6 +475,9 @@ class GithubHandler(URLHandler):
             headers=DEFAULT_HEADERS
         )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Milestone: {}".format(milestone))
 
     @inlineCallbacks
     def gh_repo_tree_branch(self, owner, repo, branch):
@@ -438,41 +487,51 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Tree branch: {}".format(branch))
+
     @inlineCallbacks
     def gh_repo_tree_branch_path(self, owner, repo, branch, path):
         # No way to specify a path, maybe content API?
         r = yield self.session.get(  # Don't see a way to specify a path :U
-            URL_TREE.format(owner, repo, branch),
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
+            URL_GET_CONTENTS.format(owner, repo, path),
+            headers=DEFAULT_HEADERS,
+            params={"ref": branch}
+        )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Tree branch {} at {}".format(branch, path))
 
     @inlineCallbacks
     def gh_repo_blob_branch_path(self, owner, repo, branch, path):
-        # Maybe content API?
         r = yield self.session.get(
-            None,  # Can't find an appropriate API call
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
+            URL_GET_CONTENTS.format(owner, repo, path),
+            headers=DEFAULT_HEADERS,
+            params={"ref": branch}
+        )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Blob branch {} at {}".format(branch, path))
 
     @inlineCallbacks
     def gh_repo_blob_hash_path(self, owner, repo, hash, path):
-        # No way to specify a path, maybe content API?
-        r = yield self.session.get(  # Don't see a way to specify a path :U
-            URL_BLOB.format(owner, repo, hash),
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        r = yield self.session.get(
+            URL_GET_CONTENTS.format(owner, repo, path),
+            headers=DEFAULT_HEADERS,
+            params={"ref": hash}
+        )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Blob file {} at {}".format(path, hash))
 
     @inlineCallbacks
     def gh_repo_blame_branch_path(self, owner, repo, branch, path):
-        # Maybe content API?
-        r = yield self.session.get(
-            None,  # Can't find an appropriate API call
-            headers=DEFAULT_HEADERS
-        )  # TODO: URL
-        data = r.json()
+        # No API call, so let's delegate.
+        d = yield self.gh_repo(owner, repo)
+        returnValue(d)
 
     @inlineCallbacks
     def gh_repo_watchers(self, owner, repo):
@@ -483,6 +542,9 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Watchers!")
+
     @inlineCallbacks
     def gh_repo_stargazers(self, owner, repo):
         # Use random.sample() for examples (api only returns 30)
@@ -491,6 +553,9 @@ class GithubHandler(URLHandler):
             headers=DEFAULT_HEADERS
         )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Stargazers!")
 
     @inlineCallbacks
     def gh_repo_wiki(self, owner, repo):
@@ -524,6 +589,9 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Releases")
+
     @inlineCallbacks
     def gh_repo_releases_latest(self, owner, repo):
         r = yield self.session.get(
@@ -532,21 +600,36 @@ class GithubHandler(URLHandler):
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Release: Latest")
+
     @inlineCallbacks
     def gh_repo_releases_tag(self, owner, repo, tag):
         r = yield self.session.get(
-            URL_RELEASE.format(owner, repo, tag),
+            URL_RELEASE_TAGS.format(owner, repo, tag),
             headers=DEFAULT_HEADERS
         )
         data = r.json()
 
+        pprint.pprint(data)
+        returnValue("Release: {}".format(tag))
+
     @inlineCallbacks
     def gh_repo_releases_download(self, owner, repo, tag, filename):
+        # No API call, so let's delegate.
+        d = self.gh_repo(owner, repo)
+        returnValue(d)
+
+    @inlineCallbacks
+    def gh_repo_tags(self, owner, repo):
         r = yield self.session.get(
-            None,  # Can't find an appropriate API
+            URL_TAGS.format(owner, repo),
             headers=DEFAULT_HEADERS
-        )  # TODO: URL
+        )
         data = r.json()
+
+        pprint.pprint(data)
+        returnValue("Tags")
 
     def reload(self):
         self.teardown()
