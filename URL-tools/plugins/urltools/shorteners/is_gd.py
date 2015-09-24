@@ -1,11 +1,12 @@
 from txrequests import Session
-from plugins.urls.shorteners import shortener
+from plugins.urls.shorteners import base
 
-reload(shortener)
+reload(base)
 
 __author__ = 'Gareth Coles'
 
-class IsGdShortener(shortener.Shortener):
+
+class IsGdShortener(base.Shortener):
     base_url = "http://is.gd/create.php"
     name = "is.gd"
 

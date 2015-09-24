@@ -1,8 +1,4 @@
 # coding=utf-8
-from plugins.urls import Priority
-
-__author__ = 'Gareth Coles'
-
 import json
 import urlparse
 
@@ -17,12 +13,15 @@ from system.plugins.manager import PluginManager
 from system.storage.formats import YAML
 from system.storage.manager import StorageManager
 
+from plugins.urls import Priority
 from plugins.urltools.shorteners import is_gd
 from plugins.urltools.shorteners import nazrin
 from plugins.urltools.shorteners import v_gd
 from plugins.urltools.shorteners import waa_ai
 
 from handlers.github import GithubHandler
+
+__author__ = 'Gareth Coles'
 
 # Attempt to guess the locale.
 locale.setlocale(locale.LC_ALL, "")
