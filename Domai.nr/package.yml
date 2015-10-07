@@ -1,8 +1,8 @@
 name: Domai.nr
 current_version:
-    number: "DELETED"
+    number: 0.3.0
     info: >
-        EOL plugin
+        Updated to new API.
 description: >
     Domainr API integration. Current features:
     - Search
@@ -11,12 +11,10 @@ files:
 - plugins/domainr/
 - plugins/domainr/__init__.py
 - plugins/domainr.plug
-- plugins/domainr/README.md
-dont_skip:
-- plugins/domainr/README.md
+- config/plugins/domainr.yml.example
 requires:
     modules: [
-        treq
+        txrequests
     ]
     packages: []
-documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Domai.nr/README.md
+documentation: https://github.com/UltrosBot/Ultros-contrib/blob/master/Domai.nr/README.md

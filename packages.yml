@@ -33,11 +33,11 @@ Dice:
         modules: []
         packages: []
 Domai.nr:
-    version: "DELETED"
+    version: 0.3.0
     description: "Domainr API integration."
     requires:
         modules:
-        - "treq"
+        - "txrequests"
         packages: []
 DrunkOctopus:
     version: 0.2.2

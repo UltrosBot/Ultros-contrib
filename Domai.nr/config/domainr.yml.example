@@ -1,0 +1,4 @@
+# Domainr has two ways to authenticate to their API. Fill in the one you're
+# using and uncomment the line. See the readme for more details.
+# api-key: "YourMashapeKey"
+# client_id: "YourClientID"
