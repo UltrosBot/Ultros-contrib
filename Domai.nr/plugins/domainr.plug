@@ -1,0 +1,10 @@
+core:
+  name: Domai.nr
+  module: domainr
+  dependencies: []
+info:
+  description: "Domainr API commands"
+  author: Sean Gordon
+  version: 0.2.1
+  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Domai.nr
+  copyright: BSD 3-Clause
