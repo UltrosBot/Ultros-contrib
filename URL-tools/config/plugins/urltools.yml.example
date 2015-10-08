@@ -1,7 +1,15 @@
-sites:
-  apikeys:
-    osu: "" # Required for this handler
-  enabled:
-  - osu.ppy.sh
-  - youtube.com
-  - github.com
+enabled:
+  - github
+  - osu
+  - youtube
+
+github:
+  formatting: {}  # See documentation if you want to change the formatting
+
+osu:
+  key: ""
+  formatting: {}  # See documentation if you want to change the formatting
+
+youtube:
+  key: ""
+  formatting: {}  # See documentation if you want to change the formatting
