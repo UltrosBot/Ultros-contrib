@@ -152,16 +152,16 @@ class URLToolsPlugin(plugin.PluginObject):
         return self.plugman.get_plugin("URLs")
 
     def setup(self):
-        # self.storage = StorageManager()
-        #
-        # try:
-        #     self.config = self.storage.get_file(self, "config", YAML,
-        #                                         "plugins/urltools.yml")
-        # except Exception:
-        #     self.logger.exception("Unable to load the configuration!")
-        #     self._disable_self()
-        #     return
-        #
+        self.storage = StorageManager()
+
+        try:
+            self.config = self.storage.get_file(self, "config", YAML,
+                                                "plugins/urltools.yml")
+        except Exception:
+            self.logger.exception("Unable to load the configuration!")
+            self._disable_self()
+            return
+
         # self.sites["osu.ppy.sh"] = self.site_osu
         # self.sites["youtube.com"] = self.site_youtube
         # self.sites["github.com"] = self.site_github
@@ -181,6 +181,7 @@ class URLToolsPlugin(plugin.PluginObject):
         # self._load()
         # self.config.add_callback(self._load)
 
+        # TODO: Make handlers etc optional
         self.urls.add_handler(GithubHandler(self), Priority.EARLY)
 
     def _load(self):

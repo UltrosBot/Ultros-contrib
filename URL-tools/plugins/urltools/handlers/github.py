@@ -1,5 +1,6 @@
 # coding=utf-8
-import pprint
+
+import datetime
 import random
 import re
 
@@ -8,6 +9,8 @@ from twisted.internet.defer import inlineCallbacks, returnValue, Deferred
 from txrequests import Session
 
 from plugins.urls.handlers.handler import URLHandler
+from plugins.urls.matching import extract_urls
+
 from utils.misc import str_to_regex_flags
 
 __author__ = 'Gareth Coles'
@@ -58,7 +61,7 @@ URL_STATS = URL_REPO + "/stats"
 URL_STATS_CONTRIBUTORS = URL_STATS + "/contributors"
 
 strings = {
-    "user": u"[GitHub user] {name} (AKA {login}) - {public_repos} repos / "
+    "user": u"[GitHub user] {name} ({login}) - {public_repos} repos / "
             u"{public_gists} gists - {followers} followers / {following} "
             u"following - {blog}",
     "org": u"[GitHub org] {name}: {description} - {public_repos} repos / "
@@ -98,13 +101,13 @@ strings = {
                         u"\u00B1{stats[total]})",
 
     "repo-compare": u"[GitHub commit comparison] Status: {status} - "
-                    u"Ahead by {ahead_by} commit/s / "
-                    u"behind by {behind_by} commit/s - {total_commits} "
-                    u"commits in total",
+                    u"Ahead by {ahead_by} commit(s) / "
+                    u"behind by {behind_by} commit(s) - {total_commits} "
+                    u"commit(s) in total",
 
     "repo-issue": u"[GitHub issue] {given[owner]}/{given[repo]} #{number} - "
-                  u"{user}: {title} ({state}) - {label_list} - Milestone: "
-                  u"{milestone} / Assigned: {assigned_name}",
+                  u"{user[login]}: {title} ({state}) - {label_list} -"
+                  u" Milestone: {milestone} / Assigned: {assigned_name}",
     "repo-issues": u"[GitHub repo] {given[owner]}/{given[repo]} - "
                    u"{total_count} total issues ({open_count} open / "
                    u"{closed_count} closed)",
@@ -112,11 +115,11 @@ strings = {
                       u"issues found",
 
     "repo-label": u"[GitHub label] {given[owner]}/{given[repo]} - "
-                  u"{given[label] - Of the last {total_count} issues: "
+                  u"{given[label] - {total_count} issues: "
                   u"{open_count} open / {closed_count} closed",
     "repo-label-no-issues": u"[GitHub label] {given[owner]}/{given[repo]}  - "
                             u"{given[label] - No issues found",
-    "repo-labels": u"[GitHub repo] {given[owner]}/{given[repo]} - At least "
+    "repo-labels": u"[GitHub repo] {given[owner]}/{given[repo]} - "
                    u"{labels_count} labels, including {labels_sample}",
     "repo-no-labels": u"[GitHub repo] {given[owner]}/{given[repo]} - No "
                       u"labels found",
@@ -125,17 +128,23 @@ strings = {
                       u"{issues_count} issues - {open_issues} open "
                       u"/ {closed_issues} closed ({percent}% complete)",
     "repo-milestone-no-issues": u"[GitHub milestone] "
-                                u"{given[owner]}/{given[repo]} - ",
-    "repo-milestones": u"[GitHub repo {given[owner]}/{given[repo]} - "
-                       u"[total_milestones} milestones - "
+                                u"{given[owner]}/{given[repo]} - "
+                                u"{title} - {description}- No issues "
+                                u"found",
+    "repo-milestones": u"[GitHub repo {given[owner]}/{given[repo]}] - "
+                       u"{total_milestones} milestones - "
                        u"Latest: {title} - {description} | "
                        u"{open_issues} open issues / "
                        u"{closed_issues} closed issues - {percent}%",
     "repo-no-milestones": u"[GitHub repo] {given[owner]}/{given[repo]} - No "
                           u"milestones found",
 
-    "repo-pull": u"[GitHub pull request] {given[owner]}/{given[repo]} - ",
-    "repo-pulls": u"[GitHub repo] {given[owner]}/{given[repo]} - ",
+    "repo-pull": u"[GitHub pull request] {given[owner]}/{given[repo]} "
+                 u"#{number} - {user[login]}: {title} ({state}) -"
+                 u" Milestone: {milestone[title]} / Assigned: {assigned_name}",
+    "repo-pulls": u"[GitHub repo] {given[owner]}/{given[repo]} - "
+                  u"{total_count} total pull requests ({open_count} open / "
+                  u"{closed_count} closed)",
     "repo-no-pulls": u"[GitHub repo] {given[owner]}/{given[repo]} - No pull "
                      u"requests found",
 
@@ -169,6 +178,9 @@ strings = {
                              u"{commit[author][name]}: {commit[message]} "
                              u"(+{stats[additions]}/-{stats[deletions]}/"
                              u"\u00B1{stats[total]})",
+    "repo-tree-branch-path-dir": u"[GitHub repo] {given[owner]}/{given[repo]}/"
+                             u"{given[branch]} - {given[path]} - "
+                             u"{total_files} files",
 
     "repo-watchers": u"[GitHub repo] {given[owner]}/{given[repo]} - "
                      u"{total_watchers} watchers, including {watchers_sample}",
@@ -199,6 +211,10 @@ def sleep(seconds):
 
 
 class GithubHandler(URLHandler):
+    rate_limit = 60
+    limit_remaining = 0
+    limit_reset = 0
+
     criteria = {
         "protocol": re.compile(r"http|https", str_to_regex_flags("iu")),
         "domain": lambda x: x in ["www.github.com", "github.com"]
@@ -211,7 +227,7 @@ class GithubHandler(URLHandler):
 
         self.reload()
 
-    def raise_message(self, request):
+    def raise_if_message(self, request):
         d = request.json()
 
         if "message" in d:
@@ -239,7 +255,7 @@ class GithubHandler(URLHandler):
 
             url = url[1:-1]  # Strip < and >
 
-            matches = self.urls_plugin.extract_urls(url)
+            matches = extract_urls(url)
             parsed_url = self.urls_plugin.match_to_url(matches[0])
 
             if parsed_url is None:
@@ -251,8 +267,53 @@ class GithubHandler(URLHandler):
         return data
 
     @inlineCallbacks
+    def get(self, *args, **kwargs):
+        if self.limit_remaining < 1:
+            now = datetime.datetime.now()
+            then = datetime.datetime.fromtimestamp(int(self.limit_reset))
+
+            if then > now:
+                raise LookupError("Rate limit met - Try again in {}".format(
+                    then - now
+                ))
+
+        params = kwargs.get("params", {})
+        kwargs["params"] = self.merge_params(params)
+
+        r = yield self.session.get(*args, **kwargs)
+        data = r.json()
+
+        if "message" in data:
+            raise LookupError(data["message"])
+
+        if "X-RateLimit-Limit" in r.headers:
+            self.rate_limit = int(r.headers["X-RateLimit-Limit"])
+        if "X-RateLimit-Remaining" in r.headers:
+            self.limit_remaining = int(r.headers["X-RateLimit-Remaining"])
+        if "X-RateLimit-Reset" in r.headers:
+            self.limit_reset = int(r.headers["X-RateLimit-Reset"])
+
+        returnValue(r)
+
+    def merge_params(self, params):
+        config_gh = self.plugin.config.get("github", {})
+
+        if "client_id" in config_gh and "client_secret" in config_gh:
+            params.update({
+                "client_id": config_gh["client_id"],
+                "client_secret": config_gh["client_secret"]
+            })
+
+        return params
+
+    @inlineCallbacks
     def call(self, url, context):
-        target = url.path.split("/")
+        target = url.path
+
+        while target.endswith("/"):
+            target = target[:-1]
+
+        target = target.split("/")
 
         if "" in target:
             target.remove("")
@@ -271,7 +332,8 @@ class GithubHandler(URLHandler):
             else:  # It's a repo subsection
                 if target[2] == "commits":
                     if len(target) == 3:
-                        message = yield self.gh_repo_commits(target[0], target[1])
+                        message = yield self.gh_repo_commits(target[0],
+                                                             target[1])
                     elif len(target) == 4:
                         message = yield self.gh_repo_commits_branch(
                             target[0], target[1], target[3]
@@ -294,7 +356,8 @@ class GithubHandler(URLHandler):
                     # GitHub 404s without two commits to compare, so do nothing
                 elif target[2] == "issues":
                     if len(target) == 3:
-                        message = yield self.gh_repo_issues(target[0], target[1])
+                        message = yield self.gh_repo_issues(target[0],
+                                                            target[1])
                     else:
                         message = yield self.gh_repo_issues_issue(
                             target[0], target[1], target[3]
@@ -311,7 +374,8 @@ class GithubHandler(URLHandler):
                     message = yield self.gh_repo_tags(target[0], target[1])
                 elif target[2] == "labels":
                     if len(target) == 3:
-                        message = yield self.gh_repo_labels(target[0], target[1])
+                        message = yield self.gh_repo_labels(target[0],
+                                                            target[1])
                     else:
                         message = yield self.gh_repo_labels_label(
                             target[0], target[1], target[3]
@@ -327,11 +391,16 @@ class GithubHandler(URLHandler):
                         )
                 elif target[2] == "releases":
                     if len(target) == 3:
-                        message = yield self.gh_repo_releases(target[0], target[1])
+                        message = yield self.gh_repo_releases(target[0],
+                                                              target[1])
                     elif len(target) == 4:
                         if target[3] == "latest":
                             message = yield self.gh_repo_releases_latest(
                                 target[0], target[1]
+                            )
+                        else:
+                            message = yield self.gh_repo_releases_tag(
+                                target[0], target[1], target[3]
                             )
                     elif len(target) == 5:
                         if target[3] == "tag":
@@ -356,12 +425,13 @@ class GithubHandler(URLHandler):
                         message = yield self.gh_repo_tree_branch(
                             target[0], target[1], target[3]
                         )
-                    elif len(target) == 5:
+                    elif len(target) > 4:
                         message = yield self.gh_repo_tree_branch_path(
-                            target[0], target[1], target[3], target[4]
+                            target[0], target[1], target[3],
+                            "/".join(target[4:])
                         )
                     # GitHub 404s without a branch, so do nothing
-                elif target[2] == "blob":
+                elif target[2] == "blob":  # TODO: Investigate error "path"
                     if len(target) == 5:
                         # Could be either a branch and path, or hash and path
                         if COMMIT_HASH_REGEX.match(target[3]):
@@ -382,10 +452,11 @@ class GithubHandler(URLHandler):
                 elif target[2] == "watchers":
                     message = yield self.gh_repo_watchers(target[0], target[1])
                 elif target[2] == "stargazers":
-                    message = yield self.gh_repo_stargazers(target[0], target[1])
+                    message = yield self.gh_repo_stargazers(target[0],
+                                                            target[1])
         except LookupError as e:
             message = u"[GitHub error] {}".format(e.message)
-        except Exception as e:
+        except Exception:
             self.plugin.logger.exception("Error handling URL: {}".format(url))
             returnValue(True)
 
@@ -401,15 +472,17 @@ class GithubHandler(URLHandler):
     @inlineCallbacks
     def gh_user(self, user):  # User or org
         try:  # Let's see if it's a user
-            r = yield self.session.get(
+            r = yield self.get(
                 URL_USER.format(user), headers=DEFAULT_HEADERS
             )
+
             data = r.json()
 
-            pprint.pprint(data)
-            returnValue("It's a user!")
+            data["given"] = {
+                "user": user
+            }
 
-            # TODO: Return message
+            returnValue(self.get_string("user").format(**data))
         except Exception as e:  # Let's see if it's an organisation, then
             self.plugin.logger.debug(
                 "Error getting GitHub user {0}: {1}".format(user), e
@@ -418,15 +491,17 @@ class GithubHandler(URLHandler):
                 "Checking to see if they're an organisation instead."
             )
 
-            r = yield self.session.get(
+            r = yield self.get(
                 URL_ORG.format(user), headers=DEFAULT_HEADERS
             )
+
             data = r.json()
 
-            pprint.pprint(data)
-            returnValue("It's an org!")
+            data["given"] = {
+                "user": user
+            }
 
-            # TODO: Return message
+            returnValue(self.get_string("org").format(**data))
 
     @inlineCallbacks
     def gh_repo(self, owner, repo):
@@ -434,24 +509,45 @@ class GithubHandler(URLHandler):
         headers = DEFAULT_HEADERS
         headers["Accept"] = "application/vnd.github.drax-preview+json"
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_REPO.format(owner, repo), headers=headers
         )
-        data = r.json()  # "watchers_count" and "subscribers_count"
 
-        pprint.pprint(data)
-        returnValue("Repo!")
+        self.raise_if_message(r)
 
-        # TODO: Return message
+        data = r.json()
+
+        data["given"] = {
+            "owner": owner,
+            "repo": repo
+        }
+
+        if data["fork"]:
+            returnValue(self.get_string("repo-fork").format(**data))
+        else:
+            returnValue(self.get_string("repo").format(**data))
 
     @inlineCallbacks
     def gh_repo_commits(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMITS.format(owner, repo), headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
+
         commits = r.json()
 
-        r = yield self.session.get(
+        if len(commits) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-commits").format(**data))
+            return
+
+        r = yield self.get(
             URL_STATS_CONTRIBUTORS.format(owner, repo), headers=DEFAULT_HEADERS
         )
 
@@ -470,7 +566,7 @@ class GithubHandler(URLHandler):
             # Don't worry, this isn't a blocking sleep
             _ = yield sleep(1)
 
-            r = yield self.session.get(
+            r = yield self.get(
                 URL_STATS_CONTRIBUTORS.format(owner, repo),
                 headers=DEFAULT_HEADERS
             )
@@ -479,7 +575,7 @@ class GithubHandler(URLHandler):
 
         contributors = r.json()
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMITS.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"per_page": 1}
         )
@@ -490,7 +586,7 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total_commits = int(link_header["last"]["page"])
+                total_commits = int(link_header["last"].query["page"])
 
         if total_commits < 1:
             for c in contributors:
@@ -508,21 +604,30 @@ class GithubHandler(URLHandler):
             }
         }
 
-        pprint.pprint(data)
-        returnValue("Commits!")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-commits").format(**data))
 
     @inlineCallbacks
     def gh_repo_commits_branch(self, owner, repo, branch):
-        r = yield self.session.get(
-            URL_COMMITS.format(owner, repo),
-            headers=DEFAULT_HEADERS,
+        r = yield self.get(
+            URL_COMMITS.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"sha": branch}
         )
+        self.raise_if_message(r)
+
         commits = r.json()
 
-        r = yield self.session.get(
+        if len(commits) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-commits").format(**data))
+            return
+
+        r = yield self.get(
             URL_STATS_CONTRIBUTORS.format(owner, repo), headers=DEFAULT_HEADERS
         )
 
@@ -541,7 +646,7 @@ class GithubHandler(URLHandler):
             # Don't worry, this isn't a blocking sleep
             _ = yield sleep(1)
 
-            r = yield self.session.get(
+            r = yield self.get(
                 URL_STATS_CONTRIBUTORS.format(owner, repo),
                 headers=DEFAULT_HEADERS
             )
@@ -550,7 +655,7 @@ class GithubHandler(URLHandler):
 
         contributors = r.json()
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMITS.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"per_page": 1, "sha": branch}
         )
@@ -561,7 +666,7 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total_commits = int(link_header["last"]["page"])
+                total_commits = int(link_header["last"].query["page"])
 
         if total_commits < 1:
             for c in contributors:
@@ -580,21 +685,31 @@ class GithubHandler(URLHandler):
             }
         }
 
-        pprint.pprint(data)
-        returnValue("Commits on {}!".format(branch))
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-commits-branch").format(**data))
 
     @inlineCallbacks
     def gh_repo_commits_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMITS.format(owner, repo),
             headers=DEFAULT_HEADERS,
             params={"sha": branch, "path": path}
         )
+        self.raise_if_message(r)
+
         commits = r.json()
 
-        r = yield self.session.get(
+        if len(commits) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-commits").format(**data))
+            return
+
+        r = yield self.get(
             URL_STATS_CONTRIBUTORS.format(owner, repo), headers=DEFAULT_HEADERS
         )
 
@@ -613,7 +728,7 @@ class GithubHandler(URLHandler):
             # Don't worry, this isn't a blocking sleep
             _ = yield sleep(1)
 
-            r = yield self.session.get(
+            r = yield self.get(
                 URL_STATS_CONTRIBUTORS.format(owner, repo),
                 headers=DEFAULT_HEADERS
             )
@@ -622,7 +737,7 @@ class GithubHandler(URLHandler):
 
         contributors = r.json()
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMITS.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"per_page": 1, "sha": branch, "path": path}
         )
@@ -633,7 +748,7 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total_commits = int(link_header["last"]["page"])
+                total_commits = int(link_header["last"].query["page"])
 
         if total_commits < 1:
             for c in contributors:
@@ -653,55 +768,75 @@ class GithubHandler(URLHandler):
             }
         }
 
-        pprint.pprint(data)
-        returnValue("Commits on {} at {}!".format(branch, path))
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-commits-branch-path").format(**data))
 
     @inlineCallbacks
     def gh_repo_commit_hash(self, owner, repo, hash):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMIT.format(owner, repo, hash), headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
+
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Commit at {}!".format(hash))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "hash": hash
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-commit-hash").format(**data))
 
     @inlineCallbacks
     def gh_repo_compare(self, owner, repo, left, right):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMIT_RANGE.format(owner, repo, left, right),
             headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
+
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Comparing commits: {} and {}".format(left, right))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "left": left,
+            "right": right
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-compare").format(**data))
 
     @inlineCallbacks
-    def gh_repo_issues(self, owner, repo):
+    def gh_repo_issues(self, owner, repo):  # TODO: State w/query?
         total = 0
         open = 0
 
         # First, we get the total count of all issues
-        r = yield self.session.get(
+        r = yield self.get(
             URL_ISSUES.format(owner, repo), headers=DEFAULT_HEADERS,
-            params={"state": "all", "filter": "all", "per_page": 1}
+            params={"state": "all", "filter": "is:issue", "per_page": 1}
         )
+        self.raise_if_message(r)
+
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-issues").format(**data))
+            return
 
         link_header = self.parse_link_header(r.headers)
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
         # Next, we get the number of open issues
-        r = yield self.session.get(
+        r = yield self.get(
             URL_ISSUES.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"state": "open", "filter": "all", "per_page": 1}
         )
@@ -710,7 +845,7 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                open = int(link_header["last"]["page"])
+                open = int(link_header["last"].query["page"])
 
         # And from that, we infer the closed issues, thus saving a request
         closed = total - open
@@ -718,50 +853,80 @@ class GithubHandler(URLHandler):
         data = {
             "closed_count": closed,
             "open_count": open,
-            "total_count": total
+            "total_count": total,
+
+            "given": {
+                "owner": owner,
+                "repo": repo
+            }
         }
 
-        pprint.pprint(data)
-        returnValue("Issues!")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-issues").format(**data))
 
     @inlineCallbacks
-    def gh_repo_issues_issue(self, owner, repo, issue):  # TODO: State w/query?
-        r = yield self.session.get(
+    def gh_repo_issues_issue(self, owner, repo, issue):
+        r = yield self.get(
             URL_ISSUE.format(owner, repo, issue), headers=DEFAULT_HEADERS,
         )
+        self.raise_if_message(r)
+
         data = r.json()
 
-        data["label_list"] = (
-            l["name"] for l in data["labels"]
-        )
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "issues": issue
+        }
+
+        labels = [l["name"] for l in data["labels"]]
+
+        if len(labels) > 1:
+            data["label_list"] = (
+                ", ".join(labels[:-1]) + " & " + labels[-1]
+            )
+        elif len(labels) == 1:
+            data["label_list"] = labels[0]
+        else:
+            data["label_list"] = "No labels"
 
         if data["assignee"]:
             data["assigned_name"] = data["assignee"]["login"]
+        else:
+            data["assigned_name"] = None
 
-        pprint.pprint(data)
-        returnValue("Issue #{}".format(issue))
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-issue").format(**data))
 
     @inlineCallbacks
     def gh_repo_pulls(self, owner, repo):
         open = 0
         total = 0
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_PULLS.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"state": "all", "filter": "all", "per_page": 1}
         )
+        self.raise_if_message(r)
+
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-pulls").format(**data))
+            return
 
         link_header = self.parse_link_header(r.headers)
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
+        else:
+            total = len(r.json())
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_PULLS.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"state": "open", "filter": "all", "per_page": 1}
         )
@@ -770,39 +935,69 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                open = int(link_header["last"]["page"])
+                open = int(link_header["last"].query["page"])
+        else:
+            open = len(r.json())
 
         closed = total - open
 
         data = {
             "closed_count": closed,
             "open_count": open,
-            "total_count": total
+            "total_count": total,
+
+            "given": {
+                "owner": owner,
+                "repo": repo
+            }
         }
 
-        pprint.pprint(data)
-        returnValue("Pull requests!")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-pulls").format(**data))
 
     @inlineCallbacks
     def gh_repo_pulls_pull(self, owner, repo, pull):  # TODO: State w/query?
-        r = yield self.session.get(
+        r = yield self.get(
             URL_PULL.format(owner, repo, pull), headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
+
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Pull #{}".format(pull))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "pull": pull
+        }
 
-        # TODO: Return message
+        if "milestone" not in data or not data["milestone"]:
+            data["milestone"] = {
+                "title": None
+            }
+        if "assignee" not in data or not data["assignee"]:
+            data["assigned_name"] = None
+        else:
+            data["assigned_name"] = data["assignee"]["login"]
+
+        returnValue(self.get_string("repo-pull").format(**data))
 
     @inlineCallbacks
     def gh_repo_labels(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_LABELS.format(owner, repo), headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
+
         data = r.json()
+
+        if len(data) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+            returnValue(self.get_string("repo-no-labels").format(**data))
+            return
 
         if len(data) > 5:
             labels = [
@@ -817,7 +1012,7 @@ class GithubHandler(URLHandler):
 
         total = 0
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_LABELS.format(owner, repo), headers=DEFAULT_HEADERS,
             params={"per_page": 1}
         )
@@ -826,18 +1021,20 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
         data = {
             "labels": data,
             "labels_sample": labels_sample,
-            "labels_count": total
+            "labels_count": total,
+
+            "given": {
+                "owner": owner,
+                "repo": repo
+            }
         }
 
-        pprint.pprint(data)
-        returnValue("Labels!")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-labels").format(**data))
 
     @inlineCallbacks
     def gh_repo_labels_label(self, owner, repo, label):
@@ -845,21 +1042,22 @@ class GithubHandler(URLHandler):
         open = 0
 
         # First, we get the total count of all issues
-        r = yield self.session.get(
+        r = yield self.get(
             URL_ISSUES.format(owner, repo), headers=DEFAULT_HEADERS,
             params={
                 "state": "all", "filter": "all", "per_page": 1, "labels": label
             }
         )
+        self.raise_if_message(r)
 
         link_header = self.parse_link_header(r.headers)
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
         # Next, we get the number of open issues
-        r = yield self.session.get(
+        r = yield self.get(
             URL_ISSUES.format(owner, repo), headers=DEFAULT_HEADERS,
             params={
                 "state": "open", "filter": "all", "per_page": 1,
@@ -867,17 +1065,30 @@ class GithubHandler(URLHandler):
             }
         )
 
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo,
+                    "label": label
+                }
+            }
+            returnValue(self.get_string("repo-label-no-issues").format(**data))
+            return
+
         link_header = self.parse_link_header(r.headers)
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                open = int(link_header["last"]["page"])
+                open = int(link_header["last"].query["page"])
 
         # And from that, we infer the closed issues, thus saving a request
         closed = total - open
 
         data = {
             "given": {
+                "owner": owner,
+                "repo": repo,
                 "label": label
             },
             "closed_count": closed,
@@ -885,18 +1096,27 @@ class GithubHandler(URLHandler):
             "total_count": total
         }
 
-        pprint.pprint(data)
-        returnValue("Label: {}".format(label))
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-label").format(**data))
 
     @inlineCallbacks
     def gh_repo_milestones(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_MILESTONES.format(owner, repo),
             headers=DEFAULT_HEADERS,
             params={"state": "all", "per_page": 1}
         )
+        self.raise_if_message(r)
+
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-milestones").format(**data))
+            return
 
         total = 0
 
@@ -904,7 +1124,7 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
         data = r.json()
 
@@ -916,119 +1136,173 @@ class GithubHandler(URLHandler):
 
         data["total_milestones"] = total
 
-        pprint.pprint(data)
-        returnValue("Milestones!")
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-milestones").format(**data))
 
     @inlineCallbacks
     def gh_repo_milestones_milestone(self, owner, repo, milestone):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_MILESTONE.format(owner, repo, milestone),
             headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
+
         data = r.json()
+
+        if "issues_count" not in data:
+            data["given"] = {
+                "owner": owner,
+                "repo": repo,
+                "milestone": milestone
+            }
+            data["percent"] = 0
+            returnValue(
+                self.get_string("repo-milestone-no-issues").format(**data)
+            )
 
         data["issues_count"] = data["open_issues"] + data["closed_issues"]
 
         percent = ((1.0 * data["closed_issues"]) / data["issues_count"]) * 100
         data["percent"] = percent
 
-        pprint.pprint(data)
-        returnValue("Milestone: {}".format(milestone))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "milestone": milestone
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-milestone").format(**data))
 
     @inlineCallbacks
     def gh_repo_tree_branch(self, owner, repo, branch):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_TREE.format(owner, repo, branch),
             headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
 
         data = r.json()
         sha = data["sha"]
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMIT.format(owner, repo, sha),
             headers=DEFAULT_HEADERS
         )
 
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Tree branch: {}".format(branch))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "branch": branch
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-tree-branch").format(**data))
 
     @inlineCallbacks
     def gh_repo_tree_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_GET_CONTENTS.format(owner, repo, path),
             headers=DEFAULT_HEADERS,
             params={"ref": branch}
         )
+        self.raise_if_message(r)
 
         data = r.json()
+
+        if isinstance(data, list):
+            data = {
+                "total_files": len(data),
+                "given": {
+                    "owner": owner,
+                    "repo": repo,
+                    "branch": branch,
+                    "path": path
+                }
+            }
+
+            returnValue(self.get_string("repo-tree-branch-path-dir").format(
+                **data
+            ))
+            return
+
         sha = data["sha"]
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMIT.format(owner, repo, sha),
             headers=DEFAULT_HEADERS
         )
 
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Tree branch {} at {}".format(branch, path))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "branch": branch,
+            "path": path
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-tree-branch-path").format(**data))
 
     @inlineCallbacks
     def gh_repo_blob_branch_path(self, owner, repo, branch, path):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_GET_CONTENTS.format(owner, repo, path),
             headers=DEFAULT_HEADERS,
             params={"ref": branch}
         )
+        self.raise_if_message(r)
 
         data = r.json()
         sha = data["sha"]
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMIT.format(owner, repo, sha),
             headers=DEFAULT_HEADERS
         )
 
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Blob branch {} at {}".format(branch, path))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "branch": branch,
+            "path": path
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-blob-branch-path").format(**data))
 
     @inlineCallbacks
     def gh_repo_blob_hash_path(self, owner, repo, hash, path):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_GET_CONTENTS.format(owner, repo, path),
             headers=DEFAULT_HEADERS,
             params={"ref": hash}
         )
+        self.raise_if_message(r)
 
         data = r.json()
         sha = data["sha"]
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_COMMIT.format(owner, repo, sha),
             headers=DEFAULT_HEADERS
         )
 
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Blob file {} at {}".format(path, hash))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "hash": hash,
+            "path": path
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-blob-hash-path").format(**data))
 
     @inlineCallbacks
     def gh_repo_blame_branch_path(self, owner, repo, branch, path):
@@ -1038,11 +1312,23 @@ class GithubHandler(URLHandler):
 
     @inlineCallbacks
     def gh_repo_watchers(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_WATCHERS.format(owner, repo),
             headers=DEFAULT_HEADERS,
             params={"per_page": 1}
         )
+        self.raise_if_message(r)
+
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-watchers").format(**data))
+            return
 
         total = 0
 
@@ -1050,9 +1336,9 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_WATCHERS.format(owner, repo),
             headers=DEFAULT_HEADERS
         )
@@ -1072,21 +1358,35 @@ class GithubHandler(URLHandler):
 
         data = {
             "total_watchers": total,
-            "watchers_sample": sample
+            "watchers_sample": sample,
+
+            "given": {
+                "owner": owner,
+                "repo": repo
+            }
         }
 
-        pprint.pprint(data)
-        returnValue("Watchers!")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-watchers").format(**data))
 
     @inlineCallbacks
     def gh_repo_stargazers(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_STARGAZERS.format(owner, repo),
             headers=DEFAULT_HEADERS,
             params={"per_page": 1}
         )
+        self.raise_if_message(r)
+
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-stargazers").format(**data))
+            return
 
         total = 0
 
@@ -1094,9 +1394,9 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_STARGAZERS.format(owner, repo),
             headers=DEFAULT_HEADERS
         )
@@ -1116,13 +1416,15 @@ class GithubHandler(URLHandler):
 
         data = {
             "total_stargazers": total,
-            "stargazers_sample": sample
+            "stargazers_sample": sample,
+
+            "given": {
+                "owner": owner,
+                "repo": repo
+            }
         }
 
-        pprint.pprint(data)
-        returnValue("Stargazers!")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-stargazers").format(**data))
 
     @inlineCallbacks
     def gh_repo_wiki(self, owner, repo):
@@ -1150,11 +1452,23 @@ class GithubHandler(URLHandler):
 
     @inlineCallbacks
     def gh_repo_releases(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_RELEASES.format(owner, repo),
             headers=DEFAULT_HEADERS,
             params={"per_page": 1}
         )
+        self.raise_if_message(r)
+
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-releases").format(**data))
+            return
 
         total = 0
 
@@ -1162,46 +1476,57 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
         if total == 0:
             total = len(r.json())
 
         data = {
-            "total_releases": total
+            "total_releases": total,
+
+            "given": {
+                "owner": owner,
+                "repo": repo
+            }
         }
 
-        pprint.pprint(data)
-        returnValue("Releases")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-releases").format(**data))
 
     @inlineCallbacks
     def gh_repo_releases_latest(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_RELEASE.format(owner, repo, "latest"),
             headers=DEFAULT_HEADERS,
             params={"per_page": 1}
         )
+        self.raise_if_message(r)
+
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Release: Latest")
+        data["given"] = {
+            "owner": owner,
+            "repo": repo
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-releases-latest").format(**data))
 
     @inlineCallbacks
     def gh_repo_releases_tag(self, owner, repo, tag):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_RELEASE_TAGS.format(owner, repo, tag),
             headers=DEFAULT_HEADERS
         )
+        self.raise_if_message(r)
+
         data = r.json()
 
-        pprint.pprint(data)
-        returnValue("Release: {}".format(tag))
+        data["given"] = {
+            "owner": owner,
+            "repo": repo,
+            "tag": tag
+        }
 
-        # TODO: Return message
+        returnValue(self.get_string("repo-releases-tag").format(**data))
 
     @inlineCallbacks
     def gh_repo_releases_download(self, owner, repo, tag, filename):
@@ -1211,11 +1536,23 @@ class GithubHandler(URLHandler):
 
     @inlineCallbacks
     def gh_repo_tags(self, owner, repo):
-        r = yield self.session.get(
+        r = yield self.get(
             URL_TAGS.format(owner, repo),
             headers=DEFAULT_HEADERS,
             params={"per_page": 1}
         )
+        self.raise_if_message(r)
+
+        if len(r.json()) < 1:
+            data = {
+                "given": {
+                    "owner": owner,
+                    "repo": repo
+                }
+            }
+
+            returnValue(self.get_string("repo-no-tags").format(**data))
+            return
 
         total = 0
 
@@ -1223,12 +1560,12 @@ class GithubHandler(URLHandler):
 
         if "last" in link_header:
             if "page" in link_header["last"].query:
-                total = int(link_header["last"]["page"])
+                total = int(link_header["last"].query["page"])
 
         if total == 0:
             total = len(r.json())
 
-        r = yield self.session.get(
+        r = yield self.get(
             URL_TAGS.format(owner, repo),
             headers=DEFAULT_HEADERS
         )
@@ -1246,13 +1583,15 @@ class GithubHandler(URLHandler):
 
         data = {
             "total_tags": total,
-            "tags_sample": sample
+            "tags_sample": sample,
+
+            "given": {
+                "owner": owner,
+                "repo": repo
+            }
         }
 
-        pprint.pprint(data)
-        returnValue("Tags")
-
-        # TODO: Return message
+        returnValue(self.get_string("repo-tags").format(**data))
 
     def reload(self):
         self.teardown()
