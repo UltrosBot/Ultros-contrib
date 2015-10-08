@@ -144,9 +144,9 @@ strings = {
     "repo-no-releases": u"[GitHub repo] {given[owner]}/{given[repo]} - No "
                         u"releases found",
     "repo-releases-latest": u"[GitHub repo] {given[owner]}/{given[repo]} - "
-                            u"Latest release: {}",
+                            u"Latest release: {tag_name} - {name}",
     "repo-releases-tag": u"[GitHub repo] {given[owner]}/{given[repo]} - "
-                         u"Specific release: {}",
+                         u"Specific release: {tag_name} - {name}",
 
     "repo-stargazers": u"[GitHub repo] {given[owner]}/{given[repo]} - "
                        u"{total_stargazers} stargazers, including "
@@ -154,8 +154,8 @@ strings = {
     "repo-no-stargazers": u"[GitHub repo] {given[owner]}/{given[repo]} - No "
                           u"stargazers found",
 
-    "repo-tags": u"[GitHub repo] {given[owner]}/{given[repo]} - {} "
-                 u"tags, including {}",
+    "repo-tags": u"[GitHub repo] {given[owner]}/{given[repo]} - {total_tags} "
+                 u"tags, including {tags_sample}",
     "repo-no-tags": u"[GitHub repo] {given[owner]}/{given[repo]} - No tags "
                     u"found",
 
@@ -211,6 +211,12 @@ class GithubHandler(URLHandler):
 
         self.reload()
 
+    def raise_message(self, request):
+        d = request.json()
+
+        if "message" in d:
+            raise LookupError(d["message"])
+
     def get_string(self, string):
         formatting = self.plugin.config.get("github", {}).get("formatting", {})
 
@@ -255,127 +261,133 @@ class GithubHandler(URLHandler):
 
         message = ""
 
-        if len(target) < 1:  # It's just the front page, don't bother
-            returnValue(True)
-        elif len(target) == 1:  # User or organisation
-            message = yield self.gh_user(target[0])
-        elif len(target) == 2:  # It's a bare repo
-            message = yield self.gh_repo(target[0], target[1])
-        else:  # It's a repo subsection
-            if target[2] == "commits":
-                if len(target) == 3:
-                    message = yield self.gh_repo_commits(target[0], target[1])
-                elif len(target) == 4:
-                    message = yield self.gh_repo_commits_branch(
-                        target[0], target[1], target[3]
-                    )
-                else:
-                    message = yield self.gh_repo_commits_branch_path(
-                        target[0], target[1], target[3], target[4]
-                    )
-            elif target[2] == "commit":
-                if len(target) == 4:
-                    message = yield self.gh_repo_commit_hash(
-                        target[0], target[1], target[3]
-                    )
-            elif target[2] == "compare":
-                if len(target) == 4:
-                    left, right = target[3].split("...", 1)
-                    message = yield self.gh_repo_compare(
-                        target[0], target[1], left, right
-                    )
-                # GitHub 404s without two commits to compare, so do nothing
-            elif target[2] == "issues":
-                if len(target) == 3:
-                    message = yield self.gh_repo_issues(target[0], target[1])
-                else:
-                    message = yield self.gh_repo_issues_issue(
-                        target[0], target[1], target[3]
-                    )
-            elif target[2] == "pulls":
-                message = yield self.gh_repo_pulls(target[0], target[1])
-            elif target[2] == "pull":
-                if len(target) == 4:
-                    message = yield self.gh_repo_pulls_pull(
-                        target[0], target[1], target[3]
-                    )
-                # GitHub 404s without a PR ID, so do nothing
-            elif target[2] == "tags":
-                message = yield self.gh_repo_tags(target[0], target[1])
-            elif target[2] == "labels":
-                if len(target) == 3:
-                    message = yield self.gh_repo_labels(target[0], target[1])
-                else:
-                    message = yield self.gh_repo_labels_label(
-                        target[0], target[1], target[3]
-                    )
-            elif target[2] == "milestones":
-                if len(target) == 3:
-                    message = yield self.gh_repo_milestones(
-                        target[0], target[1]
-                    )
-                else:
-                    message = yield self.gh_repo_milestones_milestone(
-                        target[0], target[1], target[3]
-                    )
-            elif target[2] == "releases":
-                if len(target) == 3:
-                    message = yield self.gh_repo_releases(target[0], target[1])
-                elif len(target) == 4:
-                    if target[3] == "latest":
-                        message = yield self.gh_repo_releases_latest(
-                            target[0], target[1]
-                        )
-                elif len(target) == 5:
-                    if target[3] == "tag":
-                        message = yield self.gh_repo_releases_tag(
-                            target[0], target[1], target[4]
-                        )
-                elif len(target) == 6:
-                    if target[3] == "download":
-                        message = yield self.gh_repo_releases_download(
-                            target[0], target[1], target[4], target[5]
-                        )
-            elif target[2] == "wiki":
-                message = yield self.gh_repo_wiki(target[0], target[1])
-            elif target[2] == "pulse":
-                message = yield self.gh_repo_pulse(target[0], target[1])
-            elif target[2] == "graphs":
-                message = yield self.gh_repo_graphs(target[0], target[1])
-            elif target[2] == "settings":
-                message = yield self.gh_repo_settings(target[0], target[1])
-            elif target[2] == "tree":
-                if len(target) == 4:
-                    message = yield self.gh_repo_tree_branch(
-                        target[0], target[1], target[3]
-                    )
-                elif len(target) == 5:
-                    message = yield self.gh_repo_tree_branch_path(
-                        target[0], target[1], target[3], target[4]
-                    )
-                # GitHub 404s without a branch, so do nothing
-            elif target[2] == "blob":
-                if len(target) == 5:
-                    # Could be either a branch and path, or hash and path
-                    if COMMIT_HASH_REGEX.match(target[3]):
-                        message = yield self.gh_repo_blob_hash_path(
-                            target[0], target[1], target[3], target[4]
+        try:
+            if len(target) < 1:  # It's just the front page, don't bother
+                returnValue(True)
+            elif len(target) == 1:  # User or organisation
+                message = yield self.gh_user(target[0])
+            elif len(target) == 2:  # It's a bare repo
+                message = yield self.gh_repo(target[0], target[1])
+            else:  # It's a repo subsection
+                if target[2] == "commits":
+                    if len(target) == 3:
+                        message = yield self.gh_repo_commits(target[0], target[1])
+                    elif len(target) == 4:
+                        message = yield self.gh_repo_commits_branch(
+                            target[0], target[1], target[3]
                         )
                     else:
-                        message = yield self.gh_repo_blob_branch_path(
+                        message = yield self.gh_repo_commits_branch_path(
                             target[0], target[1], target[3], target[4]
                         )
-                # GitHub 404s without a hash/branch and path, so do nothing
-            elif target[2] == "blame":
-                if len(target) == 5:
-                    message = yield self.gh_repo_blame_branch_path(
-                        target[0], target[1], target[3], target[4]
-                    )
-                # GitHub 404s without a branch and path, so do nothing
-            elif target[2] == "watchers":
-                message = yield self.gh_repo_watchers(target[0], target[1])
-            elif target[2] == "stargazers":
-                message = yield self.gh_repo_stargazers(target[0], target[1])
+                elif target[2] == "commit":
+                    if len(target) == 4:
+                        message = yield self.gh_repo_commit_hash(
+                            target[0], target[1], target[3]
+                        )
+                elif target[2] == "compare":
+                    if len(target) == 4:
+                        left, right = target[3].split("...", 1)
+                        message = yield self.gh_repo_compare(
+                            target[0], target[1], left, right
+                        )
+                    # GitHub 404s without two commits to compare, so do nothing
+                elif target[2] == "issues":
+                    if len(target) == 3:
+                        message = yield self.gh_repo_issues(target[0], target[1])
+                    else:
+                        message = yield self.gh_repo_issues_issue(
+                            target[0], target[1], target[3]
+                        )
+                elif target[2] == "pulls":
+                    message = yield self.gh_repo_pulls(target[0], target[1])
+                elif target[2] == "pull":
+                    if len(target) == 4:
+                        message = yield self.gh_repo_pulls_pull(
+                            target[0], target[1], target[3]
+                        )
+                    # GitHub 404s without a PR ID, so do nothing
+                elif target[2] == "tags":
+                    message = yield self.gh_repo_tags(target[0], target[1])
+                elif target[2] == "labels":
+                    if len(target) == 3:
+                        message = yield self.gh_repo_labels(target[0], target[1])
+                    else:
+                        message = yield self.gh_repo_labels_label(
+                            target[0], target[1], target[3]
+                        )
+                elif target[2] == "milestones":
+                    if len(target) == 3:
+                        message = yield self.gh_repo_milestones(
+                            target[0], target[1]
+                        )
+                    else:
+                        message = yield self.gh_repo_milestones_milestone(
+                            target[0], target[1], target[3]
+                        )
+                elif target[2] == "releases":
+                    if len(target) == 3:
+                        message = yield self.gh_repo_releases(target[0], target[1])
+                    elif len(target) == 4:
+                        if target[3] == "latest":
+                            message = yield self.gh_repo_releases_latest(
+                                target[0], target[1]
+                            )
+                    elif len(target) == 5:
+                        if target[3] == "tag":
+                            message = yield self.gh_repo_releases_tag(
+                                target[0], target[1], target[4]
+                            )
+                    elif len(target) == 6:
+                        if target[3] == "download":
+                            message = yield self.gh_repo_releases_download(
+                                target[0], target[1], target[4], target[5]
+                            )
+                elif target[2] == "wiki":
+                    message = yield self.gh_repo_wiki(target[0], target[1])
+                elif target[2] == "pulse":
+                    message = yield self.gh_repo_pulse(target[0], target[1])
+                elif target[2] == "graphs":
+                    message = yield self.gh_repo_graphs(target[0], target[1])
+                elif target[2] == "settings":
+                    message = yield self.gh_repo_settings(target[0], target[1])
+                elif target[2] == "tree":
+                    if len(target) == 4:
+                        message = yield self.gh_repo_tree_branch(
+                            target[0], target[1], target[3]
+                        )
+                    elif len(target) == 5:
+                        message = yield self.gh_repo_tree_branch_path(
+                            target[0], target[1], target[3], target[4]
+                        )
+                    # GitHub 404s without a branch, so do nothing
+                elif target[2] == "blob":
+                    if len(target) == 5:
+                        # Could be either a branch and path, or hash and path
+                        if COMMIT_HASH_REGEX.match(target[3]):
+                            message = yield self.gh_repo_blob_hash_path(
+                                target[0], target[1], target[3], target[4]
+                            )
+                        else:
+                            message = yield self.gh_repo_blob_branch_path(
+                                target[0], target[1], target[3], target[4]
+                            )
+                    # GitHub 404s without a hash/branch and path, so do nothing
+                elif target[2] == "blame":
+                    if len(target) == 5:
+                        message = yield self.gh_repo_blame_branch_path(
+                            target[0], target[1], target[3], target[4]
+                        )
+                    # GitHub 404s without a branch and path, so do nothing
+                elif target[2] == "watchers":
+                    message = yield self.gh_repo_watchers(target[0], target[1])
+                elif target[2] == "stargazers":
+                    message = yield self.gh_repo_stargazers(target[0], target[1])
+        except LookupError as e:
+            message = u"[GitHub error] {}".format(e.message)
+        except Exception as e:
+            self.plugin.logger.exception("Error handling URL: {}".format(url))
+            returnValue(True)
 
         # At this point, if `message` isn't set then we don't understand the
         # url, and so we'll just allow it to pass down to the other handlers
@@ -1050,11 +1062,13 @@ class GithubHandler(URLHandler):
             total = len(data)
 
         if total > 5:
-            sample = random.sample(data, 5)
+            users = random.sample(data, 5)
         else:
-            sample = data
+            users = data
 
-        sample = ", ".join([user["login"] for user in sample])
+        users = [user["login"] for user in users]
+
+        sample = ", ".join(users[:-1]) + " & " + users[-1]
 
         data = {
             "total_watchers": total,
@@ -1092,11 +1106,13 @@ class GithubHandler(URLHandler):
             total = len(data)
 
         if total > 5:
-            sample = random.sample(data, 5)
+            users = random.sample(data, 5)
         else:
-            sample = data
+            users = data
 
-        sample = ", ".join([user["login"] for user in sample])
+        users = [user["login"] for user in users]
+
+        sample = ", ".join(users[:-1]) + " & " + users[-1]
 
         data = {
             "total_stargazers": total,
@@ -1136,7 +1152,8 @@ class GithubHandler(URLHandler):
     def gh_repo_releases(self, owner, repo):
         r = yield self.session.get(
             URL_RELEASES.format(owner, repo),
-            headers=DEFAULT_HEADERS
+            headers=DEFAULT_HEADERS,
+            params={"per_page": 1}
         )
 
         total = 0
@@ -1194,12 +1211,43 @@ class GithubHandler(URLHandler):
 
     @inlineCallbacks
     def gh_repo_tags(self, owner, repo):
-        # Use random.sample() for examples
+        r = yield self.session.get(
+            URL_TAGS.format(owner, repo),
+            headers=DEFAULT_HEADERS,
+            params={"per_page": 1}
+        )
+
+        total = 0
+
+        link_header = self.parse_link_header(r.headers)
+
+        if "last" in link_header:
+            if "page" in link_header["last"].query:
+                total = int(link_header["last"]["page"])
+
+        if total == 0:
+            total = len(r.json())
+
         r = yield self.session.get(
             URL_TAGS.format(owner, repo),
             headers=DEFAULT_HEADERS
         )
+
         data = r.json()
+
+        if len(data) > 5:
+            tags = random.sample(data, 5)
+        else:
+            tags = data
+
+        tags = [tag["name"] for tag in tags]
+
+        sample = ", ".join(tags[:-1]) + " & " + tags[-1]
+
+        data = {
+            "total_tags": total,
+            "tags_sample": sample
+        }
 
         pprint.pprint(data)
         returnValue("Tags")
