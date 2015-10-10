@@ -74,12 +74,12 @@ strings = {
                  u"watchers, {subscribers_count} stars",
 
     "repo-blob-branch-path": u"[GitHub file] {given[owner]}/{given[repo]}/"
-                             u"{given[branch]} - {path} - "
+                             u"{given[branch]} - {given[path]} - "
                              u"{commit[author][name]}: {commit[message]} "
                              u"(+{stats[additions]}/-{stats[deletions]}/"
                              u"\u00B1{stats[total]})",
     "repo-blob-hash-path": u"[GitHub file] {given[owner]}/{given[repo]} - "
-                           u"{path} - "
+                           u"{given[path]} - "
                            u"{commit[author][name]}: {commit[message]} "
                            u"(+{stats[additions]}/-{stats[deletions]}/"
                            u"\u00B1{stats[total]})",
@@ -431,7 +431,7 @@ class GithubHandler(URLHandler):
                             "/".join(target[4:])
                         )
                     # GitHub 404s without a branch, so do nothing
-                elif target[2] == "blob":  # TODO: Investigate error "path"
+                elif target[2] == "blob":
                     if len(target) == 5:
                         # Could be either a branch and path, or hash and path
                         if COMMIT_HASH_REGEX.match(target[3]):
@@ -807,7 +807,7 @@ class GithubHandler(URLHandler):
         returnValue(self.get_string("repo-compare").format(**data))
 
     @inlineCallbacks
-    def gh_repo_issues(self, owner, repo):  # TODO: State w/query?
+    def gh_repo_issues(self, owner, repo):
         total = 0
         open = 0
 
@@ -955,7 +955,7 @@ class GithubHandler(URLHandler):
         returnValue(self.get_string("repo-pulls").format(**data))
 
     @inlineCallbacks
-    def gh_repo_pulls_pull(self, owner, repo, pull):  # TODO: State w/query?
+    def gh_repo_pulls_pull(self, owner, repo, pull):
         r = yield self.get(
             URL_PULL.format(owner, repo, pull), headers=DEFAULT_HEADERS
         )
@@ -1251,19 +1251,26 @@ class GithubHandler(URLHandler):
     @inlineCallbacks
     def gh_repo_blob_branch_path(self, owner, repo, branch, path):
         r = yield self.get(
-            URL_GET_CONTENTS.format(owner, repo, path),
+            URL_COMMITS.format(owner, repo),
             headers=DEFAULT_HEADERS,
-            params={"ref": branch}
+            params={"path": path, "sha": branch, "per_page": 1}
         )
         self.raise_if_message(r)
 
         data = r.json()
-        sha = data["sha"]
+
+        if len(data) < 1:
+            returnValue(None)
+            return
+
+        data = data[0]
 
         r = yield self.get(
-            URL_COMMIT.format(owner, repo, sha),
-            headers=DEFAULT_HEADERS
+            URL_COMMIT.format(owner, repo, data["sha"]),
+            headers=DEFAULT_HEADERS,
+            params={"path": path}
         )
+        self.raise_if_message(r)
 
         data = r.json()
 
@@ -1279,19 +1286,26 @@ class GithubHandler(URLHandler):
     @inlineCallbacks
     def gh_repo_blob_hash_path(self, owner, repo, hash, path):
         r = yield self.get(
-            URL_GET_CONTENTS.format(owner, repo, path),
+            URL_COMMITS.format(owner, repo),
             headers=DEFAULT_HEADERS,
-            params={"ref": hash}
+            params={"path": path, "sha": hash, "per_page": 1}
         )
         self.raise_if_message(r)
 
         data = r.json()
-        sha = data["sha"]
+
+        if len(data) < 1:
+            returnValue(None)
+            return
+
+        data = data[0]
 
         r = yield self.get(
-            URL_COMMIT.format(owner, repo, sha),
-            headers=DEFAULT_HEADERS
+            URL_COMMIT.format(owner, repo, data["sha"]),
+            headers=DEFAULT_HEADERS,
+            params={"path": path}
         )
+        self.raise_if_message(r)
 
         data = r.json()
 
