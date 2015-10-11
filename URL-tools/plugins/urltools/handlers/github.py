@@ -231,7 +231,9 @@ class GithubHandler(URLHandler):
         d = request.json()
 
         if "message" in d:
-            raise LookupError(d["message"])
+            if d["message"] == "Not Found":
+                raise NotFoundError(d["message"])
+            raise GithubError(d["message"])
 
     def get_string(self, string):
         formatting = self.plugin.config.get("github", {}).get("formatting", {})
@@ -273,7 +275,7 @@ class GithubHandler(URLHandler):
             then = datetime.datetime.fromtimestamp(int(self.limit_reset))
 
             if then > now:
-                raise LookupError("Rate limit met - Try again in {}".format(
+                raise GithubHandler("Rate limit met - Try again in {}".format(
                     then - now
                 ))
 
@@ -281,10 +283,8 @@ class GithubHandler(URLHandler):
         kwargs["params"] = self.merge_params(params)
 
         r = yield self.session.get(*args, **kwargs)
-        data = r.json()
 
-        if "message" in data:
-            raise LookupError(data["message"])
+        self.raise_if_message(r)
 
         if "X-RateLimit-Limit" in r.headers:
             self.rate_limit = int(r.headers["X-RateLimit-Limit"])
@@ -454,7 +454,10 @@ class GithubHandler(URLHandler):
                 elif target[2] == "stargazers":
                     message = yield self.gh_repo_stargazers(target[0],
                                                             target[1])
-        except LookupError as e:
+        except NotFoundError:
+            returnValue(True)
+            return
+        except GithubError as e:
             message = u"[GitHub error] {}".format(e.message)
         except Exception:
             self.plugin.logger.exception("Error handling URL: {}".format(url))
@@ -1615,3 +1618,12 @@ class GithubHandler(URLHandler):
     def teardown(self):
         if self.session is not None:
             self.session.close()
+
+
+class GithubError(Exception):
+    pass
+
+
+class NotFoundError(GithubError):
+    pass
+
