@@ -107,7 +107,7 @@ strings = {
 
     "repo-issue": u"[GitHub issue] {given[owner]}/{given[repo]} #{number} - "
                   u"{user[login]}: {title} ({state}) - {label_list} -"
-                  u" Milestone: {milestone} / Assigned: {assigned_name}",
+                  u" Milestone: {milestone[title]} / Assigned: {assigned_name}",
     "repo-issues": u"[GitHub repo] {given[owner]}/{given[repo]} - "
                    u"{total_count} total issues ({open_count} open / "
                    u"{closed_count} closed)",
