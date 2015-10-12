@@ -231,7 +231,7 @@ class GithubHandler(URLHandler):
 
     @property
     def zen(self):
-        return self.plugin.config.get("github", {}).get("zen", True)
+        return self.plugin.config.get("github", {}).get("zen", False)
 
     def raise_if_message(self, request):
         try:
@@ -473,7 +473,8 @@ class GithubHandler(URLHandler):
             returnValue(True)
             return
         except GithubError as e:
-            message = u"[GitHub error] {}".format(e.message)
+            self.plugin.logger.error(e.message)
+            returnValue(True)
         except ShutUpException:
             returnValue(False)
         except Exception:
