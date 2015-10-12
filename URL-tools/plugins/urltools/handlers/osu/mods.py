@@ -24,11 +24,11 @@ mods = {
     "6K": 0x20000,
     "7K": 0x40000,
     "8K": 0x80000,
-    "Modded Keys": 0xf8000,  # 4K | 5K | 6K | 7K | 8K
+    "Modded Keys": 0xF8000,  # 4K | 5K | 6K | 7K | 8K
     "Fade In": 0x100000,
     "Random": 0x200000,
     "Last Mod": 0x300000,
-    "Free Mod Allowed": 0xff5ff,  # NoFail | Easy | Hidden | HardRock |
+    "Free Mod Allowed": 0xFF5FF,  # NoFail | Easy | Hidden | HardRock |
                                   # SuddenDeath | Flashlight | FadeIn |
                                   # Relax | Relax2 | SpunOut | ModdedKeys
     "9K": 0x1000000,
