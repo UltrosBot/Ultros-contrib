@@ -4,6 +4,8 @@ enabled:
   - youtube
 
 github:
+  zen: true  # Whether to use GitHub Zen for URLs that are unhandleable
+             # Disable and the bot will be silent for them
   formatting: {}  # See documentation if you want to change the formatting
 
   # You need to authenticate if you want to raise the API limits

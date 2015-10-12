@@ -17,6 +17,8 @@ __author__ = 'Gareth Coles'
 
 BASE_URL = "https://api.github.com"
 
+URL_ZEN = BASE_URL + "/zen"
+
 URL_USER = BASE_URL + "/users/{0}"
 URL_ORG = BASE_URL + "/orgs/{0}"
 URL_REPO = BASE_URL + "/repos/{0}/{1}"
@@ -227,8 +229,15 @@ class GithubHandler(URLHandler):
 
         self.reload()
 
+    @property
+    def zen(self):
+        return self.plugin.config.get("github", {}).get("zen", True)
+
     def raise_if_message(self, request):
-        d = request.json()
+        try:
+            d = request.json()
+        except ValueError:
+            return  # Not JSON
 
         if "message" in d:
             if d["message"] == "Not Found":
@@ -325,6 +334,12 @@ class GithubHandler(URLHandler):
         try:
             if len(target) < 1:  # It's just the front page, don't bother
                 returnValue(True)
+            elif target[0] in [  # Stupid special cases
+                "stars", "trending", "showcases", "explore", "site",
+                "security", "contact", "blog", "about", "pricing",
+                "issues", "pulls", "settings", "integrations"
+            ]:
+                message = yield self.gh_zen()
             elif len(target) == 1:  # User or organisation
                 message = yield self.gh_user(target[0])
             elif len(target) == 2:  # It's a bare repo
@@ -459,6 +474,8 @@ class GithubHandler(URLHandler):
             return
         except GithubError as e:
             message = u"[GitHub error] {}".format(e.message)
+        except ShutUpException:
+            returnValue(False)
         except Exception:
             self.plugin.logger.exception("Error handling URL: {}".format(url))
             returnValue(True)
@@ -1610,6 +1627,18 @@ class GithubHandler(URLHandler):
 
         returnValue(self.get_string("repo-tags").format(**data))
 
+    @inlineCallbacks
+    def gh_zen(self):
+        if self.zen:
+            r = yield self.get(
+                URL_ZEN,
+                headers=DEFAULT_HEADERS
+            )
+
+            returnValue(u"[GitHub] {}".format(r.text))
+        else:
+            raise ShutUpException()
+
     def reload(self):
         self.teardown()
 
@@ -1627,3 +1656,6 @@ class GithubError(Exception):
 class NotFoundError(GithubError):
     pass
 
+
+class ShutUpException(Exception):
+    pass
