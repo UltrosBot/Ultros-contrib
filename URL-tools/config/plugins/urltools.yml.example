@@ -1,4 +1,4 @@
-enabled:
+handlers:
   - github
   - osu
   - youtube
@@ -22,3 +22,5 @@ osu:
 youtube:
   key: ""
   formatting: {}  # See documentation if you want to change the formatting
+
+shorteners: []  # TODO
