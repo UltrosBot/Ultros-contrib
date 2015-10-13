@@ -219,7 +219,7 @@ class GithubHandler(URLHandler):
 
     criteria = {
         "protocol": re.compile(r"http|https", str_to_regex_flags("iu")),
-        "domain": lambda x: x in ["www.github.com", "github.com"]
+        "domain": lambda x: x.lower() in ["www.github.com", "github.com"]
     }
 
     session = None
