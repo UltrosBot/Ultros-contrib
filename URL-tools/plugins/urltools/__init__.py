@@ -1,7 +1,6 @@
 # coding=utf-8
 import json
 import urlparse
-
 import locale
 import urllib2
 
@@ -13,9 +12,9 @@ from system.storage.manager import StorageManager
 
 from plugins.urls import Priority
 
-import handlers.github as github
-import handlers.osu.osu as osu
-import handlers.youtube as youtube
+import plugins.urltools.handlers.github as github
+import plugins.urltools.handlers.osu.osu as osu
+import plugins.urltools.handlers.youtube as youtube
 
 __author__ = 'Gareth Coles'
 
