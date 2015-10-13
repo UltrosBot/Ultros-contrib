@@ -16,7 +16,7 @@ github:
   # client_secret = ""
 
 osu:
-  key: ""
+  api_key: ""  # Required; see https://osu.ppy.sh/p/api (Requires an account)
   formatting: {}  # See documentation if you want to change the formatting
 
 youtube:
