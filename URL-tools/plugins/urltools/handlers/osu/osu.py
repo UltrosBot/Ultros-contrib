@@ -3,9 +3,20 @@ import re
 from twisted.internet.defer import inlineCallbacks
 
 from plugins.urls.handlers.handler import URLHandler
+from plugins.urltools.exceptions import ApiKeyMissing
 from utils.misc import str_to_regex_flags
 
 __author__ = 'Gareth Coles'
+
+URL_BASE = "https://osu.ppy.sh/api"
+
+URL_BEATMAPS = URL_BASE + "/get_beatmaps"
+URL_MATCH = URL_BASE + "/get_match"
+URL_REPLAY = URL_BASE + "/get_replay"
+URL_SCORES = URL_BASE + "/get_scores"
+URL_USER = URL_BASE + "/get_user"
+URL_USER_BEST = URL_BASE + "/get_user_best"
+URL_USER_RECENT = URL_BASE + "/get_user_recent"
 
 """
     def site_osu(self, url):
@@ -213,7 +224,7 @@ __author__ = 'Gareth Coles'
 """
 
 """
-    OSU_LOGO = "osu!"
+OSU_LOGO = "osu!"
     OSU_S_STR = "[" + OSU_LOGO + " mapset] %s - %s (by %s) - %s"
     OSU_B_STR = "[" + OSU_LOGO + " %s beatmap] (%s) %s - %s [%s] by %s " \
                                  "[%s BPM] - Difficulty: %.2f | Leader: %s " \
@@ -228,6 +239,41 @@ __author__ = 'Gareth Coles'
                                      "by %s [%s BPM] - Difficulty: %.2f"
     OSU_U_STR = "[" + OSU_LOGO + " user] %s (L%d) %s/%s/%s - Rank %s | " \
                                  "Ranked score: %s | PP: %s"
+
+    OSU_MODES = {
+        0: "Standard",
+        1: "Taiko",
+        2: "CtB",
+        3: "Mania",
+        "0": "Standard",
+        "1": "Taiko",
+        "2": "CtB",
+        "3": "Mania",
+        "standard": 0,
+        "taiko": 1,
+        "ctb": 2,
+        "mania": 3,
+        "osu": 0,
+        "osu!": 0,
+        "osu!mania": 3,
+        "osu! mania": 3,
+        "s": 0,  # Standard
+        "o": 0,  # Osu!
+        "t": 1,  # Taiko
+        "c": 2,  # CtB: Catch
+        "b": 2,  # CtB: Beat
+        "f": 2,  # CtB: Fruit
+        "m": 3  # Mania
+    }
+
+    OSU_APPROVALS = {
+        "3": "Qualified",
+        "2": "Approved",
+        "1": "Ranked",
+        "0": "Pending",
+        "-1": "WIP",
+        "-2": "Graveyard"
+    }
 """
 
 
@@ -235,8 +281,18 @@ class OsuHandler(URLHandler):
 
     criteria = {
         "protocol": re.compile(r"http|https", str_to_regex_flags("iu")),
-        "domain": lambda x: x.lower() in ["osu.ppy.sh"]
+        "domain": re.compile(r"osu\.ppy\.sh", str_to_regex_flags("iu"))
     }
+
+    @property
+    def api_key(self):
+        return self.plugin.config.get("osu", {}).get("api_key", "")
+
+    def __init__(self, plugin):
+        super(OsuHandler, self).__init__(plugin)
+
+        if not self.api_key:
+            raise ApiKeyMissing()
 
     @inlineCallbacks
     def call(self, url, context):

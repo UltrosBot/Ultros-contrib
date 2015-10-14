@@ -12,6 +12,8 @@ from system.storage.manager import StorageManager
 
 from plugins.urls import Priority
 
+from plugins.urltools.exceptions import ApiKeyMissing
+
 import plugins.urltools.handlers.github as github
 import plugins.urltools.handlers.osu.osu as osu
 import plugins.urltools.handlers.youtube as youtube
@@ -80,13 +82,34 @@ class URLToolsPlugin(plugin.PluginObject):
 
     def _load(self):
         for handler in self.config.get("handlers", []):
-            if handler in self.handlers:
-                h = self.handlers[handler]
-                self.urls.add_handler(h[0](self), h[1])
+            try:
+                if handler in self.handlers:
+                    h = self.handlers[handler]
+                    self.urls.add_handler(h[0](self), h[1])
+            except ApiKeyMissing:
+                self.logger.error(
+                    "Unable to load handler {}: Missing required API "
+                    "key".format(handler)
+                )
+            except Exception:
+                self.logger.exception(
+                    "Unable to load handler {}".format(handler)
+                )
 
         for shortener in self.config.get("shorteners", []):
-            if shortener in self.shorteners:
-                pass  # TODO
+            try:
+                if shortener in self.shorteners:
+                    pass  # TODO
+
+            except ApiKeyMissing:
+                self.logger.error(
+                    "Unable to load shortener {}: Missing required API "
+                    "key".format(shortener)
+                )
+            except Exception:
+                self.logger.exception(
+                    "Unable to load shortener {}".format(shortener)
+                )
 
     def deactivate(self):
         for shortener in self.shorteners.iterkeys():
