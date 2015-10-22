@@ -14,9 +14,9 @@ from plugins.urls import Priority
 
 from plugins.urltools.exceptions import ApiKeyMissing
 
-import plugins.urltools.handlers.github as github
-import plugins.urltools.handlers.osu.osu as osu
-import plugins.urltools.handlers.youtube as youtube
+from plugins.urltools.handlers import github as github
+from plugins.urltools.handlers.osu import osu as osu
+from plugins.urltools.handlers import youtube as youtube
 
 __author__ = 'Gareth Coles'
 
@@ -63,7 +63,7 @@ class URLToolsPlugin(plugin.PluginObject):
         reload(youtube)
 
         self.handlers = {
-            "github": (github.GithubError, Priority.EARLY),
+            "github": (github.GithubHandler, Priority.EARLY),
             "osu": (osu.OsuHandler, Priority.EARLY),
             "youtube": (youtube.YoutubeHandler, Priority.EARLY)
         }
