@@ -423,19 +423,17 @@ class OsuHandler(URLHandler):
         except Exception:
             pass
 
+        data = beatmap
+
         if beatmap["approved"] in [
             "Pending", "WIP", "Graveyard", u"Unknown approval"
         ]:
-            data = beatmap
             message = self.get_string("beatmap-unapproved")
         elif scores is None:
-            data = beatmap
             message = self.get_string("beatmap-mode-mismatch")
         elif not scores:
-            data = beatmap
             message = self.get_string("beatmap-no-scores")
         else:
-            data = beatmap
             data["scores"] = scores
             message = self.get_string("beatmap")
 
