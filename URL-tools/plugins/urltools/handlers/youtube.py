@@ -6,4 +6,4 @@ __author__ = 'Gareth Coles'
 
 
 class YoutubeHandler(URLHandler):
-    pass
+    name = "youtube"

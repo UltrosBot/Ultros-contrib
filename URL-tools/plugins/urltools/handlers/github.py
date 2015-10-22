@@ -224,6 +224,8 @@ class GithubHandler(URLHandler):
 
     session = None
 
+    name = "github"
+
     def __init__(self, plugin):
         super(GithubHandler, self).__init__(plugin)
 
