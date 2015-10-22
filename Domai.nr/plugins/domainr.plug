@@ -5,6 +5,6 @@ core:
 info:
   description: "Domainr API commands"
   author: Sean Gordon
-  version: 0.3.0
+  version: 0.3.1
   website: https://github.com/UltrosBot/Ultros-contrib/blob/master/Domai.nr
   copyright: BSD 3-Clause

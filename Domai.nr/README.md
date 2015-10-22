@@ -7,12 +7,13 @@ This plugin allows integration with the Domainr API.
 
 * `domainrsearch <query>`
     * Description: Get domain suggestions for the given query.
-    * Aliases: `domainr`
+    * Aliases: `domainr`, `domains`
     * Permissions:
         * `domainr.search` - Main permission node, output to user
         * `domainr.search.loud` - Output to channel
-* `domainrinfo <domain>
+* `domainrinfo <domain>`
     * Description: Get information about the given domain.
+    * Aliases: `domaininfo`, `domain`
     * Permissions:
         * `domainr.info` - Main permission node, output to user
         * `domainr.info.loud` - Output to channel
