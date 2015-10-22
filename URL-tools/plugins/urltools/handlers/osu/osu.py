@@ -7,6 +7,7 @@ from txrequests import Session
 
 from plugins.urls.handlers.handler import URLHandler
 from plugins.urltools.exceptions import ApiKeyMissing
+from plugins.urltools.handlers.osu.mods import get_mods
 from utils.misc import str_to_regex_flags
 
 __author__ = 'Gareth Coles'
@@ -23,89 +24,6 @@ URL_USER_RECENT = URL_BASE + "/get_user_recent"
 
 """
     def site_osu(self, url):
-        self.logger.trace("OSU | %s" % url)
-        if "osu" not in self.api_details:
-            return None
-
-        domain = "https://osu.ppy.sh/api/"
-
-        parsed = urlparse.urlparse(url)
-        split = parsed.path.lower().split("/")
-
-        if "" in split:
-            split.remove("")
-
-        if len(split) < 2:
-            return None
-
-        self.logger.trace("OSU | %s" % split)
-
-        if split[0] == "u":  # User
-            args = {"m": "",
-                    "t": ""}
-            if parsed.fragment:
-                for element in parsed.fragment.split("&"):
-                    _split = element.split("=")
-                    args[_split[0]] = _split[1]
-            m = ""
-            if "m" in args:
-                m = args["m"].lower()
-                try:
-                    int(m)
-                except:
-                    if m in self.OSU_MODES:
-                        m = self.OSU_MODES[m]
-
-            params = {
-                "k": self.api_details["osu"],
-                "u": split[1],
-                "m": m,
-                "t": args["t"]
-            }
-
-            d = self.do_get(domain + "get_user", params)
-
-            d = json.loads(d)[0]
-
-            return self.OSU_U_STR % (
-                d["username"], int(round(float(d["level"]))),
-                d["count_rank_ss"], d["count_rank_s"],
-                d["count_rank_a"], d["pp_rank"],
-                locale.format(
-                    "%d",
-                    int(d["ranked_score"]),
-                    grouping=True
-                ), d["pp_raw"])
-
-        elif split[0] == "s":  # Beatmap set
-            params = {
-                "k": self.api_details["osu"],
-                "s": split[1]
-            }
-
-            d = self.do_get(domain + "get_beatmaps", params)
-            d = json.loads(d)
-
-            _map = d[0]
-
-            modes = {"0": 0, "1": 0, "2": 0, "3": 0}
-
-            for element in d:
-                mode = element["mode"]
-                modes[mode] += 1
-
-            to_join = []
-
-            for key, value in modes.items():
-                if value > 0:
-                    to_join.append("%s x%s" % (self.OSU_MODES[key], value))
-
-            counts = ", ".join(to_join)
-
-            return self.OSU_S_STR % (
-                _map["artist"], _map["title"], _map["creator"], counts
-            )
-
         elif split[0] == "b":  # Beatmap
             params = {}
 
@@ -252,9 +170,10 @@ strings = {
 
     "beatmap": u"[osu! {mode} beatmap] ({approved}) {artist} - {title} "
                u"[{version}] by {creator} [{bpm} BPM] - Difficulty: "
-               u"{difficultyrating} | Leader: {score[username]} with "
-               u"{score[score]} ({score[count300]}/"
-               u"{score[count100]}/{score[count50]}/{score[countmiss]})",
+               u"{difficultyrating} | Leader: {scores[0][username]} with "
+               u"{scores[0][score]} ({scores[0][count300]}/"
+               u"{scores[0][count100]}/{scores[0][count50]}/"
+               u"{scores[0][countmiss]}) - {scores[0][enabled_mods]}",
     "beatmap-mode-mismatch": u"[osu! {mode} beatmap] ({approved}) {artist} - "
                              u"{title} [{version}] by {creator} [{bpm} BPM] - "
                              u"Difficulty: {difficultyrating} - Mode '{mode}' "
@@ -452,17 +371,121 @@ class OsuHandler(URLHandler):
     def beatmap(self, url, beatmap):
         fragment = self.parse_fragment(url)
 
-        params = {
-            "b": beatmap
-        }
+        params = {}
+
+        if url.query:
+            params.update(url.query)
+
+        if fragment:
+            params.update(fragment)
+
+        params["b"] = beatmap
+
+        r = yield self.get(URL_BEATMAPS, params=params)
+        beatmap = r.json()[0]
+
+        if "m" not in params:
+            params["m"] = beatmap["mode"]
+
+        for key in ["favourite_count", "playcount", "passcount"]:
+            beatmap[key] = locale.format(
+                "%d", int(beatmap[key]), grouping=True
+            )
+
+        for key in ["difficultyrating"]:
+            beatmap[key] = int(round(float(beatmap[key])))
+
+        if "approved" in beatmap:
+            beatmap["approved"] = OSU_APPROVALS.get(
+                beatmap["approved"], u"Unknown approval"
+            )
+
+        beatmap["mode"] = OSU_MODES[beatmap["mode"]]
+
+        scores = None
+
+        try:
+            r = yield self.get(URL_SCORES, params=params)
+            scores = r.json()
+
+            for score in scores:
+                for key in ["score", "count50", "count100", "count300",
+                            "countmiss", "countkatu", "countgeki"]:
+                    score[key] = locale.format(
+                        "%d", int(score[key]), grouping=True
+                    )
+                for key in ["pp"]:
+                    score[key] = int(round(float(score[key])))
+
+                score["enabled_mods"] = ", ".join(
+                    get_mods(int(score["enabled_mods"]))
+                )
+        except Exception:
+            pass
+
+        if beatmap["approved"] in [
+            "Pending", "WIP", "Graveyard", u"Unknown approval"
+        ]:
+            data = beatmap
+            message = self.get_string("beatmap-unapproved")
+        elif scores is None:
+            data = beatmap
+            message = self.get_string("beatmap-mode-mismatch")
+        elif not scores:
+            data = beatmap
+            message = self.get_string("beatmap-no-scores")
+        else:
+            data = beatmap
+            data["scores"] = scores
+            message = self.get_string("beatmap")
+
+        returnValue(message.format(**data))
 
     @inlineCallbacks
     def mapset(self, url, mapset):
-        fragment = self.parse_fragment(url)
-
         params = {
             "s": mapset
         }
+
+        r = yield self.get(URL_BEATMAPS, params=params)
+        data = r.json()
+
+        modes = {}
+        to_join = []
+
+        for beatmap in data:
+            modes[beatmap["mode"]] = modes.get(beatmap["mode"], 0) + 1
+            beatmap["mode"] = OSU_MODES[beatmap["mode"]]
+
+            for key in ["favourite_count", "playcount", "passcount"]:
+                beatmap[key] = locale.format(
+                    "%d", int(beatmap[key]), grouping=True
+                )
+
+            for key in ["difficultyrating"]:
+                beatmap[key] = int(round(float(beatmap[key])))
+
+            if "approved" in beatmap:
+                beatmap["approved"] = OSU_APPROVALS.get(
+                    beatmap["approved"], u"Unknown approval: {}".format(
+                        beatmap["approved"]
+                    )
+                )
+
+        for k, v in modes.iteritems():
+            if v:
+                to_join.append("{} x{}".format(OSU_MODES[k], v))
+
+        first = data[0]
+
+        data = {
+            "beatmaps": data,
+            "counts": ", ".join(to_join)
+        }
+
+        data.update(first)
+
+        returnValue(self.get_string("mapset").format(**data))
 
     @inlineCallbacks
     def user(self, url, user):

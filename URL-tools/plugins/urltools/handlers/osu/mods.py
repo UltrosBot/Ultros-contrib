@@ -13,7 +13,7 @@ mods = {
     "DT": 0x40,
     "Relax": 0x80,
     "HT": 0x100,
-    "NC": 0x200,  # Only set with Double Time
+    "NC": 0x200,  # Only appears with Double Time
     "FL": 0x400,
     "Auto": 0x800,  # osubot
     "Spun Out": 0x1000,
@@ -47,7 +47,7 @@ def get_mods(integer):
             found.append(k)
 
     # Exceptions and special cases
-    if "NC" and "DT" in found:
+    if "NC" in found and "DT" in found:
         found.remove("DT")
 
     if "PF" in found and "SD" in found:
