@@ -3,7 +3,7 @@
 __author__ = 'Gareth Coles'
 
 mods = {
-    "None": 0x0,
+    "No mods": 0x0,
     "NF": 0x1,
     "EZ": 0x2,
     # "No Video": 0x4,  # Not used
@@ -29,8 +29,8 @@ mods = {
     "Random": 0x200000,
     # "Last Mod": 0x400000,
     # "Free Mod Allowed": 0xFF5FF,  # NoFail | Easy | Hidden | HardRock |
-    #  SuddenDeath | Flashlight | FadeIn |
-    #  Relax | Relax2 | SpunOut | ModdedKeys
+    #                                 SuddenDeath | Flashlight | FadeIn |
+    #                                 Relax | Relax2 | SpunOut | ModdedKeys
     "9K": 0x1000000,
     "10K": 0x2000000,
     "1K": 0x4000000,
@@ -52,5 +52,8 @@ def get_mods(integer):
 
     if "PF" in found and "SD" in found:
         found.remove("SD")
+
+    if not found:
+        found = ["No mods"]
 
     return found
