@@ -1,7 +1,6 @@
 handlers:
   - github
   - osu
-  - youtube
 
 shorteners:
   - is.gd
@@ -23,8 +22,4 @@ github:
 
 osu:
   api_key: ""  # Required; see https://osu.ppy.sh/p/api (Requires an account)
-  formatting: {}  # See documentation if you want to change the formatting and remember to prefix each value  with !!python/unicode
-
-youtube:
-  key: ""
   formatting: {}  # See documentation if you want to change the formatting and remember to prefix each value  with !!python/unicode
