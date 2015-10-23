@@ -133,10 +133,12 @@ UrbanDictionary:
         modules: []
         packages: []
 URL-tools:
-    version: 0.2.1
+    version: 1.0.0
     description: "Provides a set of tools for working with the URLs plugin."
     requires:
-        modules: []
+        modules:
+        - requests
+        - txrequests
         packages: []
 W3validator:
     version: 0.0.1

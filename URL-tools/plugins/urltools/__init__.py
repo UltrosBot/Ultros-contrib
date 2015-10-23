@@ -1,8 +1,8 @@
 # coding=utf-8
 import json
-import urlparse
 import locale
 import urllib2
+import urlparse
 
 import system.plugin as plugin
 
@@ -128,6 +128,8 @@ class URLToolsPlugin(plugin.PluginObject):
 
         for handler in self.handlers.itervalues():
             self.urls.remove_handler(handler)
+
+    # TODO: YouTube (rakiru)
 
     def site_youtube(self, url):
         parsed = urlparse.urlparse(url)

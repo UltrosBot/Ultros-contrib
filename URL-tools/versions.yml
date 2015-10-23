@@ -6,3 +6,6 @@
     Add GitHub support and add requests to the module requirements
 0.2.1: >
     Make plugin reload-friendly
+1.0.0: >
+    Update for our brand-new URLs plugin - Rewrote all shorteners, plus the GitHub and Osu handlers,
+    added configurable formatting, and a few other improvements.
