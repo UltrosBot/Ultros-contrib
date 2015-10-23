@@ -16,3 +16,4 @@ triggers:
           - {trigger: "^pets Ultros", response: ["gently tentacles {source}", "gurgles~ ^-^", "flails tentacles"], trigger_types: {action: true}, response_type: "action", flags: "i"}
           - {trigger: "^test trigger$", response: ["A response", {response: "responds", type: "action"}]}
           - {trigger: "^test trigger 2$", response: ["actions", "actions vigorously", {response: "This is a message", type: "message"}], response_type: "action"}
+          - {trigger: "^test trigger 3$", response: ["You have permission!"], permission: "test"}  # Requires the triggers.trigger.test permission in addition to the regular triggers.trigger permission

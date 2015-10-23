@@ -1,10 +1,12 @@
-import treq
+# coding=utf-8
+from kitchen.text.converters import to_bytes
+from txrequests import Session
 
 from system.command_manager import CommandManager
 from system.decorators.ratelimit import RateLimiter, RateLimitExceededError
 
 import system.plugin as plugin
-
+from system.storage.formats import YAML
 
 __author__ = 'Sean'
 
@@ -17,8 +19,25 @@ class DomainrPlugin(plugin.PluginObject):
         ### Grab important shit
         self._commands = CommandManager()
 
+        ### Initial config load
+        try:
+            self._config = self.storage.get_file(self, "config", YAML,
+                                                 "plugins/domainr.yml")
+        except Exception:
+            self.logger.exception("Error loading configuration!")
+            self.logger.error("Disabling..")
+            self._disable_self()
+            return
+        if not self._config.exists:
+            self.logger.error("Unable to find config/plugins/domainr.yml")
+            self.logger.error("Disabling...")
+            self._disable_self()
+            return
+
         ### Load stuff
         self._load()
+
+        self._config.add_callback(self._load)
 
         ### Register commands
         self._commands.register_command("domainrsearch",
@@ -26,19 +45,32 @@ class DomainrPlugin(plugin.PluginObject):
                                         self,
                                         "domainr.search",
                                         aliases=[
-                                            "domainr"
+                                            "domainr",
+                                            "domains"
                                         ], default=True)
         self._commands.register_command("domainrinfo",
                                         self.info_cmd,
                                         self,
-                                        "domainr.info", default=True)
+                                        "domainr.info",
+                                        aliases=[
+                                            "domaininfo",
+                                            "domain"
+                                        ],
+                                        default=True)
 
     def reload(self):
         self._load()
         return True
 
     def _load(self):
-        self.api = Domainr()
+        api_key = self._config.get("api-key", None)
+        client_id = self._config.get("client_id", None)
+        if api_key is None and client_id is None:
+            self.logger.error(
+                "Unable to find api-key or client-id in config. API requests "
+                "will probably fail."
+            )
+        self.api = Domainr(api_key, client_id)
 
     def _respond(self, target, msg):
         """
@@ -136,14 +168,23 @@ class DomainrPlugin(plugin.PluginObject):
         else:
             target = caller
         try:
-            msgs = []
-            for res in result["results"]:
-                self.logger.trace(res)
-                msg = u"%s%s - %s" % (res["domain"],
-                                      res["path"],
-                                      res["availability"])
-                msgs.append(msg)
-            self._msg(protocol, target, msgs)
+            if "results" in result:
+                msgs = []
+                for res in result["results"]:
+                    self.logger.trace(res)
+                    msg = u"%s%s - %s" % (res["domain"],
+                                          res["path"],
+                                          res["availability"])
+                    msgs.append(msg)
+                self._msg(protocol, target, msgs)
+            elif "message" in result:
+                self.logger.error(
+                    "Message from Domainr API:\r\n{}", result["message"]
+                )
+            else:
+                self.logger.error(
+                    "Unexpected response from API:\r\n{}", to_bytes(result)
+                )
         except:
             self.logger.exception("Please tell the developer about this error")
 
@@ -177,7 +218,7 @@ class DomainrPlugin(plugin.PluginObject):
         if failure.check(DomainrError):
             self._respond(caller, failure.value.message)
         else:
-            self.logger.debug("Error while fetching info",
+            self.logger.error("Error while fetching info",
                               exc_info=(
                                   failure.type,
                                   failure.value,
@@ -199,14 +240,18 @@ class Domainr(object):
     MAYBE = "maybe"
     TLD = "tld"
 
-    API_URL = "https://api.domainr.com/v1/"
+    # API key and client_id auth use different domains
+    API_URL_CID = "https://api.domainr.com/v1/"
+    API_URL_KEY = "https://domainr.p.mashape.com/v1/"
+
+    def __init__(self, api_key=None, client_id=None):
+        self.api_key = api_key
+        self.client_id = client_id
+        self._session = Session()
 
     def _handle_response(self, response):
-        deferred = response.json()
-        deferred.addCallback(self._handle_content)
-        return deferred
+        result = response.json()
 
-    def _handle_content(self, result):
         if "error" in result:
             raise DomainrError(**result["error"])
         elif "error_message" in result:
@@ -218,22 +263,27 @@ class Domainr(object):
     # I'll have to play around to see what the best limit/buffer is, but it
     # should be ~60 per minute anyway.
     # Sod it, the rate limiting plugin (coming soon) can deal with
-    # burst/slowdown - we'll jsut set this to 60 per 60.
+    # burst/slowdown - we'll just set this to 60 per 60.
+    # 2015/10/07 - This is way over (~260x) what the free tier allows, but this
+    # has to work with the paid tier too. Additionally, limiting the free tier
+    # would have to be done in terms of at least daily time periods to allow
+    # for bursts. I'll consider how best to deal with this. It's not like we
+    # were making 10,000 calls per month before anyway, but it's definitely
+    # something that's used in rapid bursts between long periods of non-use.
+    # Config options would likely be best.
     @RateLimiter(limit=60, buffer=10, time_period=60)
     def _make_request(self, method, payload):
         """
         Actually make the HTTP request.
         :rtype : twisted.internet.defer.Deferred
         """
-        # Convert unicode strings to utf8-encoded bytestrings (treq doesn't
-        # seem to be able to encode unicode strings properly)
-        # Alters payload in-place, but this is a "private" method, and we don't
-        # reuse is after this call anyway.
-        payload["client_id"] = "Ultros-Domai.nr"
-        for k, v in payload.iteritems():
-            if isinstance(v, unicode):
-                payload[k] = v.encode("utf8")
-        deferred = treq.get(self.API_URL + method, params=payload)
+        url = self.API_URL_KEY
+        if self.client_id is not None:
+            payload["client_id"] = self.client_id
+            url = self.API_URL_CID
+        elif self.api_key is not None:
+            payload["mashape-key"] = self.api_key
+        deferred = self._session.get(url + method, params=payload)
         deferred.addCallback(self._handle_response)
         return deferred
 

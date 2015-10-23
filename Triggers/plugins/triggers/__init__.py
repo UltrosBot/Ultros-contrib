@@ -150,12 +150,21 @@ class TriggersPlugin(plugin.PluginObject):
                 flags = trigger.get("flags", "")
                 trigger_types = trigger.get("trigger_types", {"message": True})
                 response_type = trigger.get("response_type", "message")
+                permission = trigger.get("permission", None)
 
                 if not trigger_types.get(e_type, False):
                     continue
 
                 if random.random() * 100 >= chance:
                     continue
+
+                if permission is not None:
+                    _full_perm = "triggers.trigger." + permission
+                    self.logger.debug("Checking for permission: {0}",
+                                      _full_perm)
+                    if not self.commands.perm_handler.check(_full_perm, source,
+                                                            target, protocol):
+                        continue
 
                 response = random.choice(responses)
                 if isinstance(response, dict):

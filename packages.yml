@@ -33,11 +33,11 @@ Dice:
         modules: []
         packages: []
 Domai.nr:
-    version: 0.2.1
+    version: 0.3.1
     description: "Domainr API integration."
     requires:
         modules:
-        - "treq"
+        - "txrequests"
         packages: []
 DrunkOctopus:
     version: 0.2.2
@@ -113,7 +113,7 @@ Translate:
         - goslate
         packages: []
 Triggers:
-    version: 0.4.0
+    version: 0.5.0
     description: "Configurable trigger responses"
     requires:
         modules: []
@@ -156,7 +156,7 @@ Web:
         - "mako"
         packages: []
 Wolfram:
-    version: 0.0.1
+    version: 0.0.2
     description: "Provides a command to query Wolfram|Alpha."
     requires:
         modules:

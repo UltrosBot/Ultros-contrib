@@ -5,6 +5,6 @@ core:
 info:
   description: A plugin for sending questions to Wolfram|Alpha
   author: Gareth Coles
-  version: 0.0.1
+  version: 0.0.2
   website: https://github.com/UltrosBot/Ultros-contrib/blob/master/Wolfram
   copyright: See Ultros' license
