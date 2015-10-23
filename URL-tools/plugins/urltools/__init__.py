@@ -14,9 +14,14 @@ from plugins.urls import Priority
 
 from plugins.urltools.exceptions import ApiKeyMissing
 
-from plugins.urltools.handlers import github as github
-from plugins.urltools.handlers.osu import osu as osu
-from plugins.urltools.handlers import youtube as youtube
+from plugins.urltools.handlers import github
+from plugins.urltools.handlers.osu import osu
+from plugins.urltools.handlers import youtube
+
+from plugins.urltools.shorteners import is_gd
+from plugins.urltools.shorteners import nazrin
+from plugins.urltools.shorteners import v_gd
+from plugins.urltools.shorteners import waa_ai
 
 __author__ = 'Gareth Coles'
 
@@ -62,6 +67,11 @@ class URLToolsPlugin(plugin.PluginObject):
         reload(osu)
         reload(youtube)
 
+        reload(is_gd)
+        reload(nazrin)
+        reload(v_gd)
+        reload(waa_ai)
+
         self.handlers = {
             "github": (github.GithubHandler, Priority.EARLY),
             "osu": (osu.OsuHandler, Priority.EARLY),
@@ -69,16 +79,16 @@ class URLToolsPlugin(plugin.PluginObject):
         }
 
         self.shorteners = {
-
+            "is.gd": is_gd.IsGdShortener,
+            "nazr.in": nazrin.NazrinShortener,
+            "v.gd": v_gd.VGdShortener,
+            "waa.ai": waa_ai.WaaAiShortener
         }
 
         self.plugman = PluginManager()
 
         self._load()
         self.config.add_callback(self._load)
-
-        # TODO: Make handlers etc optional
-        self.urls.add_handler(github.GithubHandler(self), Priority.EARLY)
 
     def _load(self):
         for handler in self.config.get("handlers", []):
@@ -99,7 +109,8 @@ class URLToolsPlugin(plugin.PluginObject):
         for shortener in self.config.get("shorteners", []):
             try:
                 if shortener in self.shorteners:
-                    pass  # TODO
+                    s = self.shorteners[shortener]
+                    self.urls.add_shortener(s(self))
 
             except ApiKeyMissing:
                 self.logger.error(

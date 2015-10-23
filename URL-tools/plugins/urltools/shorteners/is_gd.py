@@ -1,7 +1,10 @@
-from txrequests import Session
-from plugins.urls.shorteners import base
+# coding=utf-8
 
-reload(base)
+from txrequests import Session
+
+from plugins.urls import ShortenerDown
+from plugins.urls.matching import is_url
+from plugins.urls.shorteners import base
 
 __author__ = 'Gareth Coles'
 
@@ -13,7 +16,7 @@ class IsGdShortener(base.Shortener):
     def do_shorten(self, context):
         session = Session()
 
-        params = {"url": context["url"].text, "format": "simple"}
+        params = {"url": str(context["url"]), "format": "simple"}
 
         d = session.get(self.base_url, params=params)
 
@@ -28,7 +31,15 @@ class IsGdShortener(base.Shortener):
         :type response: requests.Response
         """
 
-        return response.text
+        if response.status_code != 200:
+            raise ShortenerDown("HTTP code {}".format(response.status_code))
+
+        url = response.text
+
+        if not is_url(url):
+            raise ShortenerDown("Service did not return a URL")
+
+        return url
 
     def shorten_error(self, error):
         """
@@ -40,5 +51,3 @@ class IsGdShortener(base.Shortener):
         )
 
         return error
-
-shortener = IsGdShortener

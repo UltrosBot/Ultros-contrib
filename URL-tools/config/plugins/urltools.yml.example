@@ -3,7 +3,11 @@ handlers:
   - osu
   - youtube
 
-shorteners: []  # TODO
+shorteners:
+  - is.gd
+  - nazr.in
+  - v.gd
+  - waa.ai
 
 github:
   zen: false  # Whether to use GitHub Zen for URLs that are unhandleable
