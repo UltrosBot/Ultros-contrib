@@ -16,7 +16,7 @@ class NazrinShortener(base.Shortener):
     def do_shorten(self, context):
         session = Session()
 
-        params = {"url": str(context["url"])}
+        params = {"url": unicode(context["url"])}
 
         d = session.get(self.base_url, params=params)
 

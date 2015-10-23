@@ -16,7 +16,7 @@ class VGdShortener(base.Shortener):
     def do_shorten(self, context):
         session = Session()
 
-        params = {"url": str(context["url"]), "format": "simple"}
+        params = {"url": unicode(context["url"]), "format": "simple"}
 
         d = session.get(self.base_url, params=params)
 
