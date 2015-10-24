@@ -13,9 +13,8 @@ github:
               # Disable and the bot will be silent for them
   formatting: {}  # See documentation if you want to change the formatting and remember to prefix each value  with !!python/unicode
 
-  # You need to authenticate if you want to raise the API limits
-  # Make your own application at https://github.com/settings/applications/new
-  # and enter the client ID and secret here
+  # You need to authenticate if you want to raise the API limits, which is highly recommended.
+  # Make your own application at https://github.com/settings/applications/new and enter the client ID and secret here.
 
   # client_id = ""
   # client_secret = ""
