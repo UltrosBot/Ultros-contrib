@@ -5,6 +5,8 @@ Handler Formatting
 programming language will help considerably, but a little elbow grease should still
 get most people through.
 
+Know what you're doing? [Skip to the formatting strings](#handler-formatting-1).
+
 ---
 
 Some of the provided handlers are highly configurable, allowing you to change
