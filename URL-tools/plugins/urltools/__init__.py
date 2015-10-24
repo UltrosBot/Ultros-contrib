@@ -1,8 +1,5 @@
 # coding=utf-8
-import json
 import locale
-import urllib2
-import urlparse
 
 import system.plugin as plugin
 
