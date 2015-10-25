@@ -130,13 +130,16 @@ GitHub
 
 * **Key**: `user`
 * **Default string**:
+
     ```
     "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
     ```
+
 * **Example URL**: `https://github.com/gdude2002`
 * **API documentation**: https://developer.github.com/v3/users/#get-a-single-user
 * **Notes**: This is a simple API call. No extra data is added.
 * **Sample data**:
+
     ```json
     {
       "login": "gdude2002",
