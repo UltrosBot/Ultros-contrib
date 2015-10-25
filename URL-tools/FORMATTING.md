@@ -41,7 +41,7 @@ encoding errors. The need for this will go away once we eventually move to Pytho
 
 Now, let's look at the data GitHub makes available to us for the user named `gdude2002`:
 
-```
+```json
 {
   "login": "gdude2002",
   "id": 204153,
@@ -78,7 +78,7 @@ Now, let's look at the data GitHub makes available to us for the user named `gdu
 
 Oh my, that's quite a lot of info, isn't it? Let's strip it down to the things that we can actually use:
 
-```
+```json
 {
   "login": "gdude2002",
   "type": "User",
@@ -98,13 +98,76 @@ There, that's much easier to read. Now, if we look at our formatting string agai
 "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
 ```
 
-You may notice that the tokens contained within the curly braces - `{` and `}` - also appear in our data from GitHub.
-These tokens will be replaced with their respective values in the data - So `{name}` becomes `Gareth Coles`, and `{login}` becomes `gdude2002`.
+You may notice that the tokens contained within the curly braces - `{` and `}` 
+- also appear in our data from GitHub. These tokens will be replaced with their 
+respective values in the data - So `{name}` becomes `Gareth Coles`, and `{login}` 
+becomes `gdude2002`.
 
-This is the basis for all formatting strings. If you'd like to understand a bit more about them, check out [this site](https://pyformat.info/),
-looking at the new-style `.format()` calls for examples.
+This is the basis for all formatting strings. If you'd like to understand a 
+bit more about them, check out [this site](https://pyformat.info/), looking at 
+the new-style `.format()` calls for examples.
 
 Handler formatting
 ==================
 
-TODO: The rest of this document
+Currently, the handlers that this plugin supports for customization are:
+
+* [GitHub](#)
+* [osu!](#)
+
+More of these will be added over time.
+
+To change a formatting string, open your `urltools.yml`, find the section for
+the handler you want to customize, and add the corresponding key and value to
+the `formatting` section.
+
+Most handler sections below will contain a sample URL to be matched, as well as
+a complete set of data and links to the API documentation that may contain more
+up-to-date data samples.
+
+GitHub
+------
+
+* **Key**: `user`
+* **Default string**:
+    ```
+    "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
+    ```
+* **Example URL**: `https://github.com/gdude2002`
+* **API documentation**: https://developer.github.com/v3/users/#get-a-single-user
+* **Notes**: This is a simple API call. No extra data is added.
+* **Sample data**:
+    ```json
+    {
+      "login": "gdude2002",
+      "id": 204153,
+      "avatar_url": "https://avatars.githubusercontent.com/u/204153?v=3",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/gdude2002",
+      "html_url": "https://github.com/gdude2002",
+      "followers_url": "https://api.github.com/users/gdude2002/followers",
+      "following_url": "https://api.github.com/users/gdude2002/following{/other_user}",
+      "gists_url": "https://api.github.com/users/gdude2002/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/gdude2002/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/gdude2002/subscriptions",
+      "organizations_url": "https://api.github.com/users/gdude2002/orgs",
+      "repos_url": "https://api.github.com/users/gdude2002/repos",
+      "events_url": "https://api.github.com/users/gdude2002/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/gdude2002/received_events",
+      "type": "User",
+      "site_admin": false,
+      "name": "Gareth Coles",
+      "company": null,
+      "blog": "http://archivesmc.com",
+      "location": "Ireland",
+      "email": null,
+      "hireable": null,
+      "bio": null,
+      "public_repos": 26,
+      "public_gists": 17,
+      "followers": 16,
+      "following": 14,
+      "created_at": "2010-02-15T19:46:20Z",
+      "updated_at": "2015-10-04T20:24:45Z"
+    }
+    ```

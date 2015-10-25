@@ -13,12 +13,16 @@ URLs plugin that comes bundled with Ultros. Right now, these are as follows:
     * **v.g**
     * **waa.ai**
 
+[See here](FORMATTING.md) for information on customizing the output of the
+handlers.
+
 Getting started
 ===============
 
 Install the package using the package manager, then enter `config/plugins/` and
-copy `urltools.yml.example` to `urltools.yml`. Open the file, and fill it out
-as follows..
+copy `urltools.yml.example` to `urltools.yml`. The default configuration will
+enable everything, but you may need to provide API keys or authentication for
+some of the handlers, or you may like to change their formatting.
 
 ---
 
@@ -83,7 +87,7 @@ osu:
 
 This section is the configuration for the [osu!](https://osu.ppy.sh) handler. If you're not using it,
 then you can ignore or remove this section. The osu! API requires that you have an
-API key, so create an account and [grab your API key here[(https://osu.ppy.sh/p/api).
+API key, so create an account and [grab your API key here](https://osu.ppy.sh/p/api).
 
 * **api_key**: Your osu! API key
 * **formatting**: See [FORMATTING.md](FORMATTING.md) for more information on this section
