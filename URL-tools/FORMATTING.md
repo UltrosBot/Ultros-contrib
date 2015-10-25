@@ -98,8 +98,8 @@ There, that's much easier to read. Now, if we look at our formatting string agai
 "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
 ```
 
-You may notice that the tokens contained within the curly braces - `{` and `}` 
-- also appear in our data from GitHub. These tokens will be replaced with their 
+You may notice that the tokens contained within the curly braces - `{` and `}` - 
+also appear in our data from GitHub. These tokens will be replaced with their 
 respective values in the data - So `{name}` becomes `Gareth Coles`, and `{login}` 
 becomes `gdude2002`.
 
