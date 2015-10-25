@@ -129,48 +129,49 @@ GitHub
 ------
 
 * **Key**: `user`
-* **Default string**:
-
-    ```
-    "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
-    ```
-
 * **Example URL**: `https://github.com/gdude2002`
 * **API documentation**: https://developer.github.com/v3/users/#get-a-single-user
 * **Notes**: This is a simple API call. No extra data is added.
-* **Sample data**:
 
-    ```json
-    {
-      "login": "gdude2002",
-      "id": 204153,
-      "avatar_url": "https://avatars.githubusercontent.com/u/204153?v=3",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/gdude2002",
-      "html_url": "https://github.com/gdude2002",
-      "followers_url": "https://api.github.com/users/gdude2002/followers",
-      "following_url": "https://api.github.com/users/gdude2002/following{/other_user}",
-      "gists_url": "https://api.github.com/users/gdude2002/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/gdude2002/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/gdude2002/subscriptions",
-      "organizations_url": "https://api.github.com/users/gdude2002/orgs",
-      "repos_url": "https://api.github.com/users/gdude2002/repos",
-      "events_url": "https://api.github.com/users/gdude2002/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/gdude2002/received_events",
-      "type": "User",
-      "site_admin": false,
-      "name": "Gareth Coles",
-      "company": null,
-      "blog": "http://archivesmc.com",
-      "location": "Ireland",
-      "email": null,
-      "hireable": null,
-      "bio": null,
-      "public_repos": 26,
-      "public_gists": 17,
-      "followers": 16,
-      "following": 14,
-      "created_at": "2010-02-15T19:46:20Z",
-      "updated_at": "2015-10-04T20:24:45Z"
-    }
-    ```
+**Default string**:
+
+```
+!!python/unicode "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
+```
+
+**Sample data**:
+
+```json
+{
+  "login": "gdude2002",
+  "id": 204153,
+  "avatar_url": "https://avatars.githubusercontent.com/u/204153?v=3",
+  "gravatar_id": "",
+  "url": "https://api.github.com/users/gdude2002",
+  "html_url": "https://github.com/gdude2002",
+  "followers_url": "https://api.github.com/users/gdude2002/followers",
+  "following_url": "https://api.github.com/users/gdude2002/following{/other_user}",
+  "gists_url": "https://api.github.com/users/gdude2002/gists{/gist_id}",
+  "starred_url": "https://api.github.com/users/gdude2002/starred{/owner}{/repo}",
+  "subscriptions_url": "https://api.github.com/users/gdude2002/subscriptions",
+  "organizations_url": "https://api.github.com/users/gdude2002/orgs",
+  "repos_url": "https://api.github.com/users/gdude2002/repos",
+  "events_url": "https://api.github.com/users/gdude2002/events{/privacy}",
+  "received_events_url": "https://api.github.com/users/gdude2002/received_events",
+  "type": "User",
+  "site_admin": false,
+  "name": "Gareth Coles",
+  "company": null,
+  "blog": "http://archivesmc.com",
+  "location": "Ireland",
+  "email": null,
+  "hireable": null,
+  "bio": null,
+  "public_repos": 26,
+  "public_gists": 17,
+  "followers": 16,
+  "following": 14,
+  "created_at": "2010-02-15T19:46:20Z",
+  "updated_at": "2015-10-04T20:24:45Z"
+}
+```
