@@ -32,8 +32,8 @@ The formatting string might be declared as follows:
 
 ```yaml
 github:
-  formatting:
-    user: !!python/unicode "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
+ formatting:
+  user: !!python/unicode "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
 ```
 
 The `!!python/unicode` prefix is optional, but we highly recommend that you use it to minimize possible
@@ -43,36 +43,36 @@ Now, let's look at the data GitHub makes available to us for the user named `gdu
 
 ```json
 {
-  "login": "gdude2002",
-  "id": 204153,
-  "avatar_url": "https://avatars.githubusercontent.com/u/204153?v=3",
-  "gravatar_id": "",
-  "url": "https://api.github.com/users/gdude2002",
-  "html_url": "https://github.com/gdude2002",
-  "followers_url": "https://api.github.com/users/gdude2002/followers",
-  "following_url": "https://api.github.com/users/gdude2002/following{/other_user}",
-  "gists_url": "https://api.github.com/users/gdude2002/gists{/gist_id}",
-  "starred_url": "https://api.github.com/users/gdude2002/starred{/owner}{/repo}",
-  "subscriptions_url": "https://api.github.com/users/gdude2002/subscriptions",
-  "organizations_url": "https://api.github.com/users/gdude2002/orgs",
-  "repos_url": "https://api.github.com/users/gdude2002/repos",
-  "events_url": "https://api.github.com/users/gdude2002/events{/privacy}",
-  "received_events_url": "https://api.github.com/users/gdude2002/received_events",
-  "type": "User",
-  "site_admin": false,
-  "name": "Gareth Coles",
-  "company": null,
-  "blog": "http://archivesmc.com",
-  "location": "Ireland",
-  "email": null,
-  "hireable": null,
-  "bio": null,
-  "public_repos": 26,
-  "public_gists": 17,
-  "followers": 16,
-  "following": 14,
-  "created_at": "2010-02-15T19:46:20Z",
-  "updated_at": "2015-10-04T20:24:45Z"
+ "login": "gdude2002",
+ "id": 204153,
+ "avatar_url": "https://avatars.githubusercontent.com/u/204153?v=3",
+ "gravatar_id": "",
+ "url": "https://api.github.com/users/gdude2002",
+ "html_url": "https://github.com/gdude2002",
+ "followers_url": "https://api.github.com/users/gdude2002/followers",
+ "following_url": "https://api.github.com/users/gdude2002/following{/other_user}",
+ "gists_url": "https://api.github.com/users/gdude2002/gists{/gist_id}",
+ "starred_url": "https://api.github.com/users/gdude2002/starred{/owner}{/repo}",
+ "subscriptions_url": "https://api.github.com/users/gdude2002/subscriptions",
+ "organizations_url": "https://api.github.com/users/gdude2002/orgs",
+ "repos_url": "https://api.github.com/users/gdude2002/repos",
+ "events_url": "https://api.github.com/users/gdude2002/events{/privacy}",
+ "received_events_url": "https://api.github.com/users/gdude2002/received_events",
+ "type": "User",
+ "site_admin": false,
+ "name": "Gareth Coles",
+ "company": null,
+ "blog": "http://archivesmc.com",
+ "location": "Ireland",
+ "email": null,
+ "hireable": null,
+ "bio": null,
+ "public_repos": 26,
+ "public_gists": 17,
+ "followers": 16,
+ "following": 14,
+ "created_at": "2010-02-15T19:46:20Z",
+ "updated_at": "2015-10-04T20:24:45Z"
 }
 ```
 
@@ -80,15 +80,15 @@ Oh my, that's quite a lot of info, isn't it? Let's strip it down to the things t
 
 ```json
 {
-  "login": "gdude2002",
-  "type": "User",
-  "name": "Gareth Coles",
-  "blog": "http://archivesmc.com",
-  "location": "Ireland",
-  "public_repos": 26,
-  "public_gists": 17,
-  "followers": 16,
-  "following": 14
+ "login": "gdude2002",
+ "type": "User",
+ "name": "Gareth Coles",
+ "blog": "http://archivesmc.com",
+ "location": "Ireland",
+ "public_repos": 26,
+ "public_gists": 17,
+ "followers": 16,
+ "following": 14
 }
 ```
 
@@ -112,7 +112,7 @@ Handler formatting
 
 Currently, the handlers that this plugin supports for customization are:
 
-* [GitHub](#)
+* [GitHub](#github)
 * [osu!](#)
 
 More of these will be added over time.
@@ -122,13 +122,13 @@ the handler you want to customize, and add the corresponding key and value to
 the `formatting` section.
 
 Most handler sections below will contain a sample URL to be matched, as well as
-a complete set of data and links to the API documentation that may contain more
-up-to-date data samples.
+links to the API documentation that contains up-to-date data samples.
 
 GitHub
 ------
 
-* **Key**: `user`
+### Key: user
+
 * **Example URL**: `https://github.com/gdude2002`
 * **API documentation**: https://developer.github.com/v3/users/#get-a-single-user
 * **Notes**: This is a simple API call. No extra data is added.
@@ -139,39 +139,470 @@ GitHub
 !!python/unicode "[GitHub user] {name} ({login}) - {public_repos} repos / {public_gists} gists - {followers} followers / {following} following - {blog}"
 ```
 
-**Sample data**:
+### Key: org
 
-```json
-{
-  "login": "gdude2002",
-  "id": 204153,
-  "avatar_url": "https://avatars.githubusercontent.com/u/204153?v=3",
-  "gravatar_id": "",
-  "url": "https://api.github.com/users/gdude2002",
-  "html_url": "https://github.com/gdude2002",
-  "followers_url": "https://api.github.com/users/gdude2002/followers",
-  "following_url": "https://api.github.com/users/gdude2002/following{/other_user}",
-  "gists_url": "https://api.github.com/users/gdude2002/gists{/gist_id}",
-  "starred_url": "https://api.github.com/users/gdude2002/starred{/owner}{/repo}",
-  "subscriptions_url": "https://api.github.com/users/gdude2002/subscriptions",
-  "organizations_url": "https://api.github.com/users/gdude2002/orgs",
-  "repos_url": "https://api.github.com/users/gdude2002/repos",
-  "events_url": "https://api.github.com/users/gdude2002/events{/privacy}",
-  "received_events_url": "https://api.github.com/users/gdude2002/received_events",
-  "type": "User",
-  "site_admin": false,
-  "name": "Gareth Coles",
-  "company": null,
-  "blog": "http://archivesmc.com",
-  "location": "Ireland",
-  "email": null,
-  "hireable": null,
-  "bio": null,
-  "public_repos": 26,
-  "public_gists": 17,
-  "followers": 16,
-  "following": 14,
-  "created_at": "2010-02-15T19:46:20Z",
-  "updated_at": "2015-10-04T20:24:45Z"
-}
+* **Example URL**: https://github.com/UltrosBot
+* **API documentation**: https://developer.github.com/v3/orgs/#get-an-organization
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode "[GitHub org] {name}: {description} - {public_repos} repos / {public_gists} gists - {followers} followers - {blog}"
+```
+
+### Key: repo
+
+* **Example URL**: https://github.com/UltrosBot/Ultros
+* **API documentation**: https://developer.github.com/v3/repos/#get
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode "[GitHub repo] {full_name}: {description} - {forks_count} forks / {watchers_count} watchers, {subscribers_count} stars"
+```
+
+### Key: 
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-fork
+
+* **Example URL**: https://github.com/
+* **API documentation**: https://developer.github.com/v3/repos/#get
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode "[GitHub fork] {full_name} (Fork of {parent[full_name]}): {description} - {forks_count} forks / {watchers_count} watchers, {subscribers_count} stars"
+```
+
+### Key: repo-blob-branch-path
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-blob-hash-path
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-commits
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-commits
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-commits-branch
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-commits-branch-path
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-commit-hash
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-compare
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-issue
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-issues
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-issues
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-label
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-label-no-issues
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-labels
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-labels
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-milestone
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-milestone-no-issues
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-milestones
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-milestones
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-pull
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-pulls
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-pulls
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-releases
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-releases
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-releases-latest
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-releases-tag
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-stargazers
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-stargazers
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-tags
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-tags
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-tree-branch
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-tree-branch-path
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-tree-branch-path-dir
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-watchers
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
+```
+
+### Key: repo-no-watchers
+
+* **Example URL**: https://github.com/
+* **API documentation**: 
+* **Notes**: This is a simple API call. No extra data is added.
+
+**Default string**:
+
+```
+!!python/unicode ""
 ```
