@@ -163,18 +163,6 @@ GitHub
 !!python/unicode "[GitHub repo] {full_name}: {description} - {forks_count} forks / {watchers_count} watchers, {subscribers_count} stars"
 ```
 
-### Key: 
-
-* **Example URL**: https://github.com/
-* **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
-
-**Default string**:
-
-```
-!!python/unicode ""
-```
-
 ### Key: repo-fork
 
 * **Example URL**: https://github.com/
