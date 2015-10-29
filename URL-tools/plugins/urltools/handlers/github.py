@@ -120,7 +120,7 @@ strings = {
     "repo-label": u"[GitHub label] {given[owner]}/{given[repo]} - "
                   u"{given[label] - {total_count} issues: "
                   u"{open_count} open / {closed_count} closed",
-    "repo-label-no-issues": u"[GitHub label] {given[owner]}/{given[repo]}  - "
+    "repo-label-no-issues": u"[GitHub label] {given[owner]}/{given[repo]} - "
                             u"{given[label] - No issues found",
     "repo-labels": u"[GitHub repo] {given[owner]}/{given[repo]} - "
                    u"{labels_count} labels, including {labels_sample}",
@@ -132,7 +132,7 @@ strings = {
                       u"/ {closed_issues} closed ({percent}% complete)",
     "repo-milestone-no-issues": u"[GitHub milestone] "
                                 u"{given[owner]}/{given[repo]} - "
-                                u"{title} - {description}- No issues "
+                                u"{title} - {description} - No issues "
                                 u"found",
     "repo-milestones": u"[GitHub repo {given[owner]}/{given[repo]}] - "
                        u"{total_milestones} milestones - "
@@ -182,8 +182,8 @@ strings = {
                              u"(+{stats[additions]}/-{stats[deletions]}/"
                              u"\u00B1{stats[total]})",
     "repo-tree-branch-path-dir": u"[GitHub repo] {given[owner]}/{given[repo]}/"
-                             u"{given[branch]} - {given[path]} - "
-                             u"{total_files} files",
+                                 u"{given[branch]} - {given[path]} - "
+                                 u"{total_files} files",
 
     "repo-watchers": u"[GitHub repo] {given[owner]}/{given[repo]} - "
                      u"{total_watchers} watchers, including {watchers_sample}",
@@ -917,6 +917,11 @@ class GithubHandler(URLHandler):
             data["assigned_name"] = data["assignee"]["login"]
         else:
             data["assigned_name"] = None
+
+        if not data["milestone"]:
+            data["milestone"] = {
+                "title": "No milestone"
+            }
 
         returnValue(self.get_string("repo-issue").format(**data))
 

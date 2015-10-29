@@ -122,16 +122,20 @@ the handler you want to customize, and add the corresponding key and value to
 the `formatting` section.
 
 Most handler sections below will contain a sample URL to be matched, as well as
-links to the API documentation that contains up-to-date data samples.
+links to the API documentation that point to up-to-date data samples.
 
 GitHub
 ------
+
+Each formatting string below has a key named `given` available to it, which refers
+to a dictionary that itself contains some keys. You can access this using `[` 
+square brackets `]`, like so: `{given[key]}`
 
 ### Key: user
 
 * **Example URL**: `https://github.com/gdude2002`
 * **API documentation**: https://developer.github.com/v3/users/#get-a-single-user
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `user`
 
 **Default string**:
 
@@ -143,7 +147,7 @@ GitHub
 
 * **Example URL**: https://github.com/UltrosBot
 * **API documentation**: https://developer.github.com/v3/orgs/#get-an-organization
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `user`
 
 **Default string**:
 
@@ -155,7 +159,7 @@ GitHub
 
 * **Example URL**: https://github.com/UltrosBot/Ultros
 * **API documentation**: https://developer.github.com/v3/repos/#get
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -165,9 +169,9 @@ GitHub
 
 ### Key: repo-fork
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/voxadam/Ultros (Fork of UltrosBot/Ultros)
 * **API documentation**: https://developer.github.com/v3/repos/#get
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -177,134 +181,151 @@ GitHub
 
 ### Key: repo-blob-branch-path
 
-* **Example URL**: https://github.com/
-* **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Example URL**: https://github.com/voxadam/Ultros/blob/master/LICENSE
+* **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
+* `given`: `owner`, `repo`, `branch`, `path`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub file] {given[owner]}/{given[repo]}/{given[branch]} - {given[path]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-blob-hash-path
 
 * **Example URL**: https://github.com/
-* **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
+* `given`: `owner`, `repo`, `hash`, `path`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub file] {given[owner]}/{given[repo]} - {given[path]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-no-commits
 
 * **Example URL**: https://github.com/
-* **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **API documentation**: N/A
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No commits found"
 ```
 
 ### Key: repo-commits
 
 * **Example URL**: https://github.com/
-* **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **API documentation**: N/A
+* **Notes**: The following data is available:
+    * `commits`: A large list of commits
+    * `commits_count`: The total number of commits
+    * `contributors`: A potentially large list of contributors
+    * `contributors_count`: The total number of contributors
+* `given`: `owner`, `repo`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {commits_count} commits by {contributors_count} contributors"
 ```
 
 ### Key: repo-commits-branch
 
 * **Example URL**: https://github.com/
-* **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **API documentation**: N/A
+* **Notes**: The following data is available:
+    * `commits`: A large list of commits
+    * `commits_count`: The total number of commits
+    * `contributors`: A potentially large list of contributors
+    * `contributors_count`: The total number of contributors
+* `given`: `owner`, `repo`, `branch`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {commits_count} commits by {contributors_count} contributors"
 ```
 
 ### Key: repo-commits-branch-path
 
 * **Example URL**: https://github.com/
-* **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **API documentation**: N/A
+* **Notes**: The following data is available:
+    * `commits`: A large list of commits
+    * `commits_count`: The total number of commits
+    * `contributors`: A potentially large list of contributors
+    * `contributors_count`: The total number of contributors
+* `given`: `owner`, `repo`, `branch`, `path`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {commits_count} commits by {contributors_count} contributors"
 ```
 
 ### Key: repo-commit-hash
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`, `hash`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub commit] {given[owner]}/{given[repo]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-compare
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`, `left`, `right`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub commit comparison] Status: {status} - Ahead by {ahead_by} commit(s) / behind by {behind_by} commit(s) - {total_commits} commit(s) in total"
 ```
 
 ### Key: repo-issue
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`, `issue`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub issue] {given[owner]}/{given[repo]} #{number} - {user[login]}: {title} ({state}) - {label_list} - Milestone: {milestone[title]} / Assigned: {assigned_name}"
 ```
 
 ### Key: repo-issues
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {total_count} total issues ({open_count} open / {closed_count} closed)"
 ```
 
 ### Key: repo-no-issues
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No issues found"
 ```
 
 ### Key: repo-label
@@ -316,7 +337,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub label] {given[owner]}/{given[repo]} - {given[label] - {total_count} issues: {open_count} open / {closed_count} closed"
 ```
 
 ### Key: repo-label-no-issues
@@ -328,7 +349,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub label] {given[owner]}/{given[repo]} - {given[label] - No issues found"
 ```
 
 ### Key: repo-labels
@@ -340,7 +361,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {labels_count} labels, including {labels_sample}"
 ```
 
 ### Key: repo-no-labels
@@ -352,7 +373,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No labels found"
 ```
 
 ### Key: repo-milestone
@@ -364,7 +385,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub milestone] {given[owner]}/{given[repo]} - {issues_count} issues - {open_issues} open / {closed_issues} closed ({percent}% complete)"
 ```
 
 ### Key: repo-milestone-no-issues
@@ -376,7 +397,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub milestone] {given[owner]}/{given[repo]} - {title} - {description} - No issues found"
 ```
 
 ### Key: repo-milestones
@@ -388,7 +409,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo {given[owner]}/{given[repo]}] - {total_milestones} milestones - Latest: {title} - {description} | {open_issues} open issues / {closed_issues} closed issues - {percent}%"
 ```
 
 ### Key: repo-no-milestones
@@ -400,7 +421,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No milestones found"
 ```
 
 ### Key: repo-pull
@@ -412,7 +433,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub pull request] {given[owner]}/{given[repo]} #{number} - {user[login]}: {title} ({state}) - Milestone: {milestone[title]} / Assigned: {assigned_name}"
 ```
 
 ### Key: repo-pulls
@@ -424,7 +445,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {total_count} total pull requests ({open_count} open / {closed_count} closed)"
 ```
 
 ### Key: repo-no-pulls
@@ -436,7 +457,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No pull requests found"
 ```
 
 ### Key: repo-releases
@@ -448,7 +469,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {total_releases} releases"
 ```
 
 ### Key: repo-no-releases
@@ -460,7 +481,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No releases found"
 ```
 
 ### Key: repo-releases-latest
@@ -472,7 +493,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - Latest release: {tag_name} - {name}"
 ```
 
 ### Key: repo-releases-tag
@@ -484,7 +505,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - Specific release: {tag_name} - {name}"
 ```
 
 ### Key: repo-stargazers
@@ -496,7 +517,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {total_stargazers} stargazers, including {stargazers_sample}"
 ```
 
 ### Key: repo-no-stargazers
@@ -508,7 +529,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No stargazers found"
 ```
 
 ### Key: repo-tags
@@ -520,7 +541,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {total_tags} tags, including {tags_sample}"
 ```
 
 ### Key: repo-no-tags
@@ -532,7 +553,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No tags found"
 ```
 
 ### Key: repo-tree-branch
@@ -544,7 +565,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]}/{given[branch]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-tree-branch-path
@@ -556,7 +577,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]}/{given[branch]} - {given[path]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-tree-branch-path-dir
@@ -568,7 +589,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]}/{given[branch]} - {given[path]} - {total_files} files"
 ```
 
 ### Key: repo-watchers
@@ -580,7 +601,7 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - {total_watchers} watchers, including {watchers_sample}"
 ```
 
 ### Key: repo-no-watchers
@@ -592,5 +613,5 @@ GitHub
 **Default string**:
 
 ```
-!!python/unicode ""
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]} - No watchers found"
 ```
