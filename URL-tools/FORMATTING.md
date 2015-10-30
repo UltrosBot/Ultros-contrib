@@ -193,7 +193,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-blob-hash-path
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/blob/740db9cd4f15e208530833b45bf9d91ada9d56a6/system/logging/logger.py
 * **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
 * `given`: `owner`, `repo`, `hash`, `path`
 
@@ -205,7 +205,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-no-commits
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/test/commits
 * **API documentation**: N/A
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -218,7 +218,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-commits
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/commits
 * **API documentation**: N/A
 * **Notes**: The following data is available:
     * `commits`: A large list of commits
@@ -235,7 +235,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-commits-branch
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/commits/master
 * **API documentation**: N/A
 * **Notes**: The following data is available:
     * `commits`: A large list of commits
@@ -252,7 +252,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-commits-branch-path
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/commits/master/system/logging/logger.py
 * **API documentation**: N/A
 * **Notes**: The following data is available:
     * `commits`: A large list of commits
@@ -269,7 +269,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-commit-hash
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/commit/126790345e68072def2b91ba5b0d5033d005e0da
 * **API documentation**: 
 * `given`: `owner`, `repo`, `hash`
 
@@ -281,7 +281,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-compare
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros-contrib/compare/54d62947f8ad...9dd4a625659e
 * **API documentation**: 
 * `given`: `owner`, `repo`, `left`, `right`
 
@@ -293,7 +293,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-issue
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/issues/82
 * **API documentation**: 
 * `given`: `owner`, `repo`, `issue`
 
@@ -305,7 +305,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-issues
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/issues
 * **API documentation**: 
 * `given`: `owner`, `repo`
 
@@ -317,7 +317,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-no-issues
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/<some owner>/<some repo with no issues>/issues
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -330,7 +330,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-label
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/labels/Bug
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `closed_count`: Number of closed issues under this label
@@ -346,7 +346,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-label-no-issues
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/labels/Invalid
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`, `label`
@@ -359,7 +359,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-labels
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/labels
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `labels`: Large list of all labels; unformatted
@@ -375,7 +375,7 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-no-labels
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/test/labels
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -394,7 +394,7 @@ As a result, the API expects the ID of a milestone instead - starting at `1` for
 We're aware that this makes this call not all that useful, but we'd rather have *some* functionality here
 than none.
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/milestones/2 (Note the ID here instead of the milestone name)
 * **API documentation**: 
 * **Notes**: The following extra data is available:
     * `issues_count`: Total number of issues under this milestone
@@ -409,7 +409,13 @@ than none.
 
 ### Key: repo-milestone-no-issues
 
-* **Example URL**: https://github.com/
+**Important**: The GitHub API does not provide a way to access milestone information using the URL slug.
+As a result, the API expects the ID of a milestone instead - starting at `1` for the earliest.
+
+We're aware that this makes this call not all that useful, but we'd rather have *some* functionality here
+than none.
+
+* **Example URL**: https://github.com/UltrosBot/test/milestones/1 (Note the ID here instead of the milestone name)
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `percent`: This is just `0` right now
@@ -427,7 +433,7 @@ than none.
 latest milestone, rather than the list of milestones - although, that's arguably more useful
 than a list.
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/milestones
 * **API documentation**: 
 * **Notes**: The following extra data is available:
     * `issues_count`: Total number of issues under this milestone
@@ -443,7 +449,7 @@ than a list.
 
 ### Key: repo-no-milestones
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros-tools/milestones
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -460,7 +466,7 @@ than a list.
 it in that case. For this call, `assigned_name` should be used instead of `assignee`, and only the `title`
 key of the `milestone` are safe to use, but we decided to include everything in case they were useful to someone.
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/pull/75
 * **API documentation**: 
 * **Notes**: The following extra data is available:
     * `assigned_name`: The username of the assignee, or None if there isn't one
@@ -474,7 +480,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-pulls
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/pulls
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `closed_count`: Total number of closed PRs under this repo
@@ -490,7 +496,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-no-pulls
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/test/pulls
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -503,7 +509,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-releases
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/releases
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `total_releases`: Total number of releases under this repo
@@ -517,7 +523,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-no-releases
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/test/releases
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -530,7 +536,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-releases-latest
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/releases/latest
 * **API documentation**: 
 * `given`: `owner`, `repo`
 
@@ -542,7 +548,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-releases-tag
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/releases/tag/v1.1.0
 * **API documentation**: 
 * `given`: `owner`, `repo`, `tag`
 
@@ -554,7 +560,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-stargazers
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/stargazers
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `total_stargazers`: The total number of stargazers for this repo
@@ -569,7 +575,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-no-stargazers
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/<some owner>/<some repo with no stars>/issues
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -582,7 +588,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-tags
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/tags
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `total_tags`: The total number of tags for this repo
@@ -597,7 +603,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-no-tags
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/test/tags
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
@@ -610,7 +616,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-tree-branch
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/tree/master
 * **API documentation**: 
 * `given`: `owner`, `repo`, `branch`
 
@@ -622,7 +628,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-tree-branch-path
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/tree/master/README.md
 * **API documentation**: 
 * `given`: `owner`, `repo`, `branch`, `path`
 
@@ -634,7 +640,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-tree-branch-path-dir
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/tree/master/system
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `total_files`: The total number of files in this directory
@@ -648,7 +654,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-watchers
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/UltrosBot/Ultros/watchers
 * **API documentation**: 
 * **Notes**: The following data is available:
     * `total_watchers`: The total number of watchers for this repo
@@ -663,7 +669,7 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 
 ### Key: repo-no-watchers
 
-* **Example URL**: https://github.com/
+* **Example URL**: https://github.com/<some owner>/<some repo with no watchers>/issues
 * **API documentation**: 
 * **Notes**: The only data available here is in `given`
 * `given`: `owner`, `repo`
