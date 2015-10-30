@@ -254,10 +254,13 @@ class WebPlugin(PluginObject):
 
         # .well-known file handler
 
-        self.application.add_handlers([(
-            r"/.well-known/(.*)", StaticFileHandler,
-            {"path": "web/static/.well-known"}
-        )])
+        self.application.add_handlers(
+            r".*$",
+            [(
+                r"/.well-known/(.*)", StaticFileHandler,
+                {"path": "web/static/.well-known"}
+            )]
+        )
 
         if self.config.get("hosted", False):
             hosted = self.config["hosted"]
