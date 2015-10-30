@@ -101,3 +101,72 @@ Permissions and commands
 ========================
 
 There are no permissions or commands for this plugin.
+
+Handler quirks
+==============
+
+All handlers will fall back to the standard URL title handler if there's a problem, so you should always have
+some kind of title to work with. Additionally, you should take note of the following:
+
+GitHub
+------
+
+The GitHub API only refers to milestones by ID - the milestone names given in milestone URLs are not supported.
+As such, you will still be able to use these URLs, but you'll have to replace the name with the milestone ID - starting
+with `1` for the earliest milestone. This is less than ideal, but I'm told that they're working on it.
+
+The GitHub handler is unable to handle certain types of URLs. The following URLs and any others under them
+will return GitHub Zen instead, unless Zen has been disabled.
+
+* https://github.com/about
+* https://github.com/blog
+* https://github.com/contaxt
+* https://github.com/explore
+* https://github.com/integrations
+* https://github.com/issues
+* https://github.com/pricing
+* https://github.com/pulls
+* https://github.com/security
+* https://github.com/settings
+* https://github.com/showcases
+* https://github.com/site
+* https://github.com/stars
+* https://github.com/trending
+
+The following URLs always fall through to the next handler.
+
+* https://github.com/
+
+The following repository sections will simply return the basic repository info.
+
+* Blame
+* Graphs
+* Pulse
+* Settings
+* Wiki
+
+osu!
+----
+
+The following sections always fall through to the next handler.
+
+* Forum
+* Main page
+* News
+* Wiki
+
+Some URLs support fragments or query parameters.
+
+* A query string is seen at the end of a URL, starting with a `?` and going to the end of the URL, or the first `#`, if any.
+* A fragment is seen at the end of a URL, starting with `#` and going to the end of the URL.
+
+These are as seen on the site, and are taken into account by this handler.
+
+* `m`: The selected gamemode. The site only uses numbers, but the plugin supports a number of alternative placeholders, if users would prefer to use them. These work on user, mapset and beatmap pages.
+    * **Standard**: `0`, `standard`, `osu`, `osu!`
+    * **Taiko**: `1`, `taiko`, `drum`
+    * **Catch the Beat**: `2`, `ctb`, `catchthebeat`, `catch`, `beat`, `fruit`
+    * **Mania**: `3`, `mania`, `osu!mania`, `osumania`
+* `t` or `type`: To specify whether the user provided is a username or a user ID. This is to resolve discrepancies with numerical usernames.
+    * `string`: To specify that the user specified is a username.
+    * `id`: To specify that the user specified is a numerical ID.
