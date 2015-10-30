@@ -257,7 +257,7 @@ class WebPlugin(PluginObject):
         self.application.add_handlers(
             r".*$",
             [(
-                r"/.well-known/(.*)", StaticFileHandler,
+                r"/\.well-known/(.*)", StaticFileHandler,
                 {"path": "web/static/.well-known"}
             )]
         )
