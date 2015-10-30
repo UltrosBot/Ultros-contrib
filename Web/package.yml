@@ -80,6 +80,7 @@ files:
 # Assets - folders
 - web/
 - web/static/
+- web/static/.well-known/
 - web/templates/
 - web/templates/admin/
 # Assets - files
