@@ -11,7 +11,7 @@ __author__ = "Gareth Coles"
 import os
 import re
 
-from cyclone.web import Application
+from cyclone.web import Application, StaticFileHandler
 
 from plugins.web.apikeys import APIKeys
 from plugins.web.events import ServerStartedEvent, ServerStoppedEvent
@@ -250,6 +250,13 @@ class WebPlugin(PluginObject):
 
             ## Static file settings
             static_path="web/static"
+        )
+
+        # .well-known file handler
+
+        self.application.add_handler(
+            r"/.well-known/(.*)", StaticFileHandler,
+            {"path": "web/static/.well-known"}
         )
 
         if self.config.get("hosted", False):
