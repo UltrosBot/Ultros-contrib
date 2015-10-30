@@ -332,7 +332,11 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `closed_count`: Number of closed issues under this label
+    * `open_count`: Number of open issues under this label
+    * `total_count`: Total number of issues under this label
+* `given`: `owner`, `repo`, `label`
 
 **Default string**:
 
@@ -344,7 +348,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`, `label`
 
 **Default string**:
 
@@ -356,7 +361,11 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `labels`: Large list of all labels; unformatted
+    * `labels_sample`: Number of open issues under this label
+    * `labels_count`: Total number of issues under this label
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -368,7 +377,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -378,9 +388,18 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-milestone
 
+**Important**: The GitHub API does not provide a way to access milestone information using the URL slug.
+As a result, the API expects the ID of a milestone instead - starting at `1` for the earliest.
+
+We're aware that this makes this call not all that useful, but we'd rather have *some* functionality here
+than none.
+
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following extra data is available:
+    * `issues_count`: Total number of issues under this milestone
+    * `percent`: Estimated completion percentage of this milestone
+* `given`: `owner`, `repo`, `milestone`
 
 **Default string**:
 
@@ -392,7 +411,9 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `percent`: This is just `0` right now
+* `given`: `owner`, `repo`, `milestone`
 
 **Default string**:
 
@@ -402,9 +423,17 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-milestones
 
+**Important**: This call is distinct from the other listing calls in that it provides the
+latest milestone, rather than the list of milestones - although, that's arguably more useful
+than a list.
+
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following extra data is available:
+    * `issues_count`: Total number of issues under this milestone
+    * `percent`: Estimated completion percentage of this milestone
+    * `total_milestones`: Total number of milestones in this repo
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -416,7 +445,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -426,9 +456,15 @@ square brackets `]`, like so: `{given[key]}`
 
 ### Key: repo-pull
 
+**Important**: GitHub understandably doesn't return specific data, when it's missing, so we substitute
+it in that case. For this call, `assigned_name` should be used instead of `assignee`, and only the `title`
+key of the `milestone` are safe to use, but we decided to include everything in case they were useful to someone.
+
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following extra data is available:
+    * `assigned_name`: The username of the assignee, or None if there isn't one
+* `given`: `owner`, `repo`, `pull`
 
 **Default string**:
 
@@ -440,7 +476,11 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `closed_count`: Total number of closed PRs under this repo
+    * `open_count`: Total number of open PRs under this repo
+    * `total_count`: Total number of PRs under this repo
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -452,7 +492,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -464,7 +505,9 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `total_releases`: Total number of releases under this repo
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -476,7 +519,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -488,7 +532,7 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -500,7 +544,7 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`, `tag`
 
 **Default string**:
 
@@ -512,7 +556,10 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `total_stargazers`: The total number of stargazers for this repo
+    * `stargazers_sample`: A random selection of up to 5 stargazers
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -524,7 +571,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -536,7 +584,10 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `total_tags`: The total number of tags for this repo
+    * `tags_sample`: A random selection of up to 5 tags
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -548,7 +599,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -560,7 +612,7 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`, `branch`
 
 **Default string**:
 
@@ -572,7 +624,7 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* `given`: `owner`, `repo`, `branch`, `path`
 
 **Default string**:
 
@@ -584,7 +636,9 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `total_files`: The total number of files in this directory
+* `given`: `owner`, `repo`, `branch`, `path`
 
 **Default string**:
 
@@ -596,7 +650,10 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The following data is available:
+    * `total_watchers`: The total number of watchers for this repo
+    * `watchers_sample`: A random selection of up to 5 watchers
+* `given`: `owner`, `repo`
 
 **Default string**:
 
@@ -608,7 +665,8 @@ square brackets `]`, like so: `{given[key]}`
 
 * **Example URL**: https://github.com/
 * **API documentation**: 
-* **Notes**: This is a simple API call. No extra data is added.
+* **Notes**: The only data available here is in `given`
+* `given`: `owner`, `repo`
 
 **Default string**:
 
