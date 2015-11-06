@@ -4,6 +4,7 @@ import datetime
 import random
 import re
 
+from kitchen.text.converters import to_unicode
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue, Deferred
 from txrequests import Session
@@ -251,8 +252,8 @@ class GithubHandler(URLHandler):
         formatting = self.plugin.config.get("github", {}).get("formatting", {})
 
         if string not in formatting:
-            return strings[string]
-        return formatting[string]
+            return to_unicode(strings[string])
+        return to_unicode(formatting[string])
 
     def parse_link_header(self, headers):
         data = {}
