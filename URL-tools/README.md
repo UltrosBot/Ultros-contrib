@@ -120,7 +120,7 @@ will return GitHub Zen instead, unless Zen has been disabled.
 
 * https://github.com/about
 * https://github.com/blog
-* https://github.com/contaxt
+* https://github.com/contact
 * https://github.com/explore
 * https://github.com/integrations
 * https://github.com/issues
