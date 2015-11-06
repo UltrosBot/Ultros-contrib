@@ -479,7 +479,7 @@ class GithubHandler(URLHandler):
             self.plugin.logger.error(e.message)
             returnValue(True)
         except ShutUpException:
-            returnValue(False)
+            returnValue(True)
         except Exception:
             self.plugin.logger.exception("Error handling URL: {}".format(url))
             returnValue(True)
