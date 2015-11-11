@@ -422,6 +422,12 @@ class WebPlugin(PluginObject):
         self.navbar_items[title] = {"url": url, "active": False, "icon": icon}
         return True
 
+    def remove_navbar_entry(self, title):
+        if title in self.navbar_items:
+            del self.navbar_items[title]
+            return True
+        return False
+
     def check_permission(self, perm, session=None):
         if session is None:
             username = None
