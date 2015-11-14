@@ -8,10 +8,6 @@ description: >
     Provides a set of tools for working with the URLs plugin. These tools provide both URL shorteners
     and specific domain handlers for the URL title parser.
 
-    == DONE ==
-    Shorteners: is.gd,  nazr.in, v.gd, waa.ai
-    Sites: youtube.com, osu.ppy.sh, github.com
-
 files:
 - plugins/urltools/
 - plugins/urltools/handlers/
