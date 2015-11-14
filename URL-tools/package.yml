@@ -1,23 +1,39 @@
 name: URL Tools
 current_version:
-    number: 0.2.1
+    number: 1.0.0
     info: >
-        Make plugin reload-friendly
+      Update for our brand-new URLs plugin - Rewrote all shorteners, plus the GitHub and Osu handlers,
+      added configurable formatting, and a few other improvements.
 description: >
     Provides a set of tools for working with the URLs plugin. These tools provide both URL shorteners
     and specific domain handlers for the URL title parser.
 
-    == DONE ==
-    Shorteners: is.gd,  nazr.in, v.gd, waa.ai
-    Sites: youtube.com, osu.ppy.sh, github.com
-
 files:
-- plugins/urltools.plug
 - plugins/urltools/
+- plugins/urltools/handlers/
+- plugins/urltools/handlers/osu/
+- plugins/urltools/shorteners/
+
+- plugins/urltools.plug
 - plugins/urltools/__init__.py
+- plugins/urltools/exceptions.py
+
+- plugins/urltools/handlers/__init__.py
+- plugins/urltools/handlers/github.py
+- plugins/urltools/handlers/youtube.py
+
+- plugins/urltools/handlers/osu/__init__.py
+- plugins/urltools/handlers/osu/mods.py
+- plugins/urltools/handlers/osu/osu.py
+
+- plugins/urltools/shorteners/__init__.py
+- plugins/urltools/shorteners/is_gd.py
+- plugins/urltools/shorteners/nazrin.py
+- plugins/urltools/shorteners/v_gd.py
+- plugins/urltools/shorteners/waa_ai.py
+
 - config/plugins/urltools.yml.example
 requires:
-    modules:
-    - requests
+    modules: []
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/URL-tools/README.md
