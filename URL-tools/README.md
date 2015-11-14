@@ -116,7 +116,8 @@ As such, you will still be able to use these URLs, but you'll have to replace th
 with `1` for the earliest milestone. This is less than ideal, but I'm told that they're working on it.
 
 The GitHub handler is unable to handle certain types of URLs. The following URLs and any others under them
-will return GitHub Zen instead, unless Zen has been disabled.
+will fall through to the next handler - unless zen has been enabled, which will cause the bot to output
+GitHub Zen instead.
 
 * https://github.com/about
 * https://github.com/blog

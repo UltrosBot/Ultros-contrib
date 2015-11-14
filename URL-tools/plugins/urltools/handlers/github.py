@@ -9,6 +9,7 @@ from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue, Deferred
 from txrequests import Session
 
+from plugins.urls.constants import STOP_HANDLING, CASCADE
 from plugins.urls.handlers.handler import URLHandler
 from plugins.urls.matching import extract_urls
 
@@ -474,25 +475,25 @@ class GithubHandler(URLHandler):
                     message = yield self.gh_repo_stargazers(target[0],
                                                             target[1])
         except NotFoundError:
-            returnValue(True)
+            returnValue(CASCADE)
             return
         except GithubError as e:
             self.plugin.logger.error(e.message)
-            returnValue(True)
+            returnValue(CASCADE)
         except ShutUpException:
-            returnValue(True)
+            returnValue(CASCADE)
         except Exception:
             self.plugin.logger.exception("Error handling URL: {}".format(url))
-            returnValue(True)
+            returnValue(CASCADE)
 
         # At this point, if `message` isn't set then we don't understand the
         # url, and so we'll just allow it to pass down to the other handlers
 
-        if message and isinstance(message, basestring):
+        if message:
             context["event"].target.respond(message)
-            returnValue(False)
+            returnValue(STOP_HANDLING)
         else:
-            returnValue(True)
+            returnValue(CASCADE)
 
     @inlineCallbacks
     def gh_user(self, user):  # User or org
@@ -1391,8 +1392,8 @@ class GithubHandler(URLHandler):
         if total == 0:
             total = len(data)
 
-        if total > 5:
-            users = random.sample(data, 5)
+        if total > RANDOM_SAMPLE_SIZE:
+            users = random.sample(data, RANDOM_SAMPLE_SIZE)
         else:
             users = data
 
@@ -1449,8 +1450,8 @@ class GithubHandler(URLHandler):
         if total == 0:
             total = len(data)
 
-        if total > 5:
-            users = random.sample(data, 5)
+        if total > RANDOM_SAMPLE_SIZE:
+            users = random.sample(data, RANDOM_SAMPLE_SIZE)
         else:
             users = data
 
@@ -1616,8 +1617,8 @@ class GithubHandler(URLHandler):
 
         data = r.json()
 
-        if len(data) > 5:
-            tags = random.sample(data, 5)
+        if len(data) > RANDOM_SAMPLE_SIZE:
+            tags = random.sample(data, RANDOM_SAMPLE_SIZE)
         else:
             tags = data
 

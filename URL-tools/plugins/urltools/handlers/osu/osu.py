@@ -5,6 +5,7 @@ import locale
 from twisted.internet.defer import inlineCallbacks, returnValue
 from txrequests import Session
 
+from plugins.urls.constants import STOP_HANDLING, CASCADE
 from plugins.urls.handlers.handler import URLHandler
 from plugins.urltools.exceptions import ApiKeyMissing
 from plugins.urltools.handlers.osu.mods import get_mods
@@ -21,9 +22,6 @@ URL_SCORES = URL_BASE + "/get_scores"
 URL_USER = URL_BASE + "/get_user"
 URL_USER_BEST = URL_BASE + "/get_user_best"
 URL_USER_RECENT = URL_BASE + "/get_user_recent"
-
-# Attempt to guess the locale
-locale.setlocale(locale.LC_ALL, "")
 
 strings = {
     "mapset": u"[osu! mapset] {artist} - {title} (by {creator}) - {counts}",
@@ -216,16 +214,16 @@ class OsuHandler(URLHandler):
 
         except Exception:
             self.plugin.logger.exception("Error handling URL: {}".format(url))
-            returnValue(True)
+            returnValue(CASCADE)
 
         # At this point, if `message` isn't set then we don't understand the
         # url, and so we'll just allow it to pass down to the other handlers
 
-        if message and isinstance(message, basestring):
+        if message:
             context["event"].target.respond(message)
-            returnValue(False)
+            returnValue(CASCADE)
         else:
-            returnValue(True)
+            returnValue(STOP_HANDLING)
 
     @inlineCallbacks
     def beatmap(self, url, beatmap):
@@ -286,7 +284,7 @@ class OsuHandler(URLHandler):
         data = beatmap
 
         if beatmap["approved"] in [
-            "Pending", "WIP", "Graveyard", u"Unknown approval"
+            u"Pending", u"WIP", u"Graveyard", u"Unknown approval"
         ]:
             message = self.get_string("beatmap-unapproved")
         elif scores is None:
@@ -384,7 +382,7 @@ class OsuHandler(URLHandler):
 
         for key in ["ranked_score", "pp_raw", "pp_rank", "count300",
                     "count100", "count50", "playcount", "total_score",
-                    "pp_country_rank"]:  # Localize number formatting
+                    "pp_country_rank"]:  # Localisé number formatting
             data[key] = locale.format(
                 "%d", int(data[key]), grouping=True
             )

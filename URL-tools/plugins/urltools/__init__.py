@@ -5,7 +5,6 @@ import system.plugin as plugin
 
 from system.plugins.manager import PluginManager
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 from plugins.urls import Priority
 
@@ -22,35 +21,17 @@ from plugins.urltools.shorteners import waa_ai
 
 __author__ = 'Gareth Coles'
 
-# Attempt to guess the locale.
-locale.setlocale(locale.LC_ALL, "")
-
 
 class URLToolsPlugin(plugin.PluginObject):
-
-    YOUTUBE_LOGO = "YouTube"  # Separated for colouring
-    OUTPUT_YOUTUBE_VIDEO = "[" + YOUTUBE_LOGO + " Video] %s (%s) by %s, %s l" \
-                                                "ikes, %s dislikes, %s views"
-    OUTPUT_YOUTUBE_PLAYLIST = "[" + YOUTUBE_LOGO + " Playlist] %s (%s videos" \
-                                                   ", total %s) by %s - \"%s\""
-    OUTPUT_YOUTUBE_CHANNEL = "[" + YOUTUBE_LOGO + " Channel] %s (%s subscrib" \
-                                                  "ers, %s videos with %s to" \
-                                                  "tal views) - \"%s\""
-    # PEP MOTHERFUCKING 8 ^
-
-    YOUTUBE_DESCRIPTION_LENGTH = 75
-
     @property
     def urls(self):
         """
         :rtype: plugins.urls.URLsPlugin
         """
 
-        return self.plugman.get_plugin("URLs")
+        return self.plugins.get_plugin("URLs")
 
     def setup(self):
-        self.storage = StorageManager()
-
         try:
             self.config = self.storage.get_file(
                 self, "config", YAML, "plugins/urltools.yml"
@@ -81,8 +62,6 @@ class URLToolsPlugin(plugin.PluginObject):
             "v.gd": v_gd.VGdShortener,
             "waa.ai": waa_ai.WaaAiShortener
         }
-
-        self.plugman = PluginManager()
 
         self._load()
         self.config.add_callback(self._load)
@@ -124,4 +103,4 @@ class URLToolsPlugin(plugin.PluginObject):
             self.urls.remove_shortener(shortener)
 
         for handler in self.handlers.itervalues():
-            self.urls.remove_handler(handler)
+            self.urls.remove_handler(handler[0].name)

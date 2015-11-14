@@ -137,7 +137,6 @@ URL-tools:
     description: "Provides a set of tools for working with the URLs plugin."
     requires:
         modules:
-        - requests
         - txrequests
         packages: []
 W3validator:

@@ -39,6 +39,6 @@ files:
 - config/plugins/urltools.yml.example
 requires:
     modules:
-    - requests
+    - txrequests
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/URL-tools/README.md
