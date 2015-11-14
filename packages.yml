@@ -136,8 +136,7 @@ URL-tools:
     version: 1.0.0
     description: "Provides a set of tools for working with the URLs plugin."
     requires:
-        modules:
-        - txrequests
+        modules: []
         packages: []
 W3validator:
     version: 0.0.1
