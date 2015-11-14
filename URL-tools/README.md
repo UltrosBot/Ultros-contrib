@@ -56,6 +56,7 @@ github:
   zen: false  # Whether to use GitHub Zen for URLs that are unhandleable
               # Disable and the bot will be silent for them
   formatting: {}  # See documentation if you want to change the formatting and remember to prefix each value  with !!python/unicode
+  random_sample_size: 5  # Maximum watchers/stargazers/tags/etc to use when a random sample is taken
 
   # You need to authenticate if you want to raise the API limits, which is highly recommended.
   # Make your own application at https://github.com/settings/applications/new and enter the client ID and secret here.
@@ -72,6 +73,10 @@ just want to install the plugin and go.
   if you'd like the bot to output some GitHub Zen for those instead - otherwise, 
   the bot will remain silent
 * **formatting**: See [FORMATTING.md](FORMATTING.md) for more information on this section.
+* **random_sample_size**: The maximum number of watchers, stargazers, tags, and so on to show when picking a random sample when the following URLs are handled:
+    * `https://github.com/[Repository]/watchers`
+    * `https://github.com/[Repository]/stargazers`
+    * `https://github.com/[Repository]/tags`
 * **Authentication**: You can get a client ID and secret by [making an application here](https://github.com/settings/applications/new)
     * Adding a client ID and secret will significantly raise your API limits, so we highly recommend doing so
     * **client_id**: The Client ID from your application

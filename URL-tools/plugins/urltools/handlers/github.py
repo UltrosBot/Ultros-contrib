@@ -238,6 +238,12 @@ class GithubHandler(URLHandler):
     def zen(self):
         return self.plugin.config.get("github", {}).get("zen", False)
 
+    @property
+    def random_sample_size(self):
+        return self.plugin.config.get("github", {}).get(
+            "random_sample_size", RANDOM_SAMPLE_SIZE
+        )
+
     def raise_if_message(self, request):
         try:
             d = request.json()
@@ -1392,8 +1398,8 @@ class GithubHandler(URLHandler):
         if total == 0:
             total = len(data)
 
-        if total > RANDOM_SAMPLE_SIZE:
-            users = random.sample(data, RANDOM_SAMPLE_SIZE)
+        if total > self.random_sample_size:
+            users = random.sample(data, self.random_sample_size)
         else:
             users = data
 
@@ -1450,8 +1456,8 @@ class GithubHandler(URLHandler):
         if total == 0:
             total = len(data)
 
-        if total > RANDOM_SAMPLE_SIZE:
-            users = random.sample(data, RANDOM_SAMPLE_SIZE)
+        if total > self.random_sample_size:
+            users = random.sample(data, self.random_sample_size)
         else:
             users = data
 
@@ -1617,8 +1623,8 @@ class GithubHandler(URLHandler):
 
         data = r.json()
 
-        if len(data) > RANDOM_SAMPLE_SIZE:
-            tags = random.sample(data, RANDOM_SAMPLE_SIZE)
+        if len(data) > self.random_sample_size:
+            tags = random.sample(data, self.random_sample_size)
         else:
             tags = data
 
