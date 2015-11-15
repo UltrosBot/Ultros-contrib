@@ -1,9 +1,6 @@
 # coding=utf-8
-import locale
-
 import system.plugin as plugin
 
-from system.plugins.manager import PluginManager
 from system.storage.formats import YAML
 
 from plugins.urls import Priority
