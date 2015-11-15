@@ -61,7 +61,11 @@ class URLToolsPlugin(plugin.PluginObject):
         }
 
         self._load()
-        self.config.add_callback(self._load)
+        self.config.add_callback(self._reload)
+
+    def _reload(self):
+        self._unload()
+        self._load()
 
     def _load(self):
         for handler in self.config.get("handlers", []):
@@ -95,9 +99,12 @@ class URLToolsPlugin(plugin.PluginObject):
                     "Unable to load shortener {}".format(shortener)
                 )
 
-    def deactivate(self):
+    def _unload(self):
         for shortener in self.shorteners.iterkeys():
             self.urls.remove_shortener(shortener)
 
         for handler in self.handlers.itervalues():
             self.urls.remove_handler(handler[0].name)
+
+    def deactivate(self):
+        self._unload()
