@@ -2,7 +2,7 @@ core:
   name: URL-tools
   module: urltools
   dependencies:
-  - URLs
+  - "URLs >= 2.0.0"
 info:
   description: Provides support for various sites and shorteners for the URLs plugin
   author: Gareth Coles
