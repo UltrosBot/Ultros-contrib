@@ -344,7 +344,7 @@ class GithubHandler(URLHandler):
 
         try:
             if len(target) < 1:  # It's just the front page, don't bother
-                returnValue(True)
+                returnValue(CASCADE)
             elif target[0] in [  # Stupid special cases
                 "stars", "trending", "showcases", "explore", "site",
                 "security", "contact", "blog", "about", "pricing",

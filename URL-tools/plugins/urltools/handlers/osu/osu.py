@@ -196,7 +196,7 @@ class OsuHandler(URLHandler):
 
         try:
             if len(target) < 2:  # It's the front page or invalid, don't bother
-                returnValue(True)
+                returnValue(CASCADE)
             elif target[0] in [  # Special cases we don't care about
                 "forum", "wiki", "news"
             ]:
