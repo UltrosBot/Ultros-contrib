@@ -1,5 +1,6 @@
 # coding=utf-8
 import random
+import urlparse
 from datetime import datetime, timedelta
 
 import re
@@ -127,6 +128,8 @@ class FListHandler(URLHandler):
         returnValue(self.ticket)
 
     def get_sample(self, items, count):
+        if not items:
+            return ["Nothing"]
         if len(items) <= count:
             return items
         return [i for i in random.sample(items, count)]
@@ -168,6 +171,7 @@ class FListHandler(URLHandler):
 
     @inlineCallbacks
     def character(self, char_name):
+        char_name = urlparse.unquote(char_name)
         ticket = yield self.get_ticket()
         params = {
             "ticket": ticket,

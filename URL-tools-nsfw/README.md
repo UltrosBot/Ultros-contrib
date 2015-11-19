@@ -71,6 +71,8 @@ some kind of title to work with. Additionally, you should take note of the follo
 F-List
 ------
 
+The API does not return character names with correct capitalisation - expect it to be wrong.
+
 The F-List handler can only handle character URLs:
 * `http://f-list.net/c/<character-name>`
 
