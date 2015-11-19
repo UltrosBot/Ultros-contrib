@@ -76,7 +76,7 @@ class URLToolsPlugin(plugin.PluginObject):
             except ApiKeyMissing:
                 self.logger.error(
                     "Unable to load handler {}: Missing required API "
-                    "key".format(handler)
+                    "key or login details".format(handler)
                 )
             except Exception:
                 self.logger.exception(
@@ -92,7 +92,7 @@ class URLToolsPlugin(plugin.PluginObject):
             except ApiKeyMissing:
                 self.logger.error(
                     "Unable to load shortener {}: Missing required API "
-                    "key".format(shortener)
+                    "key or login details".format(shortener)
                 )
             except Exception:
                 self.logger.exception(
