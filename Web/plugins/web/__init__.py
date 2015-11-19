@@ -223,7 +223,7 @@ class WebPlugin(PluginObject):
             self.logger.warn("It's stored in data/plugins/web/data.json - "
                              "keep this file secure!")
             with self.data:
-                self.data["secret"] = mkpasswd(60, 20, 20, 20)
+                self.data["secret"] = mkpasswd(60)
 
         self.template_loader = TemplateLoader(self)
 

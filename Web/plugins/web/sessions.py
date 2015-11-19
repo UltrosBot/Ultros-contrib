@@ -56,7 +56,7 @@ class Sessions(object):
 
     def create_session(self, username, remember=False):
         username = username.lower()
-        key = mkpasswd(100, 32, 34, 34)
+        key = mkpasswd(100)
 
         s = {
             "username": username,

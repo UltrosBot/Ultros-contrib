@@ -25,7 +25,7 @@ class APIKeys(object):
         if tries > 4:
             raise KeyError("Unable to generate a unique API key!")
 
-        key = mkpasswd(32, 12, 10, 10)
+        key = mkpasswd(32)
 
         if key in self.data:
             time.sleep(0.01)
