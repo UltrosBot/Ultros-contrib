@@ -138,6 +138,12 @@ URL-tools:
     requires:
         modules: []
         packages: []
+URL-tools-nsfw:
+    version: 1.0.0
+    description: "Provides a set of tools for working with the URLs plugin - NSFW electric boogaloo version"
+    requires:
+        modules: []
+        packages: []
 W3validator:
     version: 0.0.1
     description: "Uses validator.w3.org to validate websites."

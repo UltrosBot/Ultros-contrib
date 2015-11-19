@@ -1,0 +1,29 @@
+name: URL Tools (NSFW)
+current_version:
+    number: 1.0.0
+    info: >
+      Initial version
+description: >
+    Provides a set of tools for working with the URLs plugin, similarly to URL-tools, but the sites
+    this plugin supports are very much not safe for work.
+
+files:
+- plugins/urltools_nsfw/
+- plugins/urltools_nsfw/handlers/
+- plugins/urltools_nsfw/handlers/flist/
+
+- plugins/urltools_nsfw.plug
+- plugins/urltools_nsfw/__init__.py
+- plugins/urltools_nsfw/exceptions.py
+
+- plugins/urltools_nsfw/handlers/__init__.py
+
+- plugins/urltools_nsfw/handlers/flist/__init__.py
+- plugins/urltools_nsfw/handlers/flist/flist.py
+- plugins/urltools_nsfw/handlers/flist/misc.py
+
+- config/plugins/urltools-nsfw.yml.example
+requires:
+    modules: []
+    packages: []
+documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/URL-tools-nsfw/README.md

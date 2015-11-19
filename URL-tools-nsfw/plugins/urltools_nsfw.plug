@@ -1,0 +1,11 @@
+core:
+  name: URL-tools-nsfw
+  module: urltools_nsfw
+  dependencies:
+  - "URLs >= 2.0.0"
+info:
+  description: Provides support for various sites and shorteners for the URLs plugin - NSFW sites version
+  author: Gareth Coles
+  version: 1.0.0
+  website: https://github.com/UltrosBot/Ultros-contrib/blob/master/URL-tools-nsfw
+  copyright: See Ultros' license

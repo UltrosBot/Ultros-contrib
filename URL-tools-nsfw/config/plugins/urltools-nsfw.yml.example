@@ -1,0 +1,12 @@
+handlers:
+  - f-list
+
+f-list:
+  # We recommend you create a separate account and character for your bot to use, instead of using
+  # your own personal f-list account - if you have one, that is.
+
+  username: "username"  # Your login username - Remmeber, you need to have a character on your account!
+  password: "password"  # Your login password - Don't worry, this is only used for interacting with the API
+
+  formatting: {}  # See https://github.com/UltrosBot/Ultros-contrib/blob/master/URL-tools-nsfw/FORMATTING.md
+  kink-sample: 2  # The max number of random kinks to show; could get quite long
