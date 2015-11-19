@@ -112,7 +112,7 @@ class FListHandler(URLHandler):
     @inlineCallbacks
     def get_ticket(self):
         now = datetime.now()
-        then = now - timedelta(hours=12)
+        then = now - timedelta(minutes=4)
 
         if not self.last_renewal or then > self.last_renewal:
             data = yield self.post(
