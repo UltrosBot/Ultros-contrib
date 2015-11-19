@@ -221,9 +221,9 @@ class OsuHandler(URLHandler):
 
         if message:
             context["event"].target.respond(message)
-            returnValue(CASCADE)
-        else:
             returnValue(STOP_HANDLING)
+        else:
+            returnValue(CASCADE)
 
     @inlineCallbacks
     def beatmap(self, url, beatmap):
