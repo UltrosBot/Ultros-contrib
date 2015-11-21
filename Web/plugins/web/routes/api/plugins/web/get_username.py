@@ -13,7 +13,7 @@ class Route(RequestHandler):
 
     name = ""
 
-    @check_api_perm(permission="web.api.get_username", required_key=True)
+    @check_api(permission="web.api.get_username", required_key=True)
     def get(self, username, *args, **kwargs):
         return self.finish_json({  # Decorator does all the heavy lifting
             "username": username
