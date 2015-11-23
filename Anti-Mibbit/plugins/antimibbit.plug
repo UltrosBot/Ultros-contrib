@@ -2,7 +2,7 @@ core:
   name: Anti-Mibbit
   module: antimibbit
   dependencies:
-  - URLs
+  - "URLs < 2.0.0"
 info:
   description: "Make people using terrible IRC clients less unbearable."
   author: Gareth Coles

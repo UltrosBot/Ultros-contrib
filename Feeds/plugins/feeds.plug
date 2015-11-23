@@ -1,7 +1,8 @@
 core:
   name: Feeds
   module: feeds
-  dependencies: [URLs]
+  dependencies:
+  - "URLs < 2.0.0"
 info:
   description: Plugin to handle feed parsing and updating
   author: Gareth Coles

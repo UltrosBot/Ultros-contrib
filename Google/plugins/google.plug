@@ -1,7 +1,8 @@
 core:
   name: Google
   module: google
-  dependencies: [URLs]
+  dependencies:
+  - "URLs < 2.0.0"
 info:
   description: Plugin to do quick Google searches
   author: Gareth Coles
