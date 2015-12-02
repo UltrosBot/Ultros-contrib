@@ -9,10 +9,19 @@ from plugins.urls.handlers.handler import URLHandler
 from plugins.urltools import ApiKeyMissing
 
 __author__ = 'Sean'
-__all__ = ["YoutubeHandler", "YoutubeAPIError"]
+__all__ = ["YoutubeHandler", "YoutubeHandlerError", "YoutubeMissingItemError",
+           "YoutubeAPIError"]
 
 
-class YoutubeAPIError(Exception):
+class YoutubeHandlerError(Exception):
+    pass
+
+
+class YoutubeMissingItemError(YoutubeHandlerError):
+    pass
+
+
+class YoutubeAPIError(YoutubeHandlerError):
 
     def __init__(self, message, code, errors, *args, **kwargs):
         self.errors = errors
@@ -297,11 +306,18 @@ class YoutubeHandler(URLHandler):
             error = data["error"]
             raise YoutubeAPIError(
                 error["message"], error["code"], error["errors"])
-        return data["items"][0]
+        try:
+            return data["items"][0]
+        except LookupError:
+            raise YoutubeMissingItemError()
 
     def _handle_request_failure(self, fail, context, result_def):
         if fail.check(YoutubeAPIError):
             self.plugin.logger.error(fail.getErrorMessage())
+        elif fail.check(YoutubeMissingItemError):
+            # It's a 404, basically, so don't bother with a title
+            result_def.callback(STOP_HANDLING)
+            return
         else:
             self.plugin.logger.error(fail.getTraceback())
         result_def.callback(CASCADE)
