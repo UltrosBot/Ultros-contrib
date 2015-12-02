@@ -28,7 +28,7 @@ class YoutubeAPIError(YoutubeHandlerError):
         message_parts = []
         for error in errors:
             message_parts.append(
-                u'Domain: "{domain}", Reason: "{reason}", Message "{message}"'.format(**error) # noqa
+                u'Domain: "{domain}", Reason: "{reason}", Message "{message}"'.format(**error)  # noqa
             )
         full_message = u"%s %s [%s]" % (message, code,
                                         u" | ".join(message_parts))
