@@ -11,6 +11,7 @@ from plugins.urltools import ApiKeyMissing
 __author__ = 'Sean'
 __all__ = ["YoutubeHandler", "YoutubeAPIError"]
 
+
 class YoutubeAPIError(Exception):
 
     def __init__(self, message, code, errors, *args, **kwargs):
@@ -18,8 +19,7 @@ class YoutubeAPIError(Exception):
         message_parts = []
         for error in errors:
             message_parts.append(
-                u'Domain: "{domain}", Reason: "{reason}", Message "{message}"'
-                    .format(**error)
+                u'Domain: "{domain}", Reason: "{reason}", Message "{message}"'.format(**error) # noqa
             )
         full_message = u"%s %s [%s]" % (message, code,
                                         u" | ".join(message_parts))
