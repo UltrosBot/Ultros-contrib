@@ -11,3 +11,5 @@
     added configurable formatting, and a few other improvements.
 1.1.0: >
     Add YouTube handler.
+1.1.1: >
+    Add error logging to YouTube handler.

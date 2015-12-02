@@ -9,7 +9,21 @@ from plugins.urls.handlers.handler import URLHandler
 from plugins.urltools import ApiKeyMissing
 
 __author__ = 'Sean'
-__all__ = ["YoutubeHandler"]
+__all__ = ["YoutubeHandler", "YoutubeAPIError"]
+
+class YoutubeAPIError(Exception):
+
+    def __init__(self, message, code, errors, *args, **kwargs):
+        self.errors = errors
+        message_parts = []
+        for error in errors:
+            message_parts.append(
+                u'Domain: "{domain}", Reason: "{reason}", Message "{message}"'
+                    .format(**error)
+            )
+        full_message = u"%s %s [%s]" % (message, code,
+                                        u" | ".join(message_parts))
+        super(YoutubeAPIError, self).__init__(full_message, *args, **kwargs)
 
 
 class YoutubeHandler(URLHandler):
@@ -165,7 +179,7 @@ class YoutubeHandler(URLHandler):
     def _handle_video_response(self, response, context, result_def):
         data = response.json()
 
-        items = data["items"][0]
+        items = self._get_items(data)
 
         content_details = items["contentDetails"]
         snippet = items["snippet"]
@@ -180,7 +194,7 @@ class YoutubeHandler(URLHandler):
         dislike_count = int(statistics["dislikeCount"])
         ratings_total = likes_count + dislike_count
         rating_percentage = (float(likes_count) / ratings_total) * 100
-        tags = snippet["tags"]
+        tags = snippet.get("tags", [])
 
         if len(tags) > 0:
             tags_formatted = ", ".join(tags[:5])
@@ -217,7 +231,7 @@ class YoutubeHandler(URLHandler):
     def _handle_channel_response(self, response, context, result_def):
         data = response.json()
 
-        items = data["items"][0]
+        items = self._get_items(data)
 
         snippet = items["snippet"]
         statistics = items["statistics"]
@@ -254,7 +268,7 @@ class YoutubeHandler(URLHandler):
     def _handle_playlist_response(self, response, context, result_def):
         data = response.json()
 
-        items = data["items"][0]
+        items = self._get_items(data)
 
         content_details = items["contentDetails"]
         snippet = items["snippet"]
@@ -278,7 +292,18 @@ class YoutubeHandler(URLHandler):
         self._handle_message(message, context)
         result_def.callback(STOP_HANDLING)
 
+    def _get_items(self, data):
+        if "error" in data:
+            error = data["error"]
+            raise YoutubeAPIError(
+                error["message"], error["code"], error["errors"])
+        return data["items"][0]
+
     def _handle_request_failure(self, fail, context, result_def):
+        if fail.check(YoutubeAPIError):
+            self.plugin.logger.error(fail.getErrorMessage())
+        else:
+            self.plugin.logger.error(fail.getTraceback())
         result_def.callback(CASCADE)
 
     def _handle_message(self, message, context):

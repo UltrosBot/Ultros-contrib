@@ -6,6 +6,6 @@ core:
 info:
   description: Provides support for various sites and shorteners for the URLs plugin
   author: Gareth Coles
-  version: 1.1.0
+  version: 1.1.1
   website: https://github.com/UltrosBot/Ultros-contrib/blob/master/URL-tools
   copyright: See Ultros' license
