@@ -30,6 +30,7 @@ some of the handlers, or you may like to change their formatting.
 handlers:
   - github
   - osu
+  - youtube
 ```
 
 This is the list of handlers that you want to enable. If you'd rather some of
@@ -61,8 +62,8 @@ github:
   # You need to authenticate if you want to raise the API limits, which is highly recommended.
   # Make your own application at https://github.com/settings/applications/new and enter the client ID and secret here.
 
-  # client_id = ""
-  # client_secret = ""
+  # client_id: ""
+  # client_secret: ""
 ```
 
 This section is the configuration for the [GitHub](https://github.com) handler. If you're not using it,
@@ -95,6 +96,38 @@ then you can ignore or remove this section. The osu! API requires that you have 
 API key, so create an account and [grab your API key here](https://osu.ppy.sh/p/api).
 
 * **api_key**: Your osu! API key
+* **formatting**: See [FORMATTING.md](FORMATTING.md) for more information on this section
+
+---
+
+```yaml
+youtube:
+  api_key: ""  # Required, see the plugin readme for more info, or Google's docs here https://developers.google.com/youtube/v3/getting-started
+  # api_key_referrer: ""  # For use with browser API key only, see readme for details
+  formatting: {}  # See documentation if you want to change the formatting
+```
+
+This section is the configuration for the [YouTube](https://www.youtube.com/) handler. If you're not using it,
+then you can ignore or remove this section. The YouTube API requires that you have an
+API key, so create an account and [grab your API key here](https://console.developers.google.com/apis/credentials).
+
+You can check the introduction on [Google's official guide](https://developers.google.com/youtube/v3/getting-started)
+for more information.
+
+Google offers several types of API key. You will probably want a *Server key*, but as these are
+IP-locked, they're not very suitable for people with dynamic IPs. If this is the case, you can
+use a *Browser key*, and set the referrer to something unique. For example, you could add
+
+    *.referrerdomain.ultros/*
+
+to the accepted referrer list, and set `api_key_referrer` in your config to
+
+	http://something.referrerdomain.ultros/whatever
+
+We recommend you only use a *Browser key* if required, as they're not intended for this.
+
+* **api_key**: Your YouTube API key
+* **api_key_referrer**: An optional referrer URL for browser keys
 * **formatting**: See [FORMATTING.md](FORMATTING.md) for more information on this section
 
 ---

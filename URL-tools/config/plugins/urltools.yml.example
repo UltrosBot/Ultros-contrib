@@ -1,6 +1,7 @@
 handlers:
   - github
   - osu
+  - youtube
 
 shorteners:
   - is.gd
@@ -17,9 +18,14 @@ github:
   # You need to authenticate if you want to raise the API limits, which is highly recommended.
   # Make your own application at https://github.com/settings/applications/new and enter the client ID and secret here.
 
-  # client_id = ""
-  # client_secret = ""
+  # client_id: ""
+  # client_secret: ""
 
 osu:
   api_key: ""  # Required; see https://osu.ppy.sh/p/api (Requires an account)
   formatting: {}  # See documentation if you want to change the formatting and remember to prefix each value  with !!python/unicode
+
+youtube:
+  api_key: ""  # Required, see the plugin readme for more info, or Google's docs here https://developers.google.com/youtube/v3/getting-started
+  # api_key_referrer: ""  # For use with browser API key only, see readme for details
+  formatting: {}  # See documentation if you want to change the formatting

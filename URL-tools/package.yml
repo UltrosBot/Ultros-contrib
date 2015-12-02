@@ -1,9 +1,8 @@
 name: URL Tools
 current_version:
-    number: 1.0.0
+    number: 1.1.0
     info: >
-      Update for our brand-new URLs plugin - Rewrote all shorteners, plus the GitHub and Osu handlers,
-      added configurable formatting, and a few other improvements.
+      Add YouTube handler.
 description: >
     Provides a set of tools for working with the URLs plugin. These tools provide both URL shorteners
     and specific domain handlers for the URL title parser.
@@ -34,6 +33,7 @@ files:
 
 - config/plugins/urltools.yml.example
 requires:
-    modules: []
+    modules:
+    - "isodate"
     packages: []
 documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/URL-tools/README.md

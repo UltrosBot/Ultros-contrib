@@ -9,3 +9,5 @@
 1.0.0: >
     Update for our brand-new URLs plugin - Rewrote all shorteners, plus the GitHub and Osu handlers,
     added configurable formatting, and a few other improvements.
+1.1.0: >
+    Add YouTube handler.
