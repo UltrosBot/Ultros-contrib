@@ -63,8 +63,8 @@ class InterPlugin(PluginObject):
         self.config.add_callback(self.reload)
 
         self.commands.register_command(
-                "players", self.players_command, self, "inter.players",
-                default=True
+            "players", self.players_command, self, "inter.players",
+            default=True
         )
 
         if not reactor.running:

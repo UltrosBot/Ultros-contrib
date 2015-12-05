@@ -84,8 +84,8 @@ class MinecraftPlugin(PluginObject):
                              "Disabling status relaying.")
 
         self.commands.register_command(
-                "mcquery", self.query_command, self, b"minecraft.query",
-                default=True
+            "mcquery", self.query_command, self, b"minecraft.query",
+            default=True
         )
 
         if self.do_relay:

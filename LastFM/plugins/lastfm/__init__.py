@@ -54,11 +54,11 @@ class LastFMPlugin(PluginObject):
             "lastfm.nowplaying", aliases=["np"], default=True
         )
         self.commands.register_command(
-            "lastfmnick", self.lastfmnick_cmd,  self, "lastfm.lastfmnick", 
+            "lastfmnick", self.lastfmnick_cmd, self, "lastfm.lastfmnick",
             default=True
         )
         self.commands.register_command(
-            "lastfmcompare", self.compare_cmd, self, "lastfm.compare", 
+            "lastfmcompare", self.compare_cmd, self, "lastfm.compare",
             aliases=["musiccompare", "compare"], default=True
         )
 

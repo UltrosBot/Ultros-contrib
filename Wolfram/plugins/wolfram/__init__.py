@@ -31,7 +31,6 @@ class WolframPlugin(PluginObject):
             self._disable_self()
             return
 
-
         self._load()
         self.config.add_callback(self._load)
 

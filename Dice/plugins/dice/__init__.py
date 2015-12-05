@@ -5,7 +5,7 @@ from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
 
 __all__ = [
-    "DiceError", "DiceFormatError", "DicePlugin",  "NotEnoughDice",
+    "DiceError", "DiceFormatError", "DicePlugin", "NotEnoughDice",
     "NotEnoughSides"
 ]
 
@@ -47,7 +47,7 @@ class DicePlugin(PluginObject):
         # Initial config load
         try:
             self._config = self.storage.get_file(
-                    self, "config", YAML, "plugins/dice.yml"
+                self, "config", YAML, "plugins/dice.yml"
             )
         except Exception:
             self.logger.exception("Error loading configuration!")
@@ -62,8 +62,8 @@ class DicePlugin(PluginObject):
 
         # Register commands
         self.commands.register_command(
-                "roll", self.roll_cmd, self, "dice.roll", aliases=["dice"],
-                default=True
+            "roll", self.roll_cmd, self, "dice.roll", aliases=["dice"],
+            default=True
         )
 
     @property
@@ -94,12 +94,12 @@ class DicePlugin(PluginObject):
             self._respond(caller, "Usage: {CHARS}%s [roll info]" % command)
         except NotEnoughDice:
             self._respond(
-                    caller, "Too many dice. My dice cup is only so big..."
+                caller, "Too many dice. My dice cup is only so big..."
             )
         except NotEnoughSides:
             self._respond(
-                    caller, "Too many sides. What are you trying to roll, "
-                            "a ball?"
+                caller, "Too many sides. What are you trying to roll, "
+                        "a ball?"
             )
 
     def roll(self, description=""):

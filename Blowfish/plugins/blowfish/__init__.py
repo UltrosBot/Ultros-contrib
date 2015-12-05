@@ -44,7 +44,7 @@ class BlowfishPlugin(PluginObject):
     def setup(self):
         try:
             self.config = self.storage.get_file(
-                    self, "config", YAML, "plugins/blowfish.yml"
+                self, "config", YAML, "plugins/blowfish.yml"
             )
         except Exception:
             self.logger.exception("Error loading configuration!")

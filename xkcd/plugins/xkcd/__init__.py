@@ -224,7 +224,7 @@ class xkcdPlugin(PluginObject):
         self.logger.debug("Getting random comic")
         d = self._ensure_archive_freshness()
         d.addBoth(
-                lambda r: self._get_random_comic()
+            lambda r: self._get_random_comic()
         )
         return d
 
@@ -247,7 +247,7 @@ class xkcdPlugin(PluginObject):
         # Update the archive, if necessary
         d = self._ensure_archive_freshness()
         d.addBoth(
-                lambda r: self._get_comic_by_term(term)
+            lambda r: self._get_comic_by_term(term)
         )
         return d
 
@@ -295,8 +295,8 @@ class xkcdPlugin(PluginObject):
             return defer.fail(NoSuchComicError(comic_id))
         else:
             return defer.fail(
-                    ConnectionError(
-                        "Unexpected response code: %s" % result.code)
+                ConnectionError(
+                    "Unexpected response code: %s" % result.code)
             )
 
     def _get_comic_result_json(self, result, comic_id):
@@ -319,9 +319,9 @@ class xkcdPlugin(PluginObject):
         self.logger.debug("Updating archive...")
         d = treq.get("http://xkcd.com/archive/")
         d.addCallbacks(
-                self._update_archive_callback,
-                self._log_failure,
-                errbackArgs=["Error while updating archive (fetching)"]
+            self._update_archive_callback,
+            self._log_failure,
+            errbackArgs=["Error while updating archive (fetching)"]
         )
         return d
 
@@ -329,9 +329,9 @@ class xkcdPlugin(PluginObject):
         self.logger.trace("_update_archive_callback()")
         d = response.content()
         d.addCallbacks(
-                self._update_archive_content_callback,
-                self._log_failure,
-                errbackArgs=["Error while updating archive (reading)"]
+            self._update_archive_content_callback,
+            self._log_failure,
+            errbackArgs=["Error while updating archive (reading)"]
         )
         return d
 

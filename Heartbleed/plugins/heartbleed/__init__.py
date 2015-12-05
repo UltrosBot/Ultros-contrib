@@ -10,7 +10,7 @@ __all__ = ["HeartbleedPlugin"]
 class HeartbleedPlugin(PluginObject):
     def setup(self):
         self.commands.register_command(
-                "hb", self.hb_command, self, "hb.hb", default=True
+            "hb", self.hb_command, self, "hb.hb", default=True
         )
 
     @run_async_threadpool

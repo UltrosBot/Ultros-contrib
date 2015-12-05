@@ -20,7 +20,7 @@ class TriggersPlugin(PluginObject):
         # Initial config load
         try:
             self._config = self.storage.get_file(
-                    self, "config", YAML, "plugins/triggers.yml"
+                self, "config", YAML, "plugins/triggers.yml"
             )
         except Exception:
             self.logger.exception("Error loading configuration!")
@@ -85,7 +85,7 @@ class TriggersPlugin(PluginObject):
         """
 
         allowed = self.commands.perm_handler.check(
-                "triggers.trigger", source, target, protocol
+            "triggers.trigger", source, target, protocol
         )
         if not allowed:
             return

@@ -37,17 +37,17 @@ class DomainrPlugin(PluginObject):
 
         # Register commands
         self.commands.register_command(
-                "domainrsearch", self.search_cmd, self, "domainr.search",
-                aliases=[
-                    "domainr", "domains"
-                ], default=True
+            "domainrsearch", self.search_cmd, self, "domainr.search",
+            aliases=[
+                "domainr", "domains"
+            ], default=True
         )
         self.commands.register_command(
-                "domainrinfo", self.info_cmd, self, "domainr.info",
-                aliases=[
-                    "domaininfo", "domain"
-                ],
-                default=True
+            "domainrinfo", self.info_cmd, self, "domainr.info",
+            aliases=[
+                "domaininfo", "domain"
+            ],
+            default=True
         )
 
     def reload(self):

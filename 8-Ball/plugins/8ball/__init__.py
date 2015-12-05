@@ -14,7 +14,7 @@ class EightBallPlugin(PluginObject):
         # Initial config load
         try:
             self._config = self.storage.get_file(
-                    self, "config", YAML, "plugins/8ball.yml"
+                self, "config", YAML, "plugins/8ball.yml"
             )
         except Exception:
             self.logger.exception("Error loading configuration!")

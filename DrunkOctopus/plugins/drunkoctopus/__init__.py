@@ -43,14 +43,14 @@ class DrunkPlugin(PluginObject):
         # Register events and commands
 
         self.events.add_callback(
-                "MessageSent", self, self.outgoing_message_handler, 1
+            "MessageSent", self, self.outgoing_message_handler, 1
         )
         self.commands.register_command(
-                "drunkenness", self.drunkenness_command, self,
-                "drunkoctopus.drunkenness", default=True
+            "drunkenness", self.drunkenness_command, self,
+            "drunkoctopus.drunkenness", default=True
         )
         self.commands.register_command(
-                "drink", self.drink_command, self, "drunkoctopus.drink"
+            "drink", self.drink_command, self, "drunkoctopus.drink"
         )
 
     def reload(self):
