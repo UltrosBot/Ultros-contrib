@@ -1,27 +1,23 @@
-__author__ = "Gareth Coles"
-
 import requests
+from system.plugins.plugin import PluginObject
 
-import system.plugin as plugin
-from system.plugins.manager import PluginManager
+__author__ = "Gareth Coles"
+__all__ = ["AntiMibbitPlugin"]
 
 HASTEBIN_URL = "http://hastebin.com/documents"
 
 
-class AntiMibbitPlugin(plugin.PluginObject):
-
-    plugs = None
+class AntiMibbitPlugin(PluginObject):
+    # TODO: Rewrite for async and the new URLs plugin
 
     @property
     def urls(self):
         """
         :rtype: URLsPlugin
         """
-        return self.plugs.get_plugin("URLs")
+        return self.plugins.get_plugin("URLs")
 
     def setup(self):
-        self.plugs = PluginManager()
-
         self.urls.add_handler("miburl.com", self.miburl_handler)
         self.urls.add_handler("mibpaste.com", self.mibpaste_handler)
 

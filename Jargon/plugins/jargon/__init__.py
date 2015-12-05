@@ -1,16 +1,15 @@
 import random
+
 from boltons.cacheutils import LRU
 
-from system.command_manager import CommandManager
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
-
 
 __author__ = 'Sean'
-
+__all__ = [
+    "JargonException", "JargonPlugin", "InvalidCategory",
+    "WordClass", "Nouns", "Verbs"
+]
 
 JARGON_PERM = "jargon.jargon"
 JARGON_LIST_PERM = "jargon.jargonlist"
@@ -31,21 +30,14 @@ class InvalidCategory(JargonException):
     pass
 
 
-class JargonPlugin(plugin.PluginObject):
-
-    commands = None
-    storage = None
+class JargonPlugin(PluginObject):
 
     _file_config = None
     _config = None
     _word_cache = None
 
     def setup(self):
-        ### Grab important shit
-        self.commands = CommandManager()
-        self.storage = StorageManager()
-
-        ### Initial config load
+        # Initial config load
         try:
             self._file_config = self.storage.get_file(
                 self,
@@ -67,7 +59,7 @@ class JargonPlugin(plugin.PluginObject):
         self._file_config.add_callback(self.load)
         self.load()
 
-        ### Register commands
+        # Register commands
         self.commands.register_command(
             "jargon",
             self.jargon_cmd,
@@ -84,6 +76,7 @@ class JargonPlugin(plugin.PluginObject):
             aliases=["generatesentencelist", "generatelist"],
             default=True
         )
+
         # TODO: jargonlist command for themes
 
     def reload(self):
@@ -92,7 +85,6 @@ class JargonPlugin(plugin.PluginObject):
         except Exception:
             self.logger.exception("Error reloading configuration!")
             return False
-        self.load()
         return True
 
     def load(self):

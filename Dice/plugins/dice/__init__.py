@@ -1,11 +1,13 @@
 import random
 import re
-from system.command_manager import CommandManager
 
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__all__ = [
+    "DiceError", "DiceFormatError", "DicePlugin",  "NotEnoughDice",
+    "NotEnoughSides"
+]
 
 
 class DiceError(Exception):
@@ -30,7 +32,7 @@ class NotEnoughSides(DiceError):
     """
 
 
-class DicePlugin(plugin.PluginObject):
+class DicePlugin(PluginObject):
 
     _MODS_REGEX = re.compile(
         r"(?P<sort>s)|(?P<total>t)|(?:\^(?P<high>\d+))|(?:v(?P<low>\d+))"
@@ -39,19 +41,14 @@ class DicePlugin(plugin.PluginObject):
         r"^(?P<dice>\d+)?(?:d(?P<sides>\d+))?(?P<mods>(?:t|s|\^\d+|v\d+)*)?$"
     )
 
-    _commands = None
     _config = None
-    _storage = None
 
     def setup(self):
-        ### Grab important shit
-        self._commands = CommandManager()
-        self._storage = StorageManager()
-
-        ### Initial config load
+        # Initial config load
         try:
-            self._config = self._storage.get_file(self, "config", YAML,
-                                                  "plugins/dice.yml")
+            self._config = self.storage.get_file(
+                    self, "config", YAML, "plugins/dice.yml"
+            )
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
@@ -63,13 +60,11 @@ class DicePlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        ### Register commands
-        self._commands.register_command("roll",
-                                        self.roll_cmd,
-                                        self,
-                                        "dice.roll",
-                                        aliases=["dice"],
-                                        default=True)
+        # Register commands
+        self.commands.register_command(
+                "roll", self.roll_cmd, self, "dice.roll", aliases=["dice"],
+                default=True
+        )
 
     @property
     def max_dice(self):
@@ -88,7 +83,7 @@ class DicePlugin(plugin.PluginObject):
         return self._config["default_sides"]
 
     def _respond(self, target, msg):
-        target.respond("Dice: %s" % msg)
+        target.respond("[Dice] %s" % msg)
 
     def roll_cmd(self, protocol, caller, source, command, raw_args,
                  parsed_args):
@@ -98,9 +93,14 @@ class DicePlugin(plugin.PluginObject):
         except DiceFormatError:
             self._respond(caller, "Usage: {CHARS}%s [roll info]" % command)
         except NotEnoughDice:
-            self._respond(caller, "Too many dice.")
+            self._respond(
+                    caller, "Too many dice. My dice cup is only so big..."
+            )
         except NotEnoughSides:
-            self._respond(caller, "Too many sides.")
+            self._respond(
+                    caller, "Too many sides. What are you trying to roll, "
+                            "a ball?"
+            )
 
     def roll(self, description=""):
         match = self._ROLL_REGEX.match(description.strip())
@@ -118,7 +118,7 @@ class DicePlugin(plugin.PluginObject):
             raise NotEnoughSides()
 
         # Roll
-        result = [random.randint(1, sides) for x in xrange(dice)]
+        result = [random.randint(1, sides) for _ in xrange(dice)]
         return self.apply_mods(result, mods)
 
     def apply_mods(self, numbers, mods):

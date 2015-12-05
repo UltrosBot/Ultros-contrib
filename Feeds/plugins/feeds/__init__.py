@@ -1,5 +1,4 @@
 # coding=utf-8
-__author__ = 'Gareth Coles'
 
 import feedparser
 
@@ -7,22 +6,17 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
 from system.decorators.threads import run_async_threadpool
-
-import system.plugin as plugin
-
-from system.plugins.manager import PluginManager
-from system.event_manager import EventManager
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__author__ = 'Gareth Coles'
+__all__ = ["FeedsPlugin"]
 
 
-class FeedsPlugin(plugin.PluginObject):
+class FeedsPlugin(PluginObject):
+    # TODO: Async support, new URLs plugin support
 
     config = None
-    events = None
-    manager = None
-    plugman = None
-    storage = None
 
     feeds = []
 
@@ -33,11 +27,10 @@ class FeedsPlugin(plugin.PluginObject):
 
     @property
     def urls(self):
-        return self.plugman.get_plugin("URLs")
+        return self.plugins.get_plugin("URLs")
 
     def setup(self):
         self.logger.trace("Entered setup method.")
-        self.storage = StorageManager()
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/feeds.yml")
@@ -53,9 +46,6 @@ class FeedsPlugin(plugin.PluginObject):
             return
 
         self.config.add_callback(self.delayed_setup)
-
-        self.events = EventManager()
-        self.plugman = PluginManager()
 
         self.logger.info("Waiting 30 seconds to set up.")
 

@@ -1,39 +1,33 @@
-__author__ = 'Gareth Coles'
-
-
 from twisted.internet import reactor
 
-import system.plugin as plugin
-
-from system.command_manager import CommandManager
-
-from system.event_manager import EventManager
 from system.events.general import MessageReceived
 from system.events.inter import InterPlayerConnected, InterPlayerDisonnected, \
     InterServerConnected, InterServerDisonnected
 
+from system.plugins.plugin import PluginObject
 from system.protocols.generic.protocol import Protocol
 
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 from system.translations import Translations
+
+__author__ = 'Gareth Coles'
+__all__ = ["InterPlugin"]
+
 _ = Translations().get()
 __ = Translations().get_m()
 
 
-class ReplPlugin(plugin.PluginObject):
-    commands = None
-    events = None
-    storage = None
-
+class InterPlugin(PluginObject):
     config = None
 
     proto = None
     channel = None
     formatting = None
 
-    def __init__(self):
+    def setup(self):
+        self.logger.trace("Entered setup method.")
+
         self.protocol_events = {
             "general": [
                 # This is basically just *args.
@@ -50,15 +44,6 @@ class ReplPlugin(plugin.PluginObject):
                     self.inter_server_disconnected, 0]
             ]
         }
-
-        super(ReplPlugin, self).__init__()
-
-    def setup(self):
-        self.logger.trace("Entered setup method.")
-
-        self.commands = CommandManager()
-        self.events = EventManager()
-        self.storage = StorageManager()
 
         try:
             self.config = self.storage.get_file(self, "config", YAML,
@@ -77,8 +62,10 @@ class ReplPlugin(plugin.PluginObject):
 
         self.config.add_callback(self.reload)
 
-        self.commands.register_command("players", self.players_command, self,
-                                       "inter.players", default=True)
+        self.commands.register_command(
+                "players", self.players_command, self, "inter.players",
+                default=True
+        )
 
         if not reactor.running:
             self.events.add_callback(

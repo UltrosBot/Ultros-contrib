@@ -2,24 +2,20 @@
 from kitchen.text.converters import to_bytes
 from txrequests import Session
 
-from system.command_manager import CommandManager
 from system.decorators.ratelimit import RateLimiter, RateLimitExceededError
-
-import system.plugin as plugin
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
 
 __author__ = 'Sean'
+__all__ = ["DomainrPlugin", "DomainrError", "Domainr"]
 
 
-class DomainrPlugin(plugin.PluginObject):
+class DomainrPlugin(PluginObject):
 
     _commands = None
 
     def setup(self):
-        ### Grab important shit
-        self._commands = CommandManager()
-
-        ### Initial config load
+        # Initial config load
         try:
             self._config = self.storage.get_file(self, "config", YAML,
                                                  "plugins/domainr.yml")
@@ -34,29 +30,25 @@ class DomainrPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        ### Load stuff
+        # Load stuff
         self._load()
 
         self._config.add_callback(self._load)
 
-        ### Register commands
-        self._commands.register_command("domainrsearch",
-                                        self.search_cmd,
-                                        self,
-                                        "domainr.search",
-                                        aliases=[
-                                            "domainr",
-                                            "domains"
-                                        ], default=True)
-        self._commands.register_command("domainrinfo",
-                                        self.info_cmd,
-                                        self,
-                                        "domainr.info",
-                                        aliases=[
-                                            "domaininfo",
-                                            "domain"
-                                        ],
-                                        default=True)
+        # Register commands
+        self.commands.register_command(
+                "domainrsearch", self.search_cmd, self, "domainr.search",
+                aliases=[
+                    "domainr", "domains"
+                ], default=True
+        )
+        self.commands.register_command(
+                "domainrinfo", self.info_cmd, self, "domainr.info",
+                aliases=[
+                    "domaininfo", "domain"
+                ],
+                default=True
+        )
 
     def reload(self):
         self._load()

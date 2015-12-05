@@ -3,21 +3,15 @@ import re
 import urllib2
 import time
 
-from system.command_manager import CommandManager
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 
 __author__ = 'Sean'
+__all__ = ["AoSPlugin"]
 
 
-class AoSPlugin(plugin.PluginObject):
-
-    commands = None
-    storage = None
+class AoSPlugin(PluginObject):
 
     _STEAM_PLAYERS_REGEX = re.compile(
         r'apphub_NumInApp">(?P<players>.+) In-Game'
@@ -28,11 +22,7 @@ class AoSPlugin(plugin.PluginObject):
     )
 
     def setup(self):
-        ### Grab important shit
-        self.commands = CommandManager()
-        self.storage = StorageManager()
-
-        ### Initial config load
+        # Initial config load
         try:
             self._config = self.storage.get_file(self,
                                                  "config",
@@ -49,12 +39,12 @@ class AoSPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        ### Load options from config
+        # Load options from config
         self._load()
 
         self._config.add_callback(self._load)
 
-        ### Register commands
+        # Register commands
         self.commands.register_command("aosplayercount",
                                        self.playercount_cmd,
                                        self,
@@ -77,7 +67,7 @@ class AoSPlugin(plugin.PluginObject):
                                            "ip2aos"
                                        ])
 
-        ### Setup soem variables
+        # Setup soem variables
         self._last_update_voxlap = 0
         self._last_update_steam = 0
         self._last_voxlap_player_count = -1

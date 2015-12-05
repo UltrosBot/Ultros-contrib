@@ -1,17 +1,13 @@
-from datetime import datetime
-
-__author__ = 'Sean'
-
 import treq
 
+from datetime import datetime
 from lib.crypto import newbase60 as nb60
 
-from system.command_manager import CommandManager
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__author__ = 'Sean'
+__all__ = ["LastFMPlugin", "LastFM", "LastFMError"]
 
 
 # TODO: Bite the bullet and switch to the XML version
@@ -19,18 +15,12 @@ from system.storage.manager import StorageManager
 # gives some weirdness (like empty lists being strings).
 
 
-class LastFMPlugin(plugin.PluginObject):
+class LastFMPlugin(PluginObject):
 
-    commands = None
     _config = None
-    storage = None
 
     def setup(self):
-        ### Grab important shit
-        self.commands = CommandManager()
-        self.storage = StorageManager()
-
-        ### Initial config load
+        # Initial config load
         try:
             self._config = self.storage.get_file(self, "config", YAML,
                                                  "plugins/lastfm.yml")
@@ -44,7 +34,7 @@ class LastFMPlugin(plugin.PluginObject):
             self.logger.error("Disabling...")
             self._disable_self()
             return
-            ### Same for the data file (nickname=>lastfmusername map)
+            # Same for the data file (nickname=>lastfmusername map)
         try:
             self._nickmap = self.storage.get_file(self, "data", YAML,
                                                   "plugins/lastfm-nickmap.yml")
@@ -53,29 +43,24 @@ class LastFMPlugin(plugin.PluginObject):
             self.logger.error("Disabling...")
             self._disable_self()
 
-        ### Load options from config and nick map from data
+        # Load options from config and nick map from data
         self._load()
 
         self._config.add_callback(self._load)
 
-        ### Register commands
-        self.commands.register_command("nowplaying",
-                                       self.nowplaying_cmd,
-                                       self,
-                                       "lastfm.nowplaying",
-                                       aliases=["np"],
-                                       default=True)
-        self.commands.register_command("lastfmnick",
-                                       self.lastfmnick_cmd,
-                                       self,
-                                       "lastfm.lastfmnick",
-                                       default=True)
-        self.commands.register_command("lastfmcompare",
-                                       self.compare_cmd,
-                                       self,
-                                       "lastfm.compare",
-                                       aliases=["musiccompare", "compare"],
-                                       default=True)
+        # Register commands
+        self.commands.register_command(
+            "nowplaying", self.nowplaying_cmd, self,
+            "lastfm.nowplaying", aliases=["np"], default=True
+        )
+        self.commands.register_command(
+            "lastfmnick", self.lastfmnick_cmd,  self, "lastfm.lastfmnick", 
+            default=True
+        )
+        self.commands.register_command(
+            "lastfmcompare", self.compare_cmd, self, "lastfm.compare", 
+            aliases=["musiccompare", "compare"], default=True
+        )
 
     def reload(self):
         try:
@@ -144,7 +129,7 @@ class LastFMPlugin(plugin.PluginObject):
                        parsed_args):
         self.logger.trace("Entering nowplaying_cmd()")
         args = raw_args.split()  # Quick fix for new command handler signature
-        ### Get LastFM username to use
+        # Get LastFM username to use
         username = None
         if len(args) == 0:
             username = self._get_username(caller.nickname)
@@ -154,7 +139,7 @@ class LastFMPlugin(plugin.PluginObject):
             caller.respond("Usage: {CHARS}nowplaying [lastfm username]")
             return
 
-        ### Query LastFM for user's most recent track
+        # Query LastFM for user's most recent track
         deferred = self.api.user_get_recent_tracks(username, limit=1)
         deferred.addCallbacks(
             lambda r: self._nowplaying_cmd_recent_tracks_result(caller,
@@ -168,7 +153,7 @@ class LastFMPlugin(plugin.PluginObject):
                     parsed_args):
         self.logger.trace("Entering compare_cmd()")
         args = raw_args.split()  # Quick fix for new command handler signature
-        ### Get LastFM username to use
+        # Get LastFM username to use
         username_one = None
         username_two = None
         if len(args) == 1:
@@ -183,7 +168,7 @@ class LastFMPlugin(plugin.PluginObject):
                 command)
             return
 
-        ### Query LastFM for user taste comparison
+        # Query LastFM for user taste comparison
         deferred = self.api.tasteometer_compare(
             "user", username_one, "user", username_two
         )
@@ -233,7 +218,7 @@ class LastFMPlugin(plugin.PluginObject):
                 mbid = None
                 if "mbid" in track and track["mbid"]:
                     mbid = track["mbid"]
-                ### Query LastFM for track info, then finally send info to chan
+                # Query LastFM for track info, then finally send info to chan
                 deferred = self.api.track_get_info(track_title,
                                                    track_artist,
                                                    mbid,
@@ -261,7 +246,7 @@ class LastFMPlugin(plugin.PluginObject):
                                    track_artist, track_title, album, result):
         self.logger.trace("Entering _nowplaying_cmd_end_result()")
         try:
-            ### Extract track info
+            # Extract track info
             user_loved = False
             user_play_count = 0
             total_play_count = 0
@@ -306,7 +291,7 @@ class LastFMPlugin(plugin.PluginObject):
                         continue
                     tags.append(tag["name"])
 
-            ### Finally, we send the message
+            # Finally, we send the message
             # TODO: This could do with a cleanup
             status_text = u"just listened to"
             if now_playing:
@@ -342,7 +327,7 @@ class LastFMPlugin(plugin.PluginObject):
         """
         self.logger.trace("Entering _compare_cmd_tasteometer_result()")
         try:
-            ### Extract info
+            # Extract info
             result = response["comparison"]["result"]
             score = float(result["score"])
             score_percent = score * 100
@@ -360,7 +345,7 @@ class LastFMPlugin(plugin.PluginObject):
                 for artist in _json_artists:
                     artists.append(artist["name"])
 
-            ### Send the message
+            # Send the message
             output = [u'%s and %s are %.0f%% compatible.' % (username_one,
                                                              username_two,
                                                              score_percent)]

@@ -7,31 +7,27 @@ Adds support for messages of the form "+OK <encrypted message>" for configured
 targets, and will also send encrypted responses there.
 """
 
-__author__ = "Gareth Coles"
-
 import base64
 import random
 import string
 
 from Crypto.Cipher import Blowfish
 
-import system.plugin as plugin
-
-from system.event_manager import EventManager
 from system.events.general import PreMessageReceived, MessageSent, \
     ActionReceived, ActionSent
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__author__ = "Gareth Coles"
+__all__ = ["BlowfishPlugin"]
 
 
-class BlowfishPlugin(plugin.PluginObject):
+class BlowfishPlugin(PluginObject):
     """
     Blowfish-CBC support, as seen in Eggdrop and mIRC scripts
     """
 
     config = None
-    events = None
-    storage = None
 
     def get_target(self, protocol, target):
         return self.config.get(  # PEP! \o/
@@ -46,12 +42,10 @@ class BlowfishPlugin(plugin.PluginObject):
         return self.config.get(protocol, {}).get("global", None)
 
     def setup(self):
-        self.events = EventManager()
-        self.storage = StorageManager()
-
         try:
-            self.config = self.storage.get_file(self, "config", YAML,
-                                                "plugins/blowfish.yml")
+            self.config = self.storage.get_file(
+                    self, "config", YAML, "plugins/blowfish.yml"
+            )
         except Exception:
             self.logger.exception("Error loading configuration!")
             self._disable_self()

@@ -1,16 +1,19 @@
-__author__ = 'Gareth Coles'
-
 import treq
-import system.plugin as plugin
-
-from system.decorators.threads import run_async_threadpool
-from system.storage.formats import YAML
 
 from kitchen.text.converters import to_unicode
-from search import get_results, parse_results
+
+from plugins.google.search import get_results, parse_results
+
+from system.decorators.threads import run_async_threadpool
+from system.plugins.plugin import PluginObject
+from system.storage.formats import YAML
+
+__author__ = 'Gareth Coles'
+__all__ = ["GooglePlugin"]
 
 
-class GooglePlugin(plugin.PluginObject):
+class GooglePlugin(PluginObject):
+    # TODO: Port to txrequests, update for new URLs plugin
     _config = None
 
     @property

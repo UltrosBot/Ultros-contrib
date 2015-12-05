@@ -1,28 +1,21 @@
-__author__ = 'Gareth Coles'
+from plugins.heartbleed import hb
 
-from . import hb
-
-from system.command_manager import CommandManager
 from system.decorators.threads import run_async_threadpool
+from system.plugins.plugin import PluginObject
 
-import system.plugin as plugin
+__author__ = 'Gareth Coles'
+__all__ = ["HeartbleedPlugin"]
 
 
-class HeartbleedPlugin(plugin.PluginObject):
-    commands = None
-
+class HeartbleedPlugin(PluginObject):
     def setup(self):
-        self.commands = CommandManager()
-
-        self.commands.register_command("hb",
-                                       self.hb_command,
-                                       self,
-                                       "hb.hb", default=True)
+        self.commands.register_command(
+                "hb", self.hb_command, self, "hb.hb", default=True
+        )
 
     @run_async_threadpool
     def hb_command(self, protocol, caller, source, command, raw_args,
-                   parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
+                   args):
         if len(args) < 1:
             caller.respond("Usage: {CHARS}hb <address> [port]")
             return
@@ -34,7 +27,7 @@ class HeartbleedPlugin(plugin.PluginObject):
                 port = args[1]
                 try:
                     port = int(port)
-                except:
+                except Exception:
                     source.respond("Port '%s' is invalid, trying on port "
                                    "443." % port)
             try:

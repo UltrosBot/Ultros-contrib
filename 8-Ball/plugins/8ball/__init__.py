@@ -1,33 +1,21 @@
 import random
 import re
 
-from system.command_manager import CommandManager
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
-
 
 __author__ = 'Sean'
+__all__ = ["EightBallPlugin"]
 
 
-class EightBallPlugin(plugin.PluginObject):
-
-    commands = None
-    storage = None
+class EightBallPlugin(PluginObject):
 
     def setup(self):
-        ### Grab important shit
-        self.commands = CommandManager()
-        self.storage = StorageManager()
-
-        ### Initial config load
+        # Initial config load
         try:
-            self._config = self.storage.get_file(self,
-                                                 "config",
-                                                 YAML,
-                                                 "plugins/8ball.yml")
+            self._config = self.storage.get_file(
+                    self, "config", YAML, "plugins/8ball.yml"
+            )
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
@@ -39,11 +27,11 @@ class EightBallPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        ### Setup some stuff
+        # Setup some stuff
         self._random = random.Random()
         self._question_regex = re.compile("[\W_]+")
 
-        ### Register commands
+        # Register commands
         self.commands.register_command("8ball",
                                        self.eight_ball_cmd,
                                        self,

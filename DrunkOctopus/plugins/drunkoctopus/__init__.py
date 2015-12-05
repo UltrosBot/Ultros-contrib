@@ -1,31 +1,22 @@
 import random
 import re
 import string
+
 from twisted.internet import reactor
-from system.event_manager import EventManager
-from system.command_manager import CommandManager
 
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 __author__ = 'Sean'
+__all__ = ["DrunkPlugin", "DrunkTalk"]
 
 
-class DrunkPlugin(plugin.PluginObject):
+class DrunkPlugin(PluginObject):
 
-    commands = None
     config = None
-    storage = None
 
     def setup(self):
-        ### Grab important shit
-        self.commands = CommandManager()
-        self.events = EventManager()
-        self.storage = StorageManager()
-
-        ### Initial config load
+        # Initial config load
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/drunkoctopus.yml")
@@ -40,30 +31,27 @@ class DrunkPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        ### Create vars and stuff
+        # Create vars and stuff
         self._sobering_call = None
         self._drunktalk = DrunkTalk()
 
-        ### Load options from config
+        # Load options from config
         self._load()
 
         self.config.add_callback(self._load)
 
-        ### Register events and commands
+        # Register events and commands
 
-        self.events.add_callback("MessageSent",
-                                 self,
-                                 self.outgoing_message_handler,
-                                 1)
-        self.commands.register_command("drunkenness",
-                                       self.drunkenness_command,
-                                       self,
-                                       "drunkoctopus.drunkenness",
-                                       default=True)
-        self.commands.register_command("drink",
-                                       self.drink_command,
-                                       self,
-                                       "drunkoctopus.drink")
+        self.events.add_callback(
+                "MessageSent", self, self.outgoing_message_handler, 1
+        )
+        self.commands.register_command(
+                "drunkenness", self.drunkenness_command, self,
+                "drunkoctopus.drunkenness", default=True
+        )
+        self.commands.register_command(
+                "drink", self.drink_command, self, "drunkoctopus.drink"
+        )
 
     def reload(self):
         try:
