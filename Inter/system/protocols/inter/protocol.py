@@ -8,7 +8,7 @@ from system.protocols.inter.user import User
 from twisted.internet import reactor
 from twisted.protocols.basic import LineOnlyReceiver
 
-from system.command_manager import CommandManager
+from system.commands.manager import CommandManager
 from system.enums import CommandState
 from system.events import general as general_events
 from system.events import inter as inter_events
