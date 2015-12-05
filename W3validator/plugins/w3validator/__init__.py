@@ -10,10 +10,8 @@ Licensed under MIT by Zarthus <zarthus@zarth.us>, 3 June, 2014.
 """
 
 import requests
-
 from twisted.internet import reactor
 
-from system.command_manager import CommandManager
 from system.decorators.threads import run_async_threadpool
 from system.plugins.plugin import PluginObject
 
@@ -23,11 +21,8 @@ __all__ = ["W3validatorPlugin"]
 
 class W3validatorPlugin(PluginObject):
     # TODO: requests -> txrequests
-    commands = None
 
     def setup(self):
-        self.commands = CommandManager()
-
         self.commands.register_command("w3validate", self.w3validate,
                                        self, "w3.w3validate",
                                        aliases=["validate", "valid"],
