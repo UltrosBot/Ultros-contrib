@@ -3,23 +3,19 @@ __author__ = "Gareth Coles"
 
 import json
 
+from system.protocols.inter.channel import Channel
+from system.protocols.inter.user import User
 from twisted.internet import reactor
 from twisted.protocols.basic import LineOnlyReceiver
 
 from system.command_manager import CommandManager
 from system.enums import CommandState
-
-from system.event_manager import EventManager
-
 from system.events import general as general_events
 from system.events import inter as inter_events
-
-from system.protocols.generic.protocol import NoChannelsProtocol
-from system.protocols.inter.user import User
-from system.protocols.inter.channel import Channel
-from system.translations import Translations
-
+from system.events.manager import EventManager
 from system.logging.logger import getLogger
+from system.protocols.generic.protocol import NoChannelsProtocol
+from system.translations import Translations
 from utils.switch import Switch
 _ = Translations().get()
 
