@@ -1,37 +1,33 @@
-__author__ = 'Jim'
-
-
 import json
 import urllib
 
-import system.plugin as plugin
-
-from system import command_manager
-from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 from datetime import datetime, timedelta
+
+from system.plugins.plugin import PluginObject
+from system.storage.formats import YAML
 # from japan import loli_maids
 
+__author__ = 'Jim'
+__all__ = ["MoneyPlugin"]
 
-class MoneyPlugin(plugin.PluginObject):
+
+class MoneyPlugin(PluginObject):
+    # TODO: Move from urllib to txrequests
+    # TODO: Check whether the config exists on load
 
     rates_table = None
     rates_table_updated = datetime.now()
 
     config = None
-    commands = None
-    storage = None
 
     @property
     def precision(self):
         return self.config.get("precision", 2)
 
     def setup(self):
-        self.storage = StorageManager()
         self.config = self.storage.get_file(self, "config", YAML,
                                             "plugins/money.yml")
 
-        self.commands = command_manager.CommandManager()
         self.commands.register_command("money", self.money_command_called,
                                        self, "money.main", default=True)
 

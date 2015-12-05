@@ -1,17 +1,18 @@
 # coding=utf-8
-__author__ = "Gareth Coles"
-
 import json
 import socket
 import urllib
 
-import system.plugin as plugin
 from system.decorators.threads import run_async_threadpool
+from system.plugins.plugin import PluginObject
+
+__author__ = "Gareth Coles"
+__all__ = ["GeoIPPlugin"]
 
 
-class GeoIPPlugin(plugin.PluginObject):
+class GeoIPPlugin(PluginObject):
+    # TODO: Move from urllib to txrequests
 
-    commands = None
     api_url = "https://www.telize.com/geoip/%s"
 
     def setup(self):

@@ -1,7 +1,4 @@
 # coding=utf-8
-import system.plugin as plugin
-
-from system.storage.formats import YAML
 
 from plugins.urls import Priority
 
@@ -16,10 +13,14 @@ from plugins.urltools.shorteners import nazrin
 from plugins.urltools.shorteners import v_gd
 from plugins.urltools.shorteners import waa_ai
 
+from system.plugins.plugin import PluginObject
+from system.storage.formats import YAML
+
 __author__ = 'Gareth Coles'
+__all__ = ["URLToolsPlugin"]
 
 
-class URLToolsPlugin(plugin.PluginObject):
+class URLToolsPlugin(PluginObject):
     @property
     def urls(self):
         """

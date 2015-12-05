@@ -1,28 +1,22 @@
-__author__ = 'Gareth Coles'
-
 import wolframalpha
 
-from system.command_manager import CommandManager
 from system.decorators.threads import run_async_threadpool
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.protocols.generic.channel import Channel
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__author__ = 'Gareth Coles'
+__all__ = ["WolframPlugin"]
 
 
-class WolframPlugin(plugin.PluginObject):
+class WolframPlugin(PluginObject):
+    # TODO: This plugin is of low quality; fix that
 
     app = None
-
     config = None
-    commands = None
-    storage = None
 
     def setup(self):
         self.logger.trace("Entered setup method.")
-        self.storage = StorageManager()
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/wolfram.yml")
@@ -37,7 +31,6 @@ class WolframPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        self.commands = CommandManager()
 
         self._load()
         self.config.add_callback(self._load)

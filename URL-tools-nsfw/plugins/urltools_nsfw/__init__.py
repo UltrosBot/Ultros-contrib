@@ -1,17 +1,18 @@
 # coding=utf-8
-import system.plugin as plugin
-
-from system.storage.formats import YAML
 
 from plugins.urls import Priority
 
 from plugins.urltools_nsfw.exceptions import ApiKeyMissing
 from plugins.urltools_nsfw.handlers.flist import flist
 
+from system.plugins.plugin import PluginObject
+from system.storage.formats import YAML
+
 __author__ = 'Gareth Coles'
+__all__ = ["URLToolNSFWPlugin"]
 
 
-class URLToolNSFWPlugin(plugin.PluginObject):
+class URLToolNSFWPlugin(PluginObject):
     @property
     def urls(self):
         """

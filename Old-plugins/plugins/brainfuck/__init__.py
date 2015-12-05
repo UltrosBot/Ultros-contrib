@@ -1,30 +1,22 @@
-__author__ = 'Gareth Coles'
-
 from datetime import datetime
 
-from system.command_manager import CommandManager
-
-import system.plugin as plugin
-
 from system.protocols.generic.channel import Channel
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__author__ = 'Gareth Coles'
+__all__ = ["BrainfuckPlugin"]
 
 
-class BrainfuckPlugin(plugin.PluginObject):
+class BrainfuckPlugin(PluginObject):
 
-    commands = None
     config = None
-    storage = None
 
     @property
     def timeout(self):
         return self.config["timeout"]
 
     def setup(self):
-        self.commands = CommandManager()
-        self.storage = StorageManager()
-
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/brainfuck.yml")

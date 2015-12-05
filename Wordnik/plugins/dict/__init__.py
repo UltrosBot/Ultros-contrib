@@ -1,38 +1,31 @@
-__author__ = 'Gareth Coles'
-
 import urllib
 from wordnik import swagger
 from wordnik.WordApi import WordApi
 from wordnik.WordsApi import WordsApi
 
-from system.command_manager import CommandManager
-
-import system.plugin as plugin
-
-from system.plugins.manager import PluginManager
+from system.plugins.plugin import PluginObject
 from system.protocols.generic.user import User
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__author__ = 'Gareth Coles'
+__all__ = ["DictPlugin"]
 
 
-class DictPlugin(plugin.PluginObject):
+class DictPlugin(PluginObject):
+    # TODO: Reimplement wordnik api for async
 
     api_key = ""
     api_client = None
     word_api = None
     words_api = None
 
-    commands = None
     config = None
-    plugman = None
-    storage = None
 
     @property
     def urls(self):
-        return self.plugman.get_plugin("URLs")
+        return self.plugins.get_plugin("URLs")
 
     def setup(self):
-        self.storage = StorageManager()
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/wordnik.yml")
@@ -52,10 +45,6 @@ class DictPlugin(plugin.PluginObject):
         self._load()
         self.config.add_callback(self._load)
 
-        self.plugman = PluginManager()
-
-        self.commands = CommandManager()
-
         self.commands.register_command("dict", self.dict_command,
                                        self, "wordnik.dict", default=True)
         self.commands.register_command("wotd", self.wotd_command,
@@ -69,8 +58,7 @@ class DictPlugin(plugin.PluginObject):
         self.words_api = WordsApi(self.api_client)
 
     def dict_command(self, protocol, caller, source, command, raw_args,
-                     parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
+                     args):
         if len(args) < 1:
             caller.respond("Usage: {CHAR}dict <word to look up>")
         else:
@@ -104,7 +92,6 @@ class DictPlugin(plugin.PluginObject):
 
     def wotd_command(self, protocol, caller, source, command, raw_args,
                      parsed_args):
-        args = raw_args.split()  # Quick fix for new command handler signature
         try:
             wotd = self.get_wotd()
             definition = self.get_definition(wotd)

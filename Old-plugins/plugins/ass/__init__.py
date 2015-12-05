@@ -1,20 +1,17 @@
-__author__ = 'Gareth Coles'
-
 import re
 
-from system.event_manager import EventManager
+from system.plugins.plugin import PluginObject
 from system.events.general import MessageReceived
 
-import system.plugin as plugin
+
+__author__ = 'Gareth Coles'
 
 
-class AssPlugin(plugin.PluginObject):
+class AssPlugin(PluginObject):
 
-    events = None
     regex = None
 
     def setup(self):
-        self.events = EventManager()
         self.regex = re.compile(r"(\w+)-ass (\w+)")
 
         self.events.add_callback("MessageReceived", self, self.ass_swap, 1)

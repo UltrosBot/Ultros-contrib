@@ -6,12 +6,11 @@ Good ol' web interface and REST API plugin.
 We're at 1.0.0! Cyclone <3
 """
 
-__author__ = "Gareth Coles"
-
 import os
 import re
 
 from cyclone.web import Application, StaticFileHandler
+from twisted.internet import reactor
 
 from plugins.web.apikeys import APIKeys
 from plugins.web.events import ServerStartedEvent, ServerStoppedEvent
@@ -19,21 +18,18 @@ from plugins.web.template_loader import TemplateLoader
 from plugins.web.sessions import Sessions
 from plugins.web.stats import Stats
 
-from system.command_manager import CommandManager
-from system.event_manager import EventManager
-from system.plugins.manager import PluginManager
 from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML, JSON
-from system.storage.manager import StorageManager
 from system.translations import Translations
-
-from twisted.internet import reactor
 
 from utils.packages.packages import Packages
 from utils.password import mkpasswd
 
 _ = Translations().get()
 __ = Translations().get_m()
+
+__author__ = "Gareth Coles"
+__all__ = ["WebPlugin"]
 
 
 class WebPlugin(PluginObject):
@@ -59,25 +55,19 @@ class WebPlugin(PluginObject):
 
     application = None  # Cyclone application
     port = None  # Twisted's server port
-    storage = None
     template_loader = None
 
     navbar_items = {}
 
-    ## Stuff plugins might find useful
+    # Stuff plugins might find useful
 
-    commands = None
-    events = None
     packages = None
-    plugins = None
     sessions = None
     stats = None
 
-    ## Internal(ish) functions
+    # Internal(ish) functions
 
     def setup(self):
-        self.storage = StorageManager()
-
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/web.yml")
@@ -195,10 +185,7 @@ class WebPlugin(PluginObject):
         # Stuff routes might find useful
 
         self.api_keys = APIKeys(self, self.api_key_data)
-        self.commands = CommandManager()
-        self.events = EventManager()
         self.packages = Packages(False)
-        self.plugins = PluginManager()
         self.sessions = Sessions(self, _sessions)
         self.stats = Stats()
 
@@ -235,20 +222,20 @@ class WebPlugin(PluginObject):
         self.application = Application(
             list(self.handlers.items()),  # Handler list
 
-            ## General settings
+            # General settings
             xheaders=self.config.get("x_forwarded_for", False),
             log_function=log_function,
             gzip=True,  # Are there browsers that don't support this now?
             # error_handler=ErrorHandler,
 
-            ## Security settings
+            # Security settings
             cookie_secret=self.data["secret"],
             login_url="/login",
 
-            ## Template settings
+            # Template settings
             template_loader=self.template_loader,
 
-            ## Static file settings
+            # Static file settings
             static_path="web/static"
         )
 
@@ -392,7 +379,7 @@ class WebPlugin(PluginObject):
     def null_log(self, *args, **kwargs):
         pass
 
-    ## Public API functions
+    # Public API functions
 
     def add_api_handler(self, pattern, handler, version=1):
         if not pattern.startswith("/"):

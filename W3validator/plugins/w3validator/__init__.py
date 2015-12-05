@@ -11,14 +11,18 @@ Licensed under MIT by Zarthus <zarthus@zarth.us>, 3 June, 2014.
 
 import requests
 
-import system.plugin as plugin
-from system.command_manager import CommandManager
-from system.decorators.threads import run_async_threadpool
-
 from twisted.internet import reactor
 
+from system.command_manager import CommandManager
+from system.decorators.threads import run_async_threadpool
+from system.plugins.plugin import PluginObject
 
-class W3validatorPlugin(plugin.PluginObject):
+__author__ = "Zarthus"
+__all__ = ["W3validatorPlugin"]
+
+
+class W3validatorPlugin(PluginObject):
+    # TODO: requests -> txrequests
     commands = None
 
     def setup(self):

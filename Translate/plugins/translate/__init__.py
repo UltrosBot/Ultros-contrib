@@ -1,20 +1,23 @@
-__author__ = 'Gareth Coles'
-
 from goslate import Goslate, Error
-
 from kitchen.text.converters import to_unicode
 
 from system.decorators.threads import run_async_threadpool
-from system.command_manager import CommandManager
 from system.plugins.plugin import PluginObject
+
+__author__ = 'Gareth Coles'
+__all__ = ["TranslatePlugin"]
 
 
 class TranslatePlugin(PluginObject):
-    commands = None
+    # TODO: Rewrite this with some other translation API
+
+    # Google will eventually realise that we're scraping, so goslate isn't
+    # suitable. Additionally, it doesn't work with twisted for async, instead
+    # requiring the optional `futures` module for that
+
     goslate = None
 
     def setup(self):
-        self.commands = CommandManager()
         self.goslate = Goslate()
 
         self.commands.register_command(

@@ -1,25 +1,21 @@
 # coding=utf-8
-__author__ = "Gareth Coles"
 
-from system.command_manager import CommandManager
 from system.decorators.ratelimit import RateLimiter
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 from plugins.items.types import json_type
 from plugins.items.types import sqlite_type
 
 
-class ItemsPlugin(plugin.PluginObject):
+__author__ = "Gareth Coles"
+__all__ = ["ItemsPlugin"]
 
-    commands = None
+
+class ItemsPlugin(PluginObject):
 
     config = None
     data = None
-    storage = None
 
     handler = None
 
@@ -30,10 +26,8 @@ class ItemsPlugin(plugin.PluginObject):
         return "sqlite"
 
     def setup(self):
-        self.commands = CommandManager()
-        self.storage = StorageManager()
-
         self.logger.trace("Entered setup method.")
+
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/items.yml")

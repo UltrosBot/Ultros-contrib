@@ -1,18 +1,15 @@
-import random
 import time
+import treq
+import random
 
 from bs4 import BeautifulSoup
-import treq
 from twisted.internet import defer
 
-from system.command_manager import CommandManager
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 __author__ = 'Sean'
+__all__ = ["xkcdError", "xkcdPlugin", "NoSuchComicError", "ConnectionError"]
 
 
 # Some people think making your own exceptions is pointless. They're wrong.
@@ -38,25 +35,20 @@ class ConnectionError(xkcdError):
     pass
 
 
-class xkcdPlugin(plugin.PluginObject):
+class xkcdPlugin(PluginObject):
+    # TODO: treq -> txrequests
 
-    _commands = None
     _config = None
-    _storage = None
 
     _comic_cache = None
     _archive = None
 
     def setup(self):
-        ### Grab important shit
-        self._commands = CommandManager()
-        self._storage = StorageManager()
-
-        ### Initial config load
+        # Initial config load
         try:
-            self._config = self._storage.get_file(self, "config", YAML,
-                                                  "plugins/xkcd.yml")
-        except:
+            self._config = self.storage.get_file(self, "config", YAML,
+                                                 "plugins/xkcd.yml")
+        except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
             self._disable_self()
@@ -66,35 +58,36 @@ class xkcdPlugin(plugin.PluginObject):
             self.logger.error("Disabling...")
             self._disable_self()
             return
-        ### Same for the data files
+        # Same for the data files
         try:
-            self._comic_cache = self._storage.get_file(
+            self._comic_cache = self.storage.get_file(
                 self, "data", YAML,
-                "plugins/xkcd/comic-cache.yml")
-        except:
+                "plugins/xkcd/comic-cache.yml"
+            )
+        except Exception:
             self.logger.exception("Error loading comic-cache!")
             self.logger.error("Disabling...")
             self._disable_self()
         try:
-            self._archive = self._storage.get_file(self, "data", YAML,
-                                                   "plugins/xkcd/archive.yml")
-        except:
+            self._archive = self.storage.get_file(self, "data", YAML,
+                                                  "plugins/xkcd/archive.yml")
+        except Exception:
             self.logger.exception("Error loading archive!")
             self.logger.error("Disabling...")
             self._disable_self()
 
-        ### Initial data file setup and stuff
+        # Initial data file setup and stuff
         self._load()
 
         self._config.add_callback(self._load)
         self._comic_cache.add_callback(self._load)
         self._archive.add_callback(self._load)
 
-        ### Register commands
-        self._commands.register_command("xkcd",
-                                        self.xkcd_cmd,
-                                        self,
-                                        "xkcd.xkcd", default=True)
+        # Register commands
+        self.commands.register_command("xkcd",
+                                       self.xkcd_cmd,
+                                       self,
+                                       "xkcd.xkcd", default=True)
 
     def reload(self):
         # Reload config
@@ -147,16 +140,16 @@ class xkcdPlugin(plugin.PluginObject):
                  parsed_args):
         self.logger.trace("xkcd_cmd()")
         args = raw_args.split()  # Quick fix for new command handler signature
-        ### Decide what they want to do
+        # Decide what they want to do
         if len(args) == 0:
-            ### Get random
+            # Get random
             self.logger.trace("xkcd_cmd - get random")
             d = self.get_random_comic()
             d.addCallbacks(self._xkcd_command_get_comic_callback,
                            self._log_failure,
                            [source])
         else:
-            ### Get specific
+            # Get specific
             ## Attempt to use single arg as ID if applicable
             cid = None
             if len(args) == 1:
@@ -231,7 +224,7 @@ class xkcdPlugin(plugin.PluginObject):
         self.logger.debug("Getting random comic")
         d = self._ensure_archive_freshness()
         d.addBoth(
-            lambda r: self._get_random_comic()
+                lambda r: self._get_random_comic()
         )
         return d
 
@@ -251,16 +244,16 @@ class xkcdPlugin(plugin.PluginObject):
         :return: Deferred that fires with a dict of info
         """
         self.logger.debug("Getting comic by term")
-        ### Update the archive, if necessary
+        # Update the archive, if necessary
         d = self._ensure_archive_freshness()
         d.addBoth(
-            lambda r: self._get_comic_by_term(term)
+                lambda r: self._get_comic_by_term(term)
         )
         return d
 
     def _get_comic_by_term(self, term):
         self.logger.trace("_get_comic_by_term()")
-        ### Search the archive for the given term
+        # Search the archive for the given term
         term = term.lower()
         half_match = None
         with self._archive.mutex:
@@ -302,7 +295,8 @@ class xkcdPlugin(plugin.PluginObject):
             return defer.fail(NoSuchComicError(comic_id))
         else:
             return defer.fail(
-                ConnectionError("Unexpected response code: %s" % result.code)
+                    ConnectionError(
+                        "Unexpected response code: %s" % result.code)
             )
 
     def _get_comic_result_json(self, result, comic_id):
@@ -325,9 +319,9 @@ class xkcdPlugin(plugin.PluginObject):
         self.logger.debug("Updating archive...")
         d = treq.get("http://xkcd.com/archive/")
         d.addCallbacks(
-            self._update_archive_callback,
-            self._log_failure,
-            errbackArgs=["Error while updating archive (fetching)"]
+                self._update_archive_callback,
+                self._log_failure,
+                errbackArgs=["Error while updating archive (fetching)"]
         )
         return d
 
@@ -335,9 +329,9 @@ class xkcdPlugin(plugin.PluginObject):
         self.logger.trace("_update_archive_callback()")
         d = response.content()
         d.addCallbacks(
-            self._update_archive_content_callback,
-            self._log_failure,
-            errbackArgs=["Error while updating archive (reading)"]
+                self._update_archive_content_callback,
+                self._log_failure,
+                errbackArgs=["Error while updating archive (reading)"]
         )
         return d
 

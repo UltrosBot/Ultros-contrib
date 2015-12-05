@@ -1,27 +1,25 @@
 # coding=utf-8
 
-__author__ = "Adam Guy"
-
 import random
-import system.plugin as plugin
 
-from system.command_manager import CommandManager
+from system.plugins.plugin import PluginObject
 from system.protocols.generic.channel import Channel
 from system.protocols.generic.protocol import ChannelsProtocol
 
+__author__ = "Adam Guy"
+__all__ = ["RoulettePlugin"]
 
-class RoulettePlugin(plugin.PluginObject):
 
-    commands = None
+class RoulettePlugin(PluginObject):
 
     channels = {}
     users = {}
 
     def setup(self):
-        self.commands = CommandManager()
-        self.commands.register_command("rroulette", self.play, self,
-                                       "russianroulette.rroulette",
-                                       aliases=["roulette"], default=True)
+        self.commands.register_command(
+            "rroulette", self.play, self, "russianroulette.rroulette",
+            aliases=["roulette"], default=True
+        )
 
     def getChannel(self, channel):
         if channel not in self.channels.keys():

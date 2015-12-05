@@ -13,17 +13,17 @@ human readable.
 import re
 import requests
 
-import system.plugin as plugin
-from system.command_manager import CommandManager
 from system.decorators.threads import run_async_threadpool
+from system.plugins.plugin import PluginObject
+
+__author__ = "Zarthus"
+__all__ = ["WoWPlugin"]
 
 
-class WoWPlugin(plugin.PluginObject):
-    commands = None
+class WoWPlugin(PluginObject):
+    # TODO: Make this not specific to IRC
 
     def setup(self):
-        self.commands = CommandManager()
-
         self.commands.register_command('armoury', self.armoury,
                                        self, 'wow.armoury',
                                        aliases=['armory'], default=True)

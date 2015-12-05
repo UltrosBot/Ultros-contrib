@@ -1,28 +1,26 @@
 # coding=utf-8
-__author__ = 'Gareth Coles'
 
 import json
 import urllib
 
-import system.plugin as plugin
-
 from mcstatus import MinecraftServer
-
-from system.command_manager import CommandManager
-from system.decorators.threads import run_async_threadpool
-from system.protocols.generic.user import User
-from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
+from system.decorators.threads import run_async_threadpool
+from system.plugins.plugin import PluginObject
+from system.protocols.generic.user import User
+from system.storage.formats import YAML
 
-class MinecraftPlugin(plugin.PluginObject):
+__author__ = 'Gareth Coles'
+__all__ = ["MinecraftPlugin"]
+
+
+class MinecraftPlugin(PluginObject):
+    # TODO: Move to txrequests from urllib
 
     config = None
-    commands = None
-    storage = None
 
     status_url = "http://status.mojang.com/check"
     status_refresh_rate = 600
@@ -67,7 +65,7 @@ class MinecraftPlugin(plugin.PluginObject):
 
     def setup(self):
         self.logger.trace("Entered setup method.")
-        self.storage = StorageManager()
+
         try:
             self.config = self.storage.get_file(self, "config", YAML,
                                                 "plugins/minecraft.yml")
@@ -85,9 +83,10 @@ class MinecraftPlugin(plugin.PluginObject):
             self.logger.warn("No valid target protocols found. "
                              "Disabling status relaying.")
 
-        self.commands = CommandManager()
-        self.commands.register_command("mcquery", self.query_command, self,
-                                       "minecraft.query", default=True)
+        self.commands.register_command(
+                "mcquery", self.query_command, self, b"minecraft.query",
+                default=True
+        )
 
         if self.do_relay:
             reactor.callLater(30, self.start_relay)

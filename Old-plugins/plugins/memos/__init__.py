@@ -1,20 +1,18 @@
 # coding=utf-8
-__author__ = "NotMeh"
-
-import system.plugin as plugin
 
 from system.events.general import PreMessageReceived
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
+
+__author__ = "NotMeh"
+__all__ = ["MemosPlugin"]
 
 
-class MemosPlugin(plugin.PluginObject):
+class MemosPlugin(PluginObject):
     storage = None
-    data = {}
+    data = None
 
     def setup(self):
-        self.storage = StorageManager()
         self.data = self.storage.get_file(self, "data", YAML,
                                           "plugins/memos/memos.yml")
 

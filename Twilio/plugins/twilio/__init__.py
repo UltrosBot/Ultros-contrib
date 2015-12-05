@@ -4,29 +4,21 @@ __author__ = 'Gareth Coles'
 from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
 
-from .contact import Contact
+from plugins.twilio.contact import Contact
 
-import system.plugin as plugin
-
-from system.command_manager import CommandManager
-from system.event_manager import EventManager
-from system.plugins.manager import PluginManager
-from system.storage.manager import StorageManager
+from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML, JSON
 
 from utils.switch import Switch as switch
 
 
-class TwilioPlugin(plugin.PluginObject):
+class TwilioPlugin(PluginObject):
+    # TODO: Rewrite and test
+    # I'm not convinced this actually works anymore, and it
+    # probably needs a rewrite to properly support Web
 
     config = None
     data = None
-
-    commands = None
-    events = None
-    plugins = None
-    storage = None
-
     twilio = None
 
     @property
@@ -38,11 +30,6 @@ class TwilioPlugin(plugin.PluginObject):
 
     def setup(self):
         self.logger.trace("Entered setup method.")
-
-        self.commands = CommandManager()
-        self.events = EventManager()
-        self.plugins = PluginManager()
-        self.storage = StorageManager()
 
         try:
             self.config = self.storage.get_file(self, "config", YAML,

@@ -2,40 +2,26 @@ import random
 import re
 import itertools
 
-from system.command_manager import CommandManager
-from system.event_manager import EventManager
 from system.events.general import MessageReceived, ActionReceived
-
-import system.plugin as plugin
+from system.plugins.plugin import PluginObject
 from system.protocols.generic.channel import Channel
-
 from system.storage.formats import YAML
-from system.storage.manager import StorageManager
 
 
 __author__ = 'Sean'
+__all__ = ["TriggersPlugin"]
 
 
-class TriggersPlugin(plugin.PluginObject):
-
-    commands = None
-    events = None
-    storage = None
-
+class TriggersPlugin(PluginObject):
     _config = None
 
     def setup(self):
-        ### Grab important shit
-        self.commands = CommandManager()
-        self.events = EventManager()
-        self.storage = StorageManager()
 
-        ### Initial config load
+        # Initial config load
         try:
-            self._config = self.storage.get_file(self,
-                                                 "config",
-                                                 YAML,
-                                                 "plugins/triggers.yml")
+            self._config = self.storage.get_file(
+                    self, "config", YAML, "plugins/triggers.yml"
+            )
         except Exception:
             self.logger.exception("Error loading configuration!")
             self.logger.error("Disabling...")
@@ -47,7 +33,7 @@ class TriggersPlugin(plugin.PluginObject):
             self._disable_self()
             return
 
-        ### Register event handlers
+        # Register event handlers
         def _message_event_filter(event=MessageReceived):
             return isinstance(event.target, Channel)
 
@@ -98,15 +84,13 @@ class TriggersPlugin(plugin.PluginObject):
         Event handler for general messages
         """
 
-        allowed = self.commands.perm_handler.check("triggers.trigger",
-                                                   source,
-                                                   target,
-                                                   protocol)
+        allowed = self.commands.perm_handler.check(
+                "triggers.trigger", source, target, protocol
+        )
         if not allowed:
             return
 
         # TODO: Rewrite this when Matcher is finished
-
         # TODO: We check the types of half of these - do the rest
 
         global_triggers = self._triggers.get("global", [])
@@ -190,7 +174,7 @@ class TriggersPlugin(plugin.PluginObject):
                     elif flag == "d":
                         flags_parsed += re.DEBUG
                     else:
-                        self.log.warning("Unknown regex flag '%s'" % flag)
+                        self.logger.warning("Unknown regex flag '%s'" % flag)
 
                 # TODO: Rate limiting
                 # re caches compiled patterns internally, so we don't have to

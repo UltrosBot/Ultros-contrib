@@ -1,32 +1,22 @@
 # coding=utf-8
-__author__ = "Gareth Coles"
 
 import math
 import time
 
 from kitchen.text.converters import to_unicode
 
-from system.command_manager import CommandManager
-from system.event_manager import EventManager
-
-import system.plugin as plugin
-
+from system.plugins.plugin import PluginObject
 from system.storage.formats import DBAPI
-from system.storage.manager import StorageManager
+
+__author__ = "Gareth Coles"
+__all__ = ["LastseenPlugin"]
 
 
-class LastseenPlugin(plugin.PluginObject):
-
-    commands = None
-    events = None
-    storage = None
+class LastseenPlugin(PluginObject):
 
     data = None  # SQLite for a change
 
     def setup(self):
-        self.commands = CommandManager()
-        self.events = EventManager()
-        self.storage = StorageManager()
         self.data = self.storage.get_file(
             self,
             "data",
@@ -36,10 +26,15 @@ class LastseenPlugin(plugin.PluginObject):
             check_same_thread=False
         )
 
-        self.data.runQuery("CREATE TABLE IF NOT EXISTS users ("
-                           "user TEXT, "
-                           "protocol TEXT, "
-                           "at INTEGER)")
+        self.data.runQuery(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                user TEXT,
+                protocol TEXT,
+                at INTEGER
+            )
+            """
+        )
 
         self.commands.register_command("seen", self.seen_command, self,
                                        "seen.seen", default=True)
