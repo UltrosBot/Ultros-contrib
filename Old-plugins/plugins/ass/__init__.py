@@ -5,6 +5,7 @@ from system.events.general import MessageReceived
 
 
 __author__ = 'Gareth Coles'
+__all__ = ["AssPlugin"]
 
 
 class AssPlugin(PluginObject):
