@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 API route for the memory graph at the admin index - /api/admin/get_mem
 """

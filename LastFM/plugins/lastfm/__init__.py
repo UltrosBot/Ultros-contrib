@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import treq
 
 from datetime import datetime

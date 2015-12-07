@@ -2,3 +2,4 @@ flake8
 nose
 sphinx
 sphinx_rtd_theme
+flake8-coding

@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from plugins.web.api_errors import invalid_key_error, permissions_error
 
 __author__ = 'Gareth Coles'

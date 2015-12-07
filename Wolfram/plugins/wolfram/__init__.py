@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import wolframalpha
 
 from system.decorators.threads import run_async_threadpool

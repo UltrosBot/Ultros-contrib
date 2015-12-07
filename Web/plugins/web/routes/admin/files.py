@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Admin files list page - /admin/files
 """

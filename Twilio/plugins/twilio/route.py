@@ -1,3 +1,5 @@
+# coding=utf-8
+
 __author__ = 'Gareth Coles'
 
 from plugins.web.request_handler import RequestHandler

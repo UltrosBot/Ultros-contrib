@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Account POST for changing password - /account/password/change
 

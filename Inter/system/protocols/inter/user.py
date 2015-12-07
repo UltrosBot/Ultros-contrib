@@ -1,3 +1,5 @@
+# coding=utf-8
+
 __author__ = 'Gareth Coles'
 
 from system.protocols.generic.user import User as BaseUser

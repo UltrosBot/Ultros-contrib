@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Login page - /login
 """

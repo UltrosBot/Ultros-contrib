@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from plugins.web.decorators import check_api
 from plugins.web.request_handler import RequestHandler
 

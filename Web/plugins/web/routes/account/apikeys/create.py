@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Account - create an API key
 """

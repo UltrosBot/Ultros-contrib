@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from plugins.heartbleed import hb
 
 from system.decorators.threads import run_async_threadpool

@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import treq
 
 from kitchen.text.converters import to_unicode

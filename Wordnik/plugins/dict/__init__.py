@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import urllib
 from wordnik import swagger
 from wordnik.WordApi import WordApi

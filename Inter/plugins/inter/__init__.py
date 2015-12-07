@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from twisted.internet import reactor
 
 from system.events.general import MessageReceived

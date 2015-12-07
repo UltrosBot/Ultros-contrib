@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from goslate import Goslate, Error
 from kitchen.text.converters import to_unicode
 

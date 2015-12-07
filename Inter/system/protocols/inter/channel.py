@@ -1,3 +1,5 @@
+# coding=utf-8
+
 __author__ = 'Sean'
 
 from system.protocols.generic.channel import Channel as BaseChannel
