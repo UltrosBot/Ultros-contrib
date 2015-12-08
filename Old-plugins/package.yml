@@ -37,6 +37,7 @@ files:
 - plugins/geoip.plug
 
 - plugins/items/__init__.py
+- plugins/items/types/__init__.py
 - plugins/items/types/json_type.py
 - plugins/items/types/sqlite_type.py
 - plugins/items.plug
