@@ -811,6 +811,11 @@ class GithubHandler(URLHandler):
 
         data = r.json()
 
+        c_msg = data["commit"]["message"]
+
+        if "\n" in c_msg:
+            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+
         data["given"] = {
             "owner": owner,
             "repo": repo,
@@ -1232,6 +1237,11 @@ class GithubHandler(URLHandler):
 
         data = r.json()
 
+        c_msg = data["commit"]["message"]
+
+        if "\n" in c_msg:
+            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+
         data["given"] = {
             "owner": owner,
             "repo": repo,
@@ -1276,6 +1286,11 @@ class GithubHandler(URLHandler):
 
         data = r.json()
 
+        c_msg = data["commit"]["message"]
+
+        if "\n" in c_msg:
+            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+
         data["given"] = {
             "owner": owner,
             "repo": repo,
@@ -1311,6 +1326,11 @@ class GithubHandler(URLHandler):
 
         data = r.json()
 
+        c_msg = data["commit"]["message"]
+
+        if "\n" in c_msg:
+            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+
         data["given"] = {
             "owner": owner,
             "repo": repo,
@@ -1345,6 +1365,11 @@ class GithubHandler(URLHandler):
         self.raise_if_message(r)
 
         data = r.json()
+
+        c_msg = data["commit"]["message"]
+
+        if "\n" in c_msg:
+            data["commit"]["message"] = c_msg.split("\n", 1)[0]
 
         data["given"] = {
             "owner": owner,
