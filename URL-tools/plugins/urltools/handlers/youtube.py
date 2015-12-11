@@ -1,11 +1,14 @@
 # coding=utf-8
 import re
 import isodate
+import locale
+
 from twisted.internet.defer import Deferred
 from txrequests import Session
-from plugins.urls.constants import CASCADE, STOP_HANDLING
 
+from plugins.urls.constants import CASCADE, STOP_HANDLING
 from plugins.urls.handlers.handler import URLHandler
+
 from plugins.urltools import ApiKeyMissing
 
 __author__ = 'Sean'
@@ -67,6 +70,11 @@ class YoutubeHandler(URLHandler):
             raise ApiKeyMissing()
 
         self.session = Session()
+
+    def format_numbers(self, _dict):
+        for k, v in _dict.iteritems():
+            if isinstance(v, int):
+                _dict[k] = locale.format("%d", v, grouping=True)
 
     @property
     def api_key(self):
@@ -233,6 +241,8 @@ class YoutubeHandler(URLHandler):
             "rating_total": ratings_total
         }
 
+        self.format_numbers(format_data)
+
         message = self.get_format_string("video").format(**format_data)
         self._handle_message(message, context)
         result_def.callback(STOP_HANDLING)
@@ -270,6 +280,8 @@ class YoutubeHandler(URLHandler):
             "full_description": description,
         }
 
+        self.format_numbers(format_data)
+
         message = self.get_format_string("channel").format(**format_data)
         self._handle_message(message, context)
         result_def.callback(STOP_HANDLING)
@@ -296,6 +308,8 @@ class YoutubeHandler(URLHandler):
             "description": description_snippet,
             "full_description": description,
         }
+
+        self.format_numbers(format_data)
 
         message = self.get_format_string("playlist").format(**format_data)
         self._handle_message(message, context)
