@@ -184,11 +184,12 @@ square brackets `]`, like so: `{given[key]}`
 * **Example URL**: `https://github.com/voxadam/Ultros/blob/master/LICENSE`
 * **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
 * `given`: `owner`, `repo`, `branch`, `path`
+* `short_commit`: First line of the commit message
 
 **Default string**:
 
 ```
-!!python/unicode "[GitHub file] {given[owner]}/{given[repo]}/{given[branch]} - {given[path]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
+!!python/unicode "[GitHub file] {given[owner]}/{given[repo]}/{given[branch]} - {given[path]} - {commit[author][name]}: {short_commit} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-blob-hash-path
@@ -196,11 +197,12 @@ square brackets `]`, like so: `{given[key]}`
 * **Example URL**: `https://github.com/UltrosBot/Ultros/blob/740db9cd4f15e208530833b45bf9d91ada9d56a6/system/logging/logger.py`
 * **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
 * `given`: `owner`, `repo`, `hash`, `path`
+* `short_commit`: First line of the commit message
 
 **Default string**:
 
 ```
-!!python/unicode "[GitHub file] {given[owner]}/{given[repo]} - {given[path]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
+!!python/unicode "[GitHub file] {given[owner]}/{given[repo]} - {given[path]} - {commit[author][name]}: {short_commit} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-no-commits
@@ -272,11 +274,12 @@ square brackets `]`, like so: `{given[key]}`
 * **Example URL**: `https://github.com/UltrosBot/Ultros/commit/126790345e68072def2b91ba5b0d5033d005e0da`
 * **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
 * `given`: `owner`, `repo`, `hash`
+* `short_commit`: First line of the commit message
 
 **Default string**:
 
 ```
-!!python/unicode "[GitHub commit] {given[owner]}/{given[repo]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
+!!python/unicode "[GitHub commit] {given[owner]}/{given[repo]} - {commit[author][name]}: {short_commit} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-compare
@@ -623,11 +626,12 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 * **Example URL**: `https://github.com/UltrosBot/Ultros/tree/master`
 * **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
 * `given`: `owner`, `repo`, `branch`
+* `short_commit`: First line of the commit message
 
 **Default string**:
 
 ```
-!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]}/{given[branch]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]}/{given[branch]} - {commit[author][name]}: {short_commit} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-tree-branch-path
@@ -635,11 +639,12 @@ key of the `milestone` are safe to use, but we decided to include everything in 
 * **Example URL**: `https://github.com/UltrosBot/Ultros/tree/master/README.md`
 * **API documentation**: https://developer.github.com/v3/repos/commits/#get-a-single-commit
 * `given`: `owner`, `repo`, `branch`, `path`
+* `short_commit`: First line of the commit message
 
 **Default string**:
 
 ```
-!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]}/{given[branch]} - {given[path]} - {commit[author][name]}: {commit[message]} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
+!!python/unicode "[GitHub repo] {given[owner]}/{given[repo]}/{given[branch]} - {given[path]} - {commit[author][name]}: {short_commit} (+{stats[additions]}/-{stats[deletions]}/±{stats[total]})"
 ```
 
 ### Key: repo-tree-branch-path-dir

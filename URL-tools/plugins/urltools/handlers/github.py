@@ -79,12 +79,12 @@ strings = {
 
     "repo-blob-branch-path": u"[GitHub file] {given[owner]}/{given[repo]}/"
                              u"{given[branch]} - {given[path]} - "
-                             u"{commit[author][name]}: {commit[message]} "
+                             u"{commit[author][name]}: {short_commit} "
                              u"(+{stats[additions]}/-{stats[deletions]}/"
                              u"\u00B1{stats[total]})",
     "repo-blob-hash-path": u"[GitHub file] {given[owner]}/{given[repo]} - "
                            u"{given[path]} - "
-                           u"{commit[author][name]}: {commit[message]} "
+                           u"{commit[author][name]}: {short_commit} "
                            u"(+{stats[additions]}/-{stats[deletions]}/"
                            u"\u00B1{stats[total]})",
 
@@ -100,7 +100,7 @@ strings = {
                                 u"- {commits_count} commits by "
                                 u"{contributors_count} contributors",
     "repo-commit-hash": u"[GitHub commit] {given[owner]}/{given[repo]} - "
-                        u"{commit[author][name]}: {commit[message]} "
+                        u"{commit[author][name]}: {short_commit} "
                         u"(+{stats[additions]}/-{stats[deletions]}/"
                         u"\u00B1{stats[total]})",
 
@@ -175,12 +175,12 @@ strings = {
 
     "repo-tree-branch": u"[GitHub repo] {given[owner]}/{given[repo]}/"
                         u"{given[branch]} - "
-                        u"{commit[author][name]}: {commit[message]} "
+                        u"{commit[author][name]}: {short_commit} "
                         u"(+{stats[additions]}/-{stats[deletions]}/"
                         u"\u00B1{stats[total]})",
     "repo-tree-branch-path": u"[GitHub repo] {given[owner]}/{given[repo]}/"
                              u"{given[branch]} - {given[path]} - "
-                             u"{commit[author][name]}: {commit[message]} "
+                             u"{commit[author][name]}: {short_commit} "
                              u"(+{stats[additions]}/-{stats[deletions]}/"
                              u"\u00B1{stats[total]})",
     "repo-tree-branch-path-dir": u"[GitHub repo] {given[owner]}/{given[repo]}/"
@@ -814,7 +814,7 @@ class GithubHandler(URLHandler):
         c_msg = data["commit"]["message"]
 
         if "\n" in c_msg:
-            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+            data["short_commit"] = c_msg.split("\n", 1)[0]
 
         data["given"] = {
             "owner": owner,
@@ -1240,7 +1240,7 @@ class GithubHandler(URLHandler):
         c_msg = data["commit"]["message"]
 
         if "\n" in c_msg:
-            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+            data["short_commit"] = c_msg.split("\n", 1)[0]
 
         data["given"] = {
             "owner": owner,
@@ -1289,7 +1289,7 @@ class GithubHandler(URLHandler):
         c_msg = data["commit"]["message"]
 
         if "\n" in c_msg:
-            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+            data["short_commit"] = c_msg.split("\n", 1)[0]
 
         data["given"] = {
             "owner": owner,
@@ -1329,7 +1329,7 @@ class GithubHandler(URLHandler):
         c_msg = data["commit"]["message"]
 
         if "\n" in c_msg:
-            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+            data["short_commit"] = c_msg.split("\n", 1)[0]
 
         data["given"] = {
             "owner": owner,
@@ -1369,7 +1369,7 @@ class GithubHandler(URLHandler):
         c_msg = data["commit"]["message"]
 
         if "\n" in c_msg:
-            data["commit"]["message"] = c_msg.split("\n", 1)[0]
+            data["short_commit"] = c_msg.split("\n", 1)[0]
 
         data["given"] = {
             "owner": owner,
