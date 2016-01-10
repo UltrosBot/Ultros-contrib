@@ -73,7 +73,7 @@ Jargon:
         - "boltons"
         packages: []
 LastFM:
-    version: 0.3.3
+    version: 0.3.4
     description: "LastFM API integration."
     requires:
         modules:

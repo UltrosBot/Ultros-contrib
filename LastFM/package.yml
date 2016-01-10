@@ -1,8 +1,8 @@
 name: LastFM
 current_version:
-    number: 0.3.3
+    number: 0.3.4
     info: >
-        Support Last.FM short URLs for tracks
+        Fix error in error handling due to LastFM API changes
 description: >
     LastFM API integration. Current features:
     - Now Playing, including stats

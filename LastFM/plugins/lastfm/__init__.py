@@ -420,9 +420,9 @@ class LastFM(object):
 
     def _handle_content(self, result):
         if "error" in result:
-            raise LastFMError(result["error"],
-                              result["message"],
-                              result["links"])
+            raise LastFMError(result.get("error", None),
+                              result.get("message", ""),
+                              result.get("links", []))
         else:
             return result
         # TODO: This return doesn't seem to actually go anywhere
