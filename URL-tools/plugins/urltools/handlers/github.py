@@ -815,6 +815,8 @@ class GithubHandler(URLHandler):
 
         if "\n" in c_msg:
             data["short_commit"] = c_msg.split("\n", 1)[0]
+        else:
+            data["short_commit"] = c_msg
 
         data["given"] = {
             "owner": owner,
@@ -1241,6 +1243,8 @@ class GithubHandler(URLHandler):
 
         if "\n" in c_msg:
             data["short_commit"] = c_msg.split("\n", 1)[0]
+        else:
+            data["short_commit"] = c_msg
 
         data["given"] = {
             "owner": owner,
@@ -1290,6 +1294,8 @@ class GithubHandler(URLHandler):
 
         if "\n" in c_msg:
             data["short_commit"] = c_msg.split("\n", 1)[0]
+        else:
+            data["short_commit"] = c_msg
 
         data["given"] = {
             "owner": owner,
@@ -1330,6 +1336,8 @@ class GithubHandler(URLHandler):
 
         if "\n" in c_msg:
             data["short_commit"] = c_msg.split("\n", 1)[0]
+        else:
+            data["short_commit"] = c_msg
 
         data["given"] = {
             "owner": owner,
@@ -1370,6 +1378,8 @@ class GithubHandler(URLHandler):
 
         if "\n" in c_msg:
             data["short_commit"] = c_msg.split("\n", 1)[0]
+        else:
+            data["short_commit"] = c_msg
 
         data["given"] = {
             "owner": owner,
