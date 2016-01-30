@@ -72,10 +72,10 @@ strings = {
            u"{public_gists} gists - {followers} followers - {blog}",
 
     "repo": u"[GitHub repo] {full_name}: {description} - {forks_count} "
-            u"forks / {watchers_count} watchers, {subscribers_count} stars",
+            u"forks / {subscribers_count} watchers, {watchers_count} stars",
     "repo-fork": u"[GitHub fork] {full_name} (Fork of {parent[full_name]}): "
-                 u"{description} - {forks_count} forks / {watchers_count} "
-                 u"watchers, {subscribers_count} stars",
+                 u"{description} - {forks_count} forks / {subscribers_count} "
+                 u"watchers, {watchers_count} stars",
 
     "repo-blob-branch-path": u"[GitHub file] {given[owner]}/{given[repo]}/"
                              u"{given[branch]} - {given[path]} - "
