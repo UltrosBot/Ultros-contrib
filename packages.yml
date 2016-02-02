@@ -53,11 +53,11 @@ Feeds:
         - "feedparser"
         packages: []
 Google:
-    version: 0.0.1
+    version: 0.1.0
     description: "Allows you to do quick Google searches that return up to four results at a time."
     requires:
         modules:
-        - "treq"
+        - "txrequests"
         packages: []
 Heartbleed:
     version: 0.0.1

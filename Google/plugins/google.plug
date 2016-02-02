@@ -2,10 +2,10 @@ core:
   name: Google
   module: google
   dependencies:
-  - "URLs < 2.0.0"
+  - "URLs >= 2.0.0"
 info:
   description: Plugin to do quick Google searches
   author: Gareth Coles
-  version: 0.0.2
-  website: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Google
+  version: 0.1.0
+  website: https://github.com/UltrosBot/Ultros-contrib/blob/master/Google
   copyright: See Ultros' license

@@ -1,12 +1,10 @@
 # coding=utf-8
 
 import treq
-
 from kitchen.text.converters import to_unicode
 
 from plugins.google.search import get_results, parse_results
 
-from system.decorators.threads import run_async_threadpool
 from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
 
@@ -15,7 +13,6 @@ __all__ = ["GooglePlugin"]
 
 
 class GooglePlugin(PluginObject):
-    # TODO: Port to txrequests, update for new URLs plugin
     _config = None
 
     @property
@@ -87,22 +84,23 @@ class GooglePlugin(PluginObject):
                      source)
 
     def google_response_callback(self, result, protocol, caller, source):
-        d = treq.json_content(result)
-        d.addCallback(self.google_json_callback, protocol, caller, source)
-        d.addErrback(self.google_json_callback_failed, protocol, caller,
-                     source)
+        try:
+            data = result.json()
+        except Exception as e:
+            self.google_json_callback_failed(e, protocol, caller, source)
+        else:
+            self.google_json_callback(data, protocol, caller, source)
 
     def google_response_callback_failed(self, result, protocol, caller,
                                         source):
         caller.respond("Failed to get results: {}".format(result))
 
-    @run_async_threadpool
     def google_json_callback(self, result, protocol, caller, source):
         results = parse_results(result, self.num_results)
 
         for title, url in results.iteritems():
-            source.respond(u"[{}] {}".format(self.urls.tinyurl(url),
-                                             to_unicode(title)))
+            shortened = self.urls.shorten(url, target=source)
+            source.respond(u"[{}] {}".format(shortened, to_unicode(title)))
 
     def google_json_callback_failed(self, result, protocol, caller, source):
         caller.respond("Failed to parse results: {}".format(result))

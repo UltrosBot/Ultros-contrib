@@ -1,11 +1,13 @@
 # coding=utf-8
 
-__author__ = "Gareth Coles"
-
-import treq
+from txrequests import Session
 from utils.html import unescape_html_entities
 
+__author__ = "Gareth Coles"
+
 url = "http://ajax.googleapis.com/ajax/services/search/web"
+
+session = Session()
 
 
 def get_results(query, page=0, limit=None):
@@ -17,7 +19,7 @@ def get_results(query, page=0, limit=None):
     if start > 0:
         start -= 1
 
-    return treq.get(
+    return session.get(
         url, params={"v": "1.0", "start": start, "q": query}
     )
 

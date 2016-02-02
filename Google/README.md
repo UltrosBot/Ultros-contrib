@@ -5,7 +5,8 @@ This plugin allows you to do quick Google searches that return up to four result
 
 ## Configuration
 
-* This plugin has nothing to configure.
+* `result_limit` - The max number of results to return for a query. Defaults to `4`.
+    * Note that Google will never return more than 4 results.
 
 ## Commands and permissions
 

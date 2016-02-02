@@ -1,8 +1,8 @@
 name: Google
 current_version:
-    number: 0.0.1
+    number: 0.1.0
     info: >
-        Initial version.
+        Update for new URLs plugin and txrequests
 description: >
     Allows you to do quick Google searches that return up to four results at a time.
 files:
@@ -13,6 +13,6 @@ files:
 - plugins/google.plug
 requires:
     modules:
-    - treq
+    - txrequests
     packages: []
-documentation: https://github.com/McBlockitHelpbot/Ultros-contrib/blob/master/Google/README.md
+documentation: https://github.com/UltrosBot/Ultros-contrib/blob/master/Google/README.md
