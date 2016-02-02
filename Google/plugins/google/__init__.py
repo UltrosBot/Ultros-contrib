@@ -4,6 +4,7 @@ import treq
 from kitchen.text.converters import to_unicode
 
 from plugins.google.search import get_results, parse_results
+from twisted.internet.defer import inlineCallbacks
 
 from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
@@ -95,11 +96,12 @@ class GooglePlugin(PluginObject):
                                         source):
         caller.respond("Failed to get results: {}".format(result))
 
+    @inlineCallbacks
     def google_json_callback(self, result, protocol, caller, source):
         results = parse_results(result, self.num_results)
 
         for title, url in results.iteritems():
-            shortened = self.urls.shorten(url, target=source)
+            shortened = yield self.urls.shorten(url, target=source)
             source.respond(u"[{}] {}".format(shortened, to_unicode(title)))
 
     def google_json_callback_failed(self, result, protocol, caller, source):
