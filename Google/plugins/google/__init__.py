@@ -1,10 +1,9 @@
 # coding=utf-8
 
-import treq
 from kitchen.text.converters import to_unicode
+from twisted.internet.defer import inlineCallbacks
 
 from plugins.google.search import get_results, parse_results
-from twisted.internet.defer import inlineCallbacks
 
 from system.plugins.plugin import PluginObject
 from system.storage.formats import YAML
