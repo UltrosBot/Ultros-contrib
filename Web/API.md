@@ -66,7 +66,7 @@ Or if we wanted to get all the users on our protocols, we might do:
 
 ..which may return data similar to this:
 
-```
+```json
 {
     "irc-esper": [
         {
