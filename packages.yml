@@ -33,7 +33,7 @@ Dice:
         modules: []
         packages: []
 Domai.nr:
-    version: 0.3.1
+    version: 0.3.2
     description: "Domainr API integration."
     requires:
         modules:

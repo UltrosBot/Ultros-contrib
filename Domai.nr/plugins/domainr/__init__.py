@@ -12,8 +12,6 @@ __all__ = ["DomainrPlugin", "DomainrError", "Domainr"]
 
 class DomainrPlugin(PluginObject):
 
-    _commands = None
-
     def setup(self):
         # Initial config load
         try:
@@ -150,7 +148,7 @@ class DomainrPlugin(PluginObject):
         """
         Receives the API response for search
         """
-        loud = self._commands.perm_handler.check("domainr.search.loud",
+        loud = self.commands.perm_handler.check("domainr.search.loud",
                                                  caller,
                                                  source,
                                                  protocol)
@@ -184,7 +182,7 @@ class DomainrPlugin(PluginObject):
         """
         Receives the API response for info
         """
-        loud = self._commands.perm_handler.check("domainr.info.loud",
+        loud = self.commands.perm_handler.check("domainr.info.loud",
                                                  caller,
                                                  source,
                                                  protocol)
