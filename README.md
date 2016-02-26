@@ -8,10 +8,6 @@ or that the core team considers to be extra functionality.
 
 Packages may contain plugins, protocols, utils, and otherwise pretty much any files the developer requires.
 
--------------------
-
-Using [GitTorrent](https://github.com/cjb/GitTorrent)? `git clone gittorrent://b5177a0bf3fdf17caaade5be2db5feb0818e0566/Ultros-contrib`
-
 Installing packages
 -------------------
 
