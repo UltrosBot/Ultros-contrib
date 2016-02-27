@@ -148,10 +148,9 @@ class DomainrPlugin(PluginObject):
         """
         Receives the API response for search
         """
-        loud = self.commands.perm_handler.check("domainr.search.loud",
-                                                 caller,
-                                                 source,
-                                                 protocol)
+        loud = self.commands.perm_handler.check(
+            "domainr.search.loud", caller, source, protocol
+        )
         target = None
         if loud:
             target = source
@@ -182,10 +181,9 @@ class DomainrPlugin(PluginObject):
         """
         Receives the API response for info
         """
-        loud = self.commands.perm_handler.check("domainr.info.loud",
-                                                 caller,
-                                                 source,
-                                                 protocol)
+        loud = self.commands.perm_handler.check(
+            "domainr.info.loud", caller, source, protocol
+        )
         target = None
         if loud:
             target = source
