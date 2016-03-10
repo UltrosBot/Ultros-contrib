@@ -1,0 +1,19 @@
+name: Lua
+current_version:
+    number: 0.1.0
+    info: >
+        Initial release
+description: >
+    Enables loading of plugins written in Lua.
+files:
+- plugins/lua/
+- plugins/lua/__init__.py
+- plugins/lua/loader.py
+- plugins/lua/lua_plugin.py
+- plugins/lua.plug
+requires:
+    modules: [
+        "lupa>1.2"
+    ]
+    packages: []
+documentation: https://github.com/UltrosBot/Ultros-contrib/blob/master/Lua/README.md

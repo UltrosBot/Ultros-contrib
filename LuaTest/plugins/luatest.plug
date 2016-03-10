@@ -1,0 +1,11 @@
+core:
+  name: LuaTest
+  module: luatest
+  dependencies: [lua]
+  type: lua
+info:
+  description: Test plugin for Lua loader
+  author: Sean Gordon
+  version: 0.1.0
+  website: https://github.com/UltrosBot/Ultros-contrib/tree/master/LuaTest
+  copyright: See Ultros' license

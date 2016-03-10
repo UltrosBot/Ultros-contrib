@@ -79,6 +79,20 @@ LastFM:
         modules:
         - "treq"
         packages: []
+Lua:
+    version: 0.1.0
+    description: "Enables loading of plugins written in Lua."
+    requires:
+        modules:
+        - "lupa>1.2"
+        packages: []
+LuaTest:
+    version: 0.1.0
+    description: "Test plugin demonstrating Lua plugin support."
+    requires:
+        modules:
+        packages:
+        - "Lua"
 Minecraft:
     version: 0.0.3
     description: "Provides a command for checking the status of a Minecraft server and a Minecraft/Mojang server status watcher."

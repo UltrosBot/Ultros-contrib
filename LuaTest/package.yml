@@ -1,0 +1,17 @@
+name: LuaTest
+current_version:
+    number: 0.1.0
+    info: >
+        Initial release
+description: >
+    Test plugin demonstrating Lua plugin support.
+files:
+- plugins/luatest/
+- plugins/luatest/__init__.lua
+- plugins/luatest.plug
+requires:
+    modules: []
+    packages: [
+        lua
+    ]
+documentation: https://github.com/UltrosBot/Ultros-contrib/blob/master/Lua/README.md
