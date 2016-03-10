@@ -1,5 +1,4 @@
 # coding=utf-8
-import importlib
 
 from plugins.lua.loader import LuaPluginLoader
 from system.plugins.plugin import PluginObject
@@ -30,4 +29,3 @@ class LuaPlugin(PluginObject):
 
     def deactivate(self):
         self.plugins.remove_loader(self.loader.name)
-
