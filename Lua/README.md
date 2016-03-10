@@ -6,7 +6,7 @@ Lua
 Interpreter
 -----------
 
-We use [lupa](https://github.com/scoder/lupa) to provide Lua functionality. Depending on how you installed it, and
+We use [lupa](https://github.com/scoder/lupa) to provide Lua functionality. Depending on how you installed it and
 what you have installed, you may be using LuaJIT, Lua 5.2, or Lua 5.1 (in that order of search preference). We highly
 recommend using LuaJIT, but for maximum comparability, it's a good idea to target 5.1 as a minimum version for any
 plugins you release publicly.
@@ -23,8 +23,8 @@ Since this is a Python bot, there are a few change/extensions to the Lua runtime
                need to use `None` itself (e.g. key to a dict).
     * `enumerate()` - Iterate over a Python value similar to `ipairs()` in Lua.
     * `eval()` - Run a Python expression and get the result.
-    * `iter()` - Iterate over a Python value similar to `for _, v in pairs()` in _Lua.
-    * `iterex()` - Iterate over a Python value similar to `for k, v in pairs()` in _Lua.
+    * `iter()` - Iterate over a Python value similar to `for _, v in pairs()` in Lua.
+    * `iterex()` - Iterate over a Python value similar to `for k, v in pairs()` in Lua.
 
 
 Plugin Structure
@@ -73,6 +73,6 @@ end
 obj:func()
 ```
 
-This allows Lua and Python functions to be used the same with, without requiring different syntax for each type.
+This allows Lua and Python functions to be used the same way, without requiring different syntax for each type.
 You are free to use colon syntax for classes other than the main plugin, but we suggest using closure-style classes
 for everything to keep it consistent, unless you have good reason not to.
