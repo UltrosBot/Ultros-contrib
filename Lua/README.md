@@ -8,7 +8,7 @@ Interpreter
 
 We use [lupa](https://github.com/scoder/lupa) to provide Lua functionality. Depending on how you installed it and
 what you have installed, you may be using LuaJIT, Lua 5.2, or Lua 5.1 (in that order of search preference). We highly
-recommend using LuaJIT, but for maximum comparability, it's a good idea to target 5.1 as a minimum version for any
+recommend using LuaJIT, but for maximum compatibility, it's a good idea to target 5.1 as a minimum version for any
 plugins you release publicly.
 
 Since this is a Python bot, there are a few change/extensions to the Lua runtime:
