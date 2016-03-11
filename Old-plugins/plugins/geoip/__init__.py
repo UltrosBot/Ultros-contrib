@@ -35,6 +35,8 @@ class GeoIPPlugin(PluginObject):
                 source.respond("%s | Unknown host" % args[0])
                 return
 
+            data = ""
+
             try:
                 addr = urllib.quote_plus(args[0])
                 resp = urllib.urlopen(self.api_url % addr)
