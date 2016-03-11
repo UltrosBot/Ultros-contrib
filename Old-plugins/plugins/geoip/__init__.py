@@ -43,9 +43,9 @@ class GeoIPPlugin(PluginObject):
                 self.logger.trace("Data: %s" % repr(data))
 
                 parsed = json.loads(data)
-            except Exception:
+            except Exception as e:
                 source.respond("%s | Not found" % args[0])
-
+                self.logger.warn("Exception raised: {}".format(e))
             else:
 
                 country = parsed.get("country_name", None)
