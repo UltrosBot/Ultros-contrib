@@ -45,7 +45,8 @@ class GeoIPPlugin(PluginObject):
                 parsed = json.loads(data)
             except Exception as e:
                 source.respond("%s | Not found" % args[0])
-                self.logger.warn("Exception raised: {}".format(e))
+                self.logger.debug("Exception raised: {}".format(e))
+                self.logger.debug("Data: {}".format(data))
             else:
 
                 country = parsed.get("country_name", None)
@@ -53,7 +54,7 @@ class GeoIPPlugin(PluginObject):
                 city = parsed.get("city", None)
                 zip = parsed.get("zip_code", None)
 
-                if not country and not city and not region and not isp:
+                if not country and not city and not region and not zip:
                     source.respond("%s | Not found" % args[0])
                     return
 
