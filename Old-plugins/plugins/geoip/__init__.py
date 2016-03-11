@@ -13,7 +13,7 @@ __all__ = ["GeoIPPlugin"]
 class GeoIPPlugin(PluginObject):
     # TODO: Move from urllib to txrequests
 
-    api_url = "https://www.telize.com/geoip/%s"
+    api_url = "https://freegeoip.net/json/%s"
 
     def setup(self):
         self.commands.register_command(
@@ -35,26 +35,32 @@ class GeoIPPlugin(PluginObject):
                 source.respond("%s | Unknown host" % args[0])
                 return
 
-            addr = urllib.quote_plus(args[0])
-            resp = urllib.urlopen(self.api_url % addr)
-            data = resp.read()
+            try:
+                addr = urllib.quote_plus(args[0])
+                resp = urllib.urlopen(self.api_url % addr)
+                data = resp.read()
 
-            self.logger.trace("Data: %s" % repr(data))
+                self.logger.trace("Data: %s" % repr(data))
 
-            if data == "Not Found\n":
-                source.respond("%s | Not found" % args[0])
-            else:
                 parsed = json.loads(data)
-                country = parsed.get("country", None)
-                region = parsed.get("region", None)
+            except Exception:
+                source.respond("%s | Not found" % args[0])
+
+            else:
+
+                country = parsed.get("country_name", None)
+                region = parsed.get("region_name", None)
                 city = parsed.get("city", None)
-                isp = parsed.get("isp", None)
+                zip = parsed.get("zip_code", None)
 
                 if not country and not city and not region and not isp:
                     source.respond("%s | Not found" % args[0])
                     return
 
                 source.respond("%s | %s, %s, %s (%s)" % (
-                    args[0], city or "???", region or "???", country or "???",
-                    isp or "Unknown ISP"
+                    args[0],
+                    city or "Unknown City",
+                    region or "Unknown Region",
+                    country or "Unknown Country",
+                    zip or "Unknown Zip"
                 ))
