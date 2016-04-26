@@ -1,0 +1,823 @@
+# coding=utf-8
+import base64
+from numbers import Number
+from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.task import LoopingCall
+from txrequests import Session
+
+from system.commands.manager import CommandManager
+from system.enums import CommandState
+from system.events import discord as discord_events
+from system.events import general as general_events
+from system.events.manager import EventManager
+
+from system.protocols.discord.base_protocol import DiscordProtocol
+from system.protocols.discord.channel import Channel, PrivateChannel
+from system.protocols.discord import opcodes
+from system.protocols.discord.discriminators import DiscriminatorManager
+from system.protocols.discord.guild import Guild
+from system.protocols.discord.misc import Attachment, Embed
+from system.protocols.discord.user import User
+
+__author__ = 'Gareth Coles'
+
+
+class Protocol(DiscordProtocol):
+    ourselves = None
+    user_settings = {}
+    discriminator_manager = None
+
+    guilds = {}
+    users = []
+
+    channels = {}
+    voice_channels = {}
+    private_channels = {}
+
+    heartbeat_task = None
+    heartbeat_interval = 0
+    last_seq = 0
+
+    def __init__(self, name, factory, config):
+        DiscordProtocol.__init__(self, name, factory, config)
+        self.name = name
+
+        self.setup()
+
+    def setup(self):
+        self.discriminator_manager = DiscriminatorManager(self)
+        self.discriminator_manager.setup()
+
+        self.event_manager = EventManager()
+        self.command_manager = CommandManager()
+
+    @property
+    def all_channels(self):
+        channels = self.channels.copy()
+        channels.update(self.voice_channels)
+        channels.update(self.private_channels)
+
+        return channels
+
+    # region Discord event handlers
+
+    def discord_event_ready(self, message):
+        """
+        Fired on a READY message; we get this when we've just connected
+
+        It contains all kinds of information - User info, permissions,
+        roles,
+        "guilds" (servers), and so on.
+        """
+        gateway_version = int(message["v"])
+
+        if gateway_version != 4:
+            self.log.error(
+                "Incorrect gateway version ({}), "
+                "please update your bot.".format(
+                    gateway_version
+                )
+            )
+
+            return self.shutdown()
+
+        private_channels = message["private_channels"]
+        ourselves = {"user": message["user"]}
+
+        self.log.info("Connected. Gateway version: {}".format(gateway_version))
+
+        self.ourselves = self.add_user(ourselves)
+
+        servers = message["guilds"]
+
+        for server in servers:
+            if "unavailable" in server and server["unavailable"]:
+                self.log.info("Found unavailable server: {}".format(
+                    server["id"]
+                ))
+            else:
+                self.log.info(
+                    "Found server: {} -> {}".format(
+                        server["id"], server[
+                            "name"
+                        ]
+                    )
+                )
+
+        parsed_private_channels = []
+
+        for channel in private_channels:
+            user = {"user": channel["recipient"]}
+            channel["recipient"] = self.add_user(user)
+
+            parsed_private_channels.append(self.add_channel(channel))
+
+        self.heartbeat_interval = message["heartbeat_interval"] / 1000.0
+        self.start_heartbeat()
+
+        event = discord_events.ReadyEvent(
+            self, message["guilds"], self.heartbeat_interval,
+            message["presences"], parsed_private_channels,
+            message["session_id"], self.ourselves, gateway_version
+        )
+
+        self.event_manager.run_callback("Discord/Ready", event)
+
+        if event.cancelled:
+            self.log.info("Ready event cancelled, shutting down...")
+            self.shutdown()
+
+    def discord_event_channel_create(self, message):
+        channel = self.add_channel(message)
+        guild = self.get_guild(channel.guild_id)
+
+        if channel.id not in guild.channels:
+            guild.channels.append(channel.id)
+
+        event = discord_events.ChannelCreateEvent(self, channel)
+        self.event_manager.run_callback("Discord/ChannelCreated", event)
+
+    def discord_event_channel_update(self, message):
+        channel = self.add_channel(message)
+
+        event = discord_events.ChannelUpdateEvent(self, channel)
+        self.event_manager.run_callback("Discord/ChannelUpdated", event)
+
+    def discord_event_channel_delete(self, message):
+        channel = self.del_channel(message["id"])
+        guild = self.get_guild(channel.guild_id)
+
+        if channel.id in guild.channels:
+            guild.channels.remove(channel.id)
+
+        event = discord_events.ChannelDeleteEvent(self, channel)
+        self.event_manager.run_callback("Discord/ChannelDeleted", event)
+
+    def discord_event_guild_ban_add(self, message):
+        user = self.get_user(message["id"])
+
+        event = discord_events.GuildBanAddEvent(self, user)
+        self.event_manager.run_callback("Discord/GuildBanAdded", event)
+
+    def discord_event_guild_ban_remove(self, message):
+        user = self.get_user(message["id"])
+
+        event = discord_events.GuildBanRemoveEvent(self, user)
+        self.event_manager.run_callback("Discord/GuildBanRemoved", event)
+
+    def discord_event_guild_create(self, message):
+        guild_id = message["id"]
+        channels = message["channels"]
+        members = message["members"]
+
+        guild = self.add_guild(message)
+
+        for channel in channels:
+            channel["guild_id"] = guild_id
+            self.add_channel(channel)
+
+        for user in members:
+            self.add_user(user)
+
+        event = discord_events.GuildCreateEvent(self, guild)
+        self.event_manager.run_callback("Discord/GuildCreated", event)
+
+        self.send_request_guild_members(guild.id)
+
+    def discord_event_guild_update(self, message):
+        guild = self.add_guild(message)
+
+        event = discord_events.GuildUpdateEvent(self, guild)
+        self.event_manager.run_callback("Discord/GuildUpdated", event)
+
+    def discord_event_guild_emjoi_update(self, message):
+        guild = self.get_guild(message["guild_id"])
+        emojis = message["emojis"]  # Emoji object
+
+        event = discord_events.GuildEmojiUpdateEvent(self, guild, emojis)
+        self.event_manager.run_callback("Discord/GuildEmojisUpdated", event)
+
+    def discord_event_guild_delete(self, message):
+        guild = self.get_guild(message["id"])
+        was_removed = not message.get("unavailable", False)
+
+        event = discord_events.GuildDeleteEvent(self, guild, was_removed)
+        self.event_manager.run_callback("Discord/GuildDeleted", event)
+
+    def discord_event_guild_integrations_update(self, message):
+        guild = self.get_guild(message["guild_id"])
+
+        # IDK, it exists but it only gives the guild ID, so.. yeah
+        event = discord_events.GuildIntegrationsUpdateEvent(self, guild)
+
+        self.event_manager.run_callback(
+            "Discord/GuildIntegrationsUpdated", event
+        )
+
+    def discord_event_guild_member_add(self, message):
+        guild = self.get_guild(message["guild_id"])
+        user = self.add_user(message)
+
+        roles = message["roles"]
+        joined_at = message["joined_at"]
+
+        event = discord_events.GuildMemberAddEvent(
+            self, guild, user, roles, joined_at
+        )
+
+        self.event_manager.run_callback("Discord/GuildMemberAdded", event)
+
+    def discord_event_guild_member_remove(self, message):
+        guild = self.get_guild(message["guild_id"])
+        user = self.add_user(message)
+
+        event = discord_events.GuildMemberRemoveEvent(self, guild, user)
+        self.event_manager.run_callback("Discord/GuildMemberRemoved", event)
+
+    def discord_event_guild_member_update(self, message):
+        guild = self.get_guild(message["guild_id"])
+        user = self.add_user(message)
+
+        roles = message["roles"]
+
+        event = discord_events.GuildMemberUpdateEvent(self, guild, user, roles)
+        self.event_manager.run_callback("Discord/GuildMemberUpdated", event)
+
+    def discord_event_guild_role_create(self, message):
+        guild = self.get_guild(message["guild_id"])
+        role = message["role"]
+
+        event = discord_events.GuildRoleCreateEvent(self, guild, role)
+        self.event_manager.run_callback("Discord/GuildRoleCreated", event)
+
+    def discord_event_guild_role_update(self, message):
+        guild = self.get_guild(message["guild_id"])
+        role = message["role"]
+
+        event = discord_events.GuildRoleUpdateEvent(self, guild, role)
+        self.event_manager.run_callback("Discord/GuildRoleUpdated", event)
+
+    def discord_event_guild_role_delete(self, message):
+        guild = self.get_guild(message["guild_id"])
+        role = message["role_id"]
+
+        event = discord_events.GuildRoleDeleteEvent(self, guild, role)
+        self.event_manager.run_callback("Discord/GuildRoleDeleted", event)
+
+    def discord_event_message_create(self, message):
+        message_id = message["id"]
+        channel_id = int(message["channel_id"])
+        author = message["author"]  # User object
+        content = message["content"]
+        timestamp = message["timestamp"]
+        edited_timestamp = message["timestamp"]  # Or null
+        tts = message["tts"]  # Text-to-speech
+        mention_everyone = message["mention_everyone"]
+        mentions = message["mentions"]  # Array of users
+        attachments = message["attachments"]  # Array of attachment objects
+        embeds = message["embeds"]  # Array of embed objects
+        nonce = message["nonce"]  # Or null
+
+        user = self.get_user(int(author["id"]))
+
+        if user.id == self.ourselves.id:
+            return
+
+        channel = self.get_channel(channel_id)
+
+        if channel.is_private():
+            channel = user
+
+        discord_event = discord_events.MessageCreateEvent(
+            self, message_id, channel, user, content, timestamp,
+            edited_timestamp, tts, mention_everyone,
+            [self.get_user(u["id"]) for u in mentions],
+            [Attachment.from_message(m) for m in attachments],
+            [Embed.from_message(m) for m in embeds],
+            nonce
+        )
+
+        self.event_manager.run_callback(
+            "Discord/MessageCreated", discord_event
+        )
+
+        if discord_event.cancelled:
+            return
+
+        pre_event = general_events.PreMessageReceived(
+            self, user, channel, content, "message"
+        )
+
+        self.event_manager.run_callback("PreMessageReceived", pre_event)
+
+        if pre_event.printable:
+            self.log.info("<{}:{}> {}".format(
+                user.nickname, channel.name, content
+            ))
+
+        if pre_event.cancelled:
+            return
+
+        result = self.command_manager.process_input(
+            pre_event.message, user, channel, self, self.control_chars,
+            self.ourselves.real_nickname
+        )
+
+        if result[0] is CommandState.RateLimited:
+            self.log.debug("Command rate-limited")
+            user.respond("That command has been rate-limited, please "
+                         "try again later.")
+            return
+        elif result[0] is CommandState.NotACommand:
+            self.log.debug("Not a command")
+        elif result[0] is CommandState.UnknownOverridden:
+            self.log.debug("Unknown command overridden")
+            return  # It was a command
+        elif result[0] is CommandState.Unknown:
+            self.log.debug("Unknown command")
+        elif result[0] is CommandState.Success:
+            self.log.debug("Command ran successfully")
+            return  # It was a command
+        elif result[0] is CommandState.NoPermission:
+            self.log.debug("No permission to run command")
+            return  # It was a command
+        elif result[0] is CommandState.Error:
+            user.respond("Error running command: %s" % result[1])
+            return  # It was a command
+        else:
+            self.log.debug("Unknown command state: %s" % result[0])
+
+        event = general_events.MessageReceived(
+            self, user, channel, content, "message"
+        )
+
+        self.event_manager.run_callback(
+            "MessageReceived", event
+        )
+
+    def discord_event_message_update(self, message):
+        # Payload: Partial message
+        message_id = message["id"]
+        channel = self.get_channel(message["channel_id"])
+
+        del message["id"]
+        del message["channel_id"]
+
+        if "author" in message:
+            message["author"] = self.get_user(message["author"]["id"])
+
+        if "mentions" in message:
+            message["mentions"] = [
+                self.get_user(u["id"]) for u in message["mentions"]
+            ]
+
+        if "attachments" in message:
+            message["attachments"] = [
+                Attachment.from_message(m) for m in message["attachments"]
+            ]
+
+        if "embeds" in message:
+            message["embeds"] = [
+                Embed.from_message(m) for m in message["embeds"]
+            ]
+
+        event = discord_events.MessageUpdateEvent(
+            self, message_id, channel, **message
+        )
+
+        self.event_manager.run_callback("Discord/MessageUpdated", event)
+
+    def discord_event_message_delete(self, message):
+        message_id = message["id"]
+        channel = self.get_channel(message["channel_id"])
+
+        event = discord_events.MessageDeleteEvent(
+            self, message_id, channel
+        )
+
+        self.event_manager.run_callback("Discord/MessageDeleted", event)
+
+    def discord_event_presence_update(self, message):
+        # TODO: https://github.com/hammerandchisel/discord-api-docs/issues/34
+        user = self.get_user(message)
+        roles = message["roles"]
+        game = message["game"]  # Or null
+        guild_id = message["guild_id"]
+        status = message["status"]  # "idle", "online", "offline"
+
+        pass
+
+    def discord_event_typing_start(self, message):
+        user = self.get_user(["user_id"])
+        channel = self.get_channel(message["channel_id"])
+        timestamp = message["timestamp"]
+
+        event = discord_events.TypingStartEvent(
+            self, user, channel, timestamp
+        )
+
+        self.event_manager.run_callback("Discord/TypingStarted", event)
+
+    def discord_event_user_settings_update(self, message):
+        # Payload: User settings; not documented
+        event = discord_events.UserSettingsUpdateEvent(self, message)
+
+        self.event_manager.run_callback("Discord/UserSettingsUpdated", event)
+
+    def discord_event_user_update(self, message):
+        user = self.add_user(message)
+
+        event = discord_events.UserUpdateEvent(self, user)
+        self.event_manager.run_callback("Discord/UserUpdated", event)
+
+    def discord_event_voice_state_update(self, message):
+        user = self.get_user(message["user_id"])
+        guild = self.get_guild(message["guild_id"])
+        channel = self.get_channel(message["channel_id"], "voice")
+        session_id = message["session_id"]
+        self_mute = message["self_mute"]
+        self_deaf = message["self_deaf"]
+        server_mute = message["mute"]
+        server_deaf = message["deaf"]
+
+        event = discord_events.VoiceStateUpdateEvent(
+            self, user, guild, channel, session_id, self_mute, self_deaf,
+            server_mute, server_deaf
+        )
+
+        self.event_manager.run_callback("Discord/VoiceStateUpdated", event)
+
+    # endregion
+
+    # region Discord message handlers
+
+    def discord_unknown(self, message):
+        """
+        Called when we have a message type that isn't handled
+        """
+
+        self.log.debug(
+            "Unknown message ({}): {}".format(
+                opcodes.get_name(message["op"]), message
+            )
+        )
+
+    def discord_dispatch(self, message):
+        data = message["d"]
+        sequence = message["s"]
+        message_type = message["t"]
+
+        self.last_seq = sequence
+
+        self.log.trace("Received event: [{}] {}".format(message_type, data))
+
+        function_name = "discord_event_{}".format(message_type.lower())
+
+        if hasattr(self, function_name):
+            getattr(self, function_name)(data)
+
+    def discord_heartbeat(self, message):
+        # Not sure if the client ever gets this
+        data = self.last_seq
+
+        self.log.info("Heartbeat received: {}".format(data))
+
+    def discord_identify(self, message):
+        # Not sure if the client ever gets this
+        token = message["token"]
+        # properties = message["properties"]
+        # compress = message["compress"]
+        # large_threshold = message["large_threshold"]
+
+        self.log.info("Received identify message for token: {}".format(token))
+
+    def discord_status_update(self, message):
+        # Not sure if the client ever gets this
+        idle_since = message["idle_since"]  # Or null
+        game = message["game"]  # Or null
+
+        self.log.info("Received idle state: {} / {}".format(game, idle_since))
+
+    def discord_voice_state_update(self, message):
+        # Not sure if the client ever gets this
+        guild_id = message["guild_id"]
+        channel_id = message["channel_id"]  # Or null
+        # self_mute = message["self_mute"]
+        # self_deaf = message["self_deaf"]
+
+        self.log.info("Received voice state: {} / {}".format(
+            guild_id, channel_id
+        ))
+
+    def discord_voice_server_ping(self, message):
+        # Not documented
+        pass
+
+    def discord_resume(self, message):
+        # Not sure if the client ever gets this
+        token = message["token"]
+        # session_id = message["session_id"]
+        # seq = message["seq"]
+
+        self.log.info("Received resume message: {}".format(token))
+
+    def discord_reconnect(self, message):
+        # Not documented
+        pass
+
+    def discord_request_guild_members(self, message):
+        # Not sure if the client ever gets this
+        guild_id = message["guild_id"]
+        # query = message["query"]
+        # limit = message["limit"]
+
+        self.log.info("Received guild members request: {}".format(guild_id))
+
+    def discord_invalid_session(self, message):
+        # Not documented
+        pass
+
+    # endregion
+
+    # region Internal methods
+
+    @inlineCallbacks
+    def get_private_channel(self, user):
+        c = self.get_channel(user.nickname, "private")
+
+        if c is None:
+            try:
+                self.log.debug(
+                    "No private channel for '{}' - let's create one".format(
+                        user.name
+                    )
+                )
+                result = yield self.web_create_dm(user.id)
+                result["recipient"] = self.get_user(
+                    int(result["recipient"]["id"])
+                )
+                self.log.debug("Result: {}".format(result))
+
+                c = self.add_channel(result)
+                self.log.debug("Channel ({}): {}".format(type(c), c))
+            except Exception:
+                self.log.exception("Failed to create channel for {}".format(
+                    user.name
+                ))
+                raise
+
+        returnValue(c)
+
+    def add_user(self, member):
+        u = self.get_user(int(member["user"]["id"]))
+        user = User.from_message(member, self, False)
+
+        if u:
+            u.update(user)
+            return u
+
+        user.is_tracked = True
+        self.users.append(user)
+
+        return user
+
+    def del_user(self, user):
+        u = self.get_user(user)
+
+        if u:
+            self.users.remove(u)
+
+    def add_channel(self, data):
+        if data.get("is_private", False):
+            channel = PrivateChannel.from_message(data, self)
+        else:
+            channel = Channel.from_message(data, self)
+
+        if channel.is_private():
+            if channel.id not in self.private_channels:
+                self.private_channels[channel.id] = channel
+            else:
+                other_channel = self.get_channel(channel.id, "private")
+                other_channel.update(channel)
+
+                return other_channel
+        elif channel.is_text():
+            if channel.id not in self.channels:
+                self.channels[channel.id] = channel
+            else:
+                other_channel = self.get_channel(channel.id, "text")
+                other_channel.update(channel)
+
+                return other_channel
+        elif channel.is_voice():
+            if channel.id not in self.voice_channels:
+                self.voice_channels[channel.id] = channel
+            else:
+                other_channel = self.get_channel(channel.id, "voice")
+                other_channel.update(channel)
+
+                return other_channel
+        else:
+            raise TypeError("Unknown channel type: {}".format(channel.type))
+
+        return channel
+
+    def del_channel(self, channel):
+        c = self.get_channel(channel)
+
+        if c:
+            if c.is_private:
+                del self.private_channels[channel.id]
+            elif c.is_voice:
+                del self.voice_channels[channel.id]
+            else:
+                del self.channels[channel.id]
+
+        return c
+
+    def add_guild(self, data):
+        guild_id = int(data["id"])
+
+        name = data["name"]
+        icon = data["icon"]
+        splash = data["splash"]
+        owner_id = data["owner_id"]
+        region = data["region"]
+        afk_channel_id = data["afk_channel_id"]
+        afk_timeout = data["afk_timeout"]
+        verification_level = data["verification_level"]
+        roles = data["roles"]  # Array of role objects
+        emojis = data["emojis"]  # Array of emoji objects
+        features = data["features"]  # ???
+
+        channels = data["channels"]
+        members = data["members"]
+
+        guild = Guild(
+            name, self, guild_id, icon, splash, owner_id, region,
+            afk_channel_id, afk_timeout, verification_level, roles, emojis,
+            features,
+            channels=[int(channel["id"]) for channel in channels],
+            members=[int(user["user"]["id"]) for user in members]
+        )
+
+        if guild_id not in self.guilds:
+            self.guilds[guild_id] = guild
+        else:
+            other_guild = self.get_guild(guild_id)
+            other_guild.update(guild)
+
+            return other_guild
+
+        return guild
+
+    def del_guild(self, guild):
+        if guild in self.guilds:
+            del self.guilds[guild]
+
+    def get_guild(self, guild):
+        if guild in self.guilds:
+            return self.guilds[guild]
+        return None
+
+    def start_heartbeat(self):
+        if self.heartbeat_interval:
+            self.stop_heartbeat()
+
+            self.heartbeat_task = LoopingCall(
+                self.send_heartbeat, self.last_seq
+            )
+
+            self.heartbeat_task.start(self.heartbeat_interval)
+
+    def stop_heartbeat(self):
+        if self.heartbeat_task:
+            if not self.heartbeat_task.running:
+                self.heartbeat_task.stop()
+
+    # endregion
+
+    # region Utils
+
+    def set_avatar_from_file(self, path):
+        with open(path, "rb") as fh:
+            image_data = fh.read()
+
+        encoded = base64.b64encode(image_data)
+        avatar = "data:image/jpeg;base64,{}".format(encoded)
+
+        return self.web_modify_current_user(
+            avatar=avatar, username=self.ourselves.nickname
+        )
+
+    @inlineCallbacks
+    def clone_user_avatar(self, user):
+        session = Session()
+        avatar_url = "https://cdn.discordapp.com/avatars/{}/{}.jpg"
+
+        image_data = yield session.get(avatar_url.format(user.id, user.avatar))
+        image_data = image_data.content
+
+        encoded = base64.b64encode(image_data)
+        avatar = "data:image/jpeg;base64,{}".format(encoded)
+
+        result = yield self.web_modify_current_user(
+            avatar=avatar, username=self.ourselves.nickname
+        )
+
+        returnValue(result)
+        return
+
+    # endregion
+
+    # region Ultros methods
+
+    def channel_ban(self, user, channel=None, reason=None, force=False):
+        pass
+
+    def channel_kick(self, user, channel=None, reason=None, force=False):
+        pass
+
+    def get_extra_groups(self, user, target=None):
+        return Protocol.get_extra_groups(self, user, target)
+
+    def get_channel(self, channel, _type=None):
+        """
+        :rtype channel: system.protocols.discord.channel.Channel
+        """
+        if _type is None:
+            channel_set = self.all_channels
+        elif _type == "text":
+            channel_set = self.channels
+        elif _type == "voice":
+            channel_set = self.voice_channels
+        elif _type == "private":
+            channel_set = self.private_channels
+        else:
+            channel_set = self.all_channels
+
+        if isinstance(channel, basestring):
+            for c in channel_set.values():
+                if c.name == channel:
+                    return c
+        elif isinstance(channel, Number):
+            for c in channel_set.values():
+                if c.id == channel:
+                    return c
+
+        return None
+
+    def get_user(self, user):
+        if isinstance(user, basestring):
+            for u in self.users:
+                if u.nickname == user:
+                    return u
+        elif isinstance(user, Number):
+            for u in self.users:
+                if u.id == user:
+                    return u
+        return None
+
+    def global_ban(self, user, reason=None, force=False):
+        pass
+
+    def global_kick(self, user, reason=None, force=False):
+        pass
+
+    def join_channel(self, channel, password=None):
+        pass
+
+    def leave_channel(self, channel, reason=None):
+        pass
+
+    def num_channels(self):
+        return len(self.all_channels)
+
+    def send_action(self, target, message, target_type=None, use_event=True):
+        return self.send_msg(
+            target, "_{}_".format(message),
+            target_type=target_type, use_event=use_event
+        )
+
+    @inlineCallbacks
+    def send_msg(self, target, message, target_type=None, use_event=True):
+        if isinstance(target, basestring):
+            if target_type == "channel":
+                target = self.get_channel(target)
+            elif target_type == "user":
+                target = self.get_user(target)
+
+        if isinstance(target, Channel):
+            self.web_create_message(target.id, message)
+        elif isinstance(target, User):
+            c = yield self.get_private_channel(target)
+            self.web_create_message(c.id, message)
+
+    def shutdown(self):
+        self.stop_heartbeat()
+        self.sendClose()
+        self.transport.loseConnection()
+
+    # endregion
+
+    pass

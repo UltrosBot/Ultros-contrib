@@ -1,0 +1,7 @@
+0.0.1: >
+    Initial version. Partially-implemented Discord protocol.
+
+    Missing some events, any kind of rate-limiting, and outgoing error
+    checking, as well as Discord permissions, the outgoing message event,
+    and the presence update event. Also, pending cleanup, documenting and
+    Flake8 pass.

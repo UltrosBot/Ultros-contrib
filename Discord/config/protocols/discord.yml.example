@@ -1,0 +1,12 @@
+main:
+  protocol-type: discord
+  can-flood: no
+
+identity:
+  bot_token: ""  # Get this from your application page
+
+control_chars: "." # What messages must be prefixed with to count as a command.
+                   # This doesn't have to be just one character!
+                   # You can also use {NICK} in place of the bot's current nick.
+                   # NOTE: {NICK} does not work right now. TODO!
+

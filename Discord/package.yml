@@ -1,0 +1,40 @@
+name: Discord
+current_version:
+    number: 0.0.1
+    info: >
+        Initial version. Partially-implemented Discord protocol.
+
+        Missing some events, any kind of rate-limiting, and outgoing error
+        checking, as well as Discord permissions, the outgoing message event,
+        and the presence update event. Also, pending cleanup, documenting and
+        Flake8 pass.
+description: >
+    Discord protocol support. This requires use of a bot token. See the
+    README.md for more details.
+file:
+# Create folders
+- system/protocols/discord
+
+# And /then/ download files
+- config/protocols/discord.yml.example
+
+- system/events/discord.py
+
+- system/protocols/discord/__init__.py
+- system/protocols/discord/base_protocol.py
+- system/protocols/discord/channel.py
+- system/protocols/discord/discriminators.py
+- system/protocols/discord/exceptions.py
+- system/protocols/discord/factory.py
+- system/protocols/discord/guild.py
+- system/protocols/discord/misc.py
+- system/protocols/discord/opcodes.py
+- system/protocols/discord/protocol.py
+- system/protocols/discord/user.py
+
+requires:
+    modules:
+    # Install these using pip
+    - autobahn
+    packages: []
+documentation: https://github.com/UltrosBot/Ultros-contrib/blob/master/Discord/README.md
