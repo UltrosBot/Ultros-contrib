@@ -24,7 +24,7 @@ class User(BaseUser):
         self.mute = mute
         self.bot = bot
 
-        self.nickname = "{}#{}".format(nickname, self.discriminator)
+        self.nickname = u"{}#{}".format(nickname, self.discriminator)
 
         self.roles = {}
         self.guilds = []
@@ -39,7 +39,8 @@ class User(BaseUser):
         pass
 
     def respond(self, message):
-        pass
+        message = message.replace("{CHARS}", self.protocol.control_chars)
+        self.protocol.send_msg(self, message)
 
     def update(self, other_user):
         assert isinstance(other_user, User)

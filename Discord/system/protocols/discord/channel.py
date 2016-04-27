@@ -40,7 +40,7 @@ class Channel(BaseChannel):
 
     def respond(self, message):
         message = message.replace("{CHARS}", self.protocol.control_chars)
-        self.protocol.web_create_message(self.id, message)
+        self.protocol.send_msg(self, message)
 
     def is_voice(self):
         return self.type == "voice" or self.bitrate != -1

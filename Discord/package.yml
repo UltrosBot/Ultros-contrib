@@ -1,12 +1,10 @@
 name: Discord
 current_version:
-    number: 0.0.1
+    number: 0.0.2
     info: >
-        Initial version. Partially-implemented Discord protocol.
+        Improved partially-implemented Discord protocol. Almost done.
 
-        Missing some events, any kind of rate-limiting, and outgoing error
-        checking, as well as Discord permissions, the outgoing message event,
-        and the presence update event. Also, pending cleanup, documenting and
+        Missing the outgoing events. Also, pending cleanup, documenting and
         Flake8 pass.
 description: >
     Discord protocol support. This requires use of a bot token. See the
@@ -36,5 +34,6 @@ requires:
     modules:
     # Install these using pip
     - autobahn
+    - requests-toolbelt
     packages: []
 documentation: https://github.com/UltrosBot/Ultros-contrib/blob/master/Discord/README.md

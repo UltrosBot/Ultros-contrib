@@ -1,11 +1,15 @@
 # coding=utf-8
 import json
+import os
 import platform
+import time
 import zlib
 
 from autobahn.twisted import WebSocketClientProtocol
 from kitchen.text.converters import to_bytes
-from twisted.internet.defer import inlineCallbacks, returnValue
+from requests_toolbelt import MultipartEncoder
+from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks, returnValue, Deferred
 from txrequests import Session
 
 from system.constants import __version__
@@ -19,6 +23,7 @@ API_URL = "https://discordapp.com/api/{}"
 
 class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
     whitelist_warning_logged = False
+    last_message_time = 0
 
     def __init__(self, name, factory, config):
         WebSocketClientProtocol.__init__(self)
@@ -27,6 +32,8 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
     @property
     def token(self):
         return self.factory.token
+
+    # region: Websocket methods
 
     def onConnect(self, response):
         self.log.info("Connected: {}".format(response.peer))
@@ -37,6 +44,7 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         self.send_identify(self.token)
 
     def onMessage(self, payload, is_binary):
+
         if is_binary:
             payload = zlib.decompress(payload)
 
@@ -79,6 +87,8 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
                 code, reason, "Clean" if was_clean else "Unclean"
             )
         )
+
+    # endregion
 
     # region: Send functions
 
@@ -153,27 +163,57 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
 
         self.send_raw(packed_data, is_binary=False)
 
+    @inlineCallbacks
     def send_raw(self, data, is_binary=False):
+        now = time.time()
+
+        if now - self.last_message_time < 0.5:
+            d = Deferred()
+            reactor.callLater(0.5, d.callback, None)
+
+            _ = yield d
+            r = yield self.send_raw(data, is_binary)
+
+            returnValue(r)
+            return
+
+        self.last_message_time = now
+
         if not is_binary:
-            return self.sendMessage(to_bytes(json.dumps(data)), isBinary=False)
-        return self.sendMessage(to_bytes(data), isBinary=True)
+            returnValue(self.sendMessage(
+                to_bytes(json.dumps(data)), isBinary=False)
+            )
+            return
+        returnValue(self.sendMessage(to_bytes(data), isBinary=True))
+        return
 
     # endregion
 
     # region: Web API: Utils
 
     @inlineCallbacks
-    def make_request(self, path, method="GET", **kwargs):
-        s = Session()
+    def make_request(self, path, method="GET", tries=0,
+                     content_type="application/json", **kwargs):
         url = API_URL.format(path)
 
+        if tries >= 3:
+            raise RuntimeError(
+                "Giving up on accessing \"{}\" after {} tries".format(
+                    url, tries
+                )
+            )
+
+        s = Session()
+
         headers = {
-            "Content-Type": "application/json",
             "Authorization": self.token,
             "User-Agent": "DiscordBot (https://ultros.io {}); Ultros".format(
                 __version__
             )
         }
+
+        if content_type is not None:
+            headers["Content-Type"] = content_type
 
         func = getattr(s, method.lower())
 
@@ -181,7 +221,34 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
             url, headers=headers, **kwargs
         )
 
-        if result.status_code != 200:
+        if result.status_code == 429:
+            tries += 1
+
+            # Rate-limited
+            data = result.json()
+            wait_time = (int(data["retry_after"]) + 10) / 1000.0
+
+            self.log.debug(
+                "[RATELIMIT] {} (ms}".format(
+                    data["message"], data["retry_after"]
+                )
+            )
+
+            d = Deferred()
+            reactor.callLater(wait_time, d.callback, None)
+
+            _ = yield d
+            r = yield self.make_request(path, method, tries, **kwargs)
+
+            returnValue(r)
+        elif result.status_code == 502:
+            tries += 1
+
+            r = yield self.make_request(path, method, tries, **kwargs)
+
+            returnValue(r)
+            return
+        elif result.status_code != 200:
             result.raise_for_status()
 
         returnValue(result)
@@ -237,7 +304,8 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         return
 
     @inlineCallbacks
-    def web_create_message(self, channel_id, message, nonce=None, tts=False):
+    def web_create_message(self, channel_id, message, nonce=None, tts=False,
+                           _file=None):
         data = {
             "content": message,
             "tts": tts
@@ -246,9 +314,26 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         if nonce is not None:
             data["nonce"] = nonce
 
-        result = yield self.make_request(
-            "channels/{}/messages".format(channel_id), "POST", json=data
-        )
+        if _file is not None:
+            filename = None
+
+            if isinstance(_file, basestring):
+                filename = os.path.basename(os.path.normpath(_file))
+                _file = open(_file, "rb")
+
+            encoder = MultipartEncoder(
+                fields={"file": (filename, _file)}
+            )
+
+            result = yield self.make_request(
+                "channels/{}/messages".format(channel_id), "POST",
+                data=encoder, content_type=encoder.content_type,
+                params=data
+            )
+        else:
+            result = yield self.make_request(
+                "channels/{}/messages".format(channel_id), "POST", json=data
+            )
 
         returnValue(result.json())
         return

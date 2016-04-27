@@ -5,3 +5,8 @@
     checking, as well as Discord permissions, the outgoing message event,
     and the presence update event. Also, pending cleanup, documenting and
     Flake8 pass.
+0.0.2: >
+    Improved partially-implemented Discord protocol. Almost done.
+
+    Missing the outgoing events. Also, pending cleanup, documenting and
+    Flake8 pass.

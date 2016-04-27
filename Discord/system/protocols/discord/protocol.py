@@ -1,6 +1,7 @@
 # coding=utf-8
 import base64
 import re
+from Queue import Queue
 
 from numbers import Number
 from twisted.internet.defer import inlineCallbacks, returnValue
@@ -23,11 +24,17 @@ from system.protocols.discord.permissions import BAN_MEMBERS, KICK_MEMBERS
 from system.protocols.discord.user import User
 
 # TODO: Logging
-# TODO: Rate-limiting
+# TODO: Outgoing message/etc events
 
 __author__ = 'Gareth Coles'
+
 ACTION_REGEX = re.compile(r"^[\*_].*[\*_]$")
 INTEGER_REGEX = re.compile(r"^[\d]+$")
+
+INCOMING_MENTION_REGEX = re.compile(r"^<@[\d]+>$")
+OUTGOING_MENTION_REGEX = re.compile(r"^@.*#[\d]{4}$")
+
+ZWS = u"\u200B"  # Zero-width space
 
 
 class Protocol(DiscordProtocol):
@@ -45,6 +52,11 @@ class Protocol(DiscordProtocol):
     heartbeat_task = None
     heartbeat_interval = 0
     last_seq = 0
+
+    message_queue = Queue()
+    queue_emptying = False
+    sending_message = False
+    queue_task = None
 
     def __init__(self, name, factory, config):
         DiscordProtocol.__init__(self, name, factory, config)
@@ -219,7 +231,9 @@ class Protocol(DiscordProtocol):
             user = self.get_user(int(presence["user"]["id"]))
 
             user.status = presence["status"]
-            user.game = presence["game"]["name"]
+
+            if presence["game"]:
+                user.game = presence["game"]["name"]
 
         event = discord_events.GuildCreateEvent(self, guild)
         self.event_manager.run_callback("Discord/GuildCreated", event)
@@ -343,6 +357,18 @@ class Protocol(DiscordProtocol):
 
         if user.id == self.ourselves.id:
             return
+
+        if self.config.get("mentions", {}).get("autoconvert", True):
+            words = []
+
+            for word in content.split(" "):
+                if INCOMING_MENTION_REGEX.match(word):
+                    word = word[2:-1]
+                    _user = self.get_user(int(word))
+                    word = u"@{}".format(_user.nickname)
+                words.append(word)
+
+            content = " ".join(words)
 
         channel = self.get_channel(channel_id)
 
@@ -968,13 +994,69 @@ class Protocol(DiscordProtocol):
             elif target_type == "user":
                 target = self.get_user(target)
 
+        if self.config.get("mentions", {}).get("autoconvert", True):
+            words = []
+
+            for word in message.split(" "):
+                if OUTGOING_MENTION_REGEX.match(word):
+                    word = word[1:]
+                    user = self.get_user(word)
+                    word = "<@{}>".format(user.id)
+
+                words.append(word)
+
+            message = " ".join(words)
+
+        if self.config.get("mentions", {}).get("prevent_everyone", True):
+            message = message.replace("@everyone", u"@{}everyone".format(ZWS))
+            message = message.replace("@here", u"@{}here".format(ZWS))
+
         if isinstance(target, Channel):
-            self.web_create_message(target.id, message)
+            self.add_to_queue(target.id, message)
         elif isinstance(target, User):
             c = yield self.get_private_channel(target)
-            self.web_create_message(c.id, message)
+            self.add_to_queue(c.id, message)
+
+    def add_to_queue(self, target, message):
+        self.message_queue.put_nowait((target, message))
+
+        if not self.queue_emptying:
+            self.start_emptying_queue()
+
+    def start_emptying_queue(self):
+        self.queue_emptying = True
+
+        self.queue_task = LoopingCall(
+            self.send_from_queue
+        )
+
+        self.queue_task.start(0.1)
+
+    def stop_emptying_queue(self):
+        if self.queue_task:
+            self.queue_task.stop()
+
+        self.queue_emptying = False
+
+    @inlineCallbacks
+    def send_from_queue(self):
+        if self.sending_message:
+            return
+
+        if self.message_queue.empty():
+            self.stop_emptying_queue()
+            return
+
+        self.sending_message = True
+        message = self.message_queue.get_nowait()
+
+        try:
+            _ = yield self.web_create_message(*message)
+        finally:
+            self.sending_message = False
 
     def shutdown(self):
+        self.stop_emptying_queue()
         self.stop_heartbeat()
         self.sendClose()
         self.transport.loseConnection()
