@@ -26,6 +26,12 @@ class User(BaseUser):
 
         self.nickname = "{}#{}".format(nickname, self.discriminator)
 
+        self.roles = {}
+        self.guilds = []
+
+        self.game = None
+        self.status = "offline"
+
     def can_ban(self, user, channel):
         pass
 

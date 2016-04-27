@@ -1,5 +1,7 @@
 # coding=utf-8
 import base64
+import re
+
 from numbers import Number
 from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.internet.task import LoopingCall
@@ -16,10 +18,16 @@ from system.protocols.discord.channel import Channel, PrivateChannel
 from system.protocols.discord import opcodes
 from system.protocols.discord.discriminators import DiscriminatorManager
 from system.protocols.discord.guild import Guild
-from system.protocols.discord.misc import Attachment, Embed
+from system.protocols.discord.misc import Attachment, Embed, Role
+from system.protocols.discord.permissions import BAN_MEMBERS, KICK_MEMBERS
 from system.protocols.discord.user import User
 
+# TODO: Logging
+# TODO: Rate-limiting
+
 __author__ = 'Gareth Coles'
+ACTION_REGEX = re.compile(r"^[\*_].*[\*_]$")
+INTEGER_REGEX = re.compile(r"^[\d]+$")
 
 
 class Protocol(DiscordProtocol):
@@ -125,7 +133,8 @@ class Protocol(DiscordProtocol):
 
         if event.cancelled:
             self.log.info("Ready event cancelled, shutting down...")
-            self.shutdown()
+            return self.shutdown()
+        self.log.info("Ready event handled.")
 
     def discord_event_channel_create(self, message):
         channel = self.add_channel(message)
@@ -134,11 +143,15 @@ class Protocol(DiscordProtocol):
         if channel.id not in guild.channels:
             guild.channels.append(channel.id)
 
+        self.log.info("Channel created: {}".format(channel.name))
+
         event = discord_events.ChannelCreateEvent(self, channel)
         self.event_manager.run_callback("Discord/ChannelCreated", event)
 
     def discord_event_channel_update(self, message):
         channel = self.add_channel(message)
+
+        self.log.info("Channel updated: {}".format(channel.name))
 
         event = discord_events.ChannelUpdateEvent(self, channel)
         self.event_manager.run_callback("Discord/ChannelUpdated", event)
@@ -150,25 +163,48 @@ class Protocol(DiscordProtocol):
         if channel.id in guild.channels:
             guild.channels.remove(channel.id)
 
+        self.log.info("Channel deleted: {}".format(channel.name))
+
         event = discord_events.ChannelDeleteEvent(self, channel)
         self.event_manager.run_callback("Discord/ChannelDeleted", event)
 
     def discord_event_guild_ban_add(self, message):
-        user = self.get_user(message["id"])
+        # {
+        #  u'guild_id': u'124255619791323136',
+        #  u'user':
+        #   {
+        #    u'username': u'Roadcrosser',
+        #    u'discriminator': u'3657',
+        #    u'id': u'116138050710536192',
+        #    u'avatar': u'7593703d9fd5f0a7c86fe378490e52e2'
+        #   }
+        # }
+        user = self.get_user(int(message["user"]["id"]))
+        guild = self.get_guild(int(message["guild_id"]))
 
-        event = discord_events.GuildBanAddEvent(self, user)
+        self.log.info("User banned from {}: {}".format(
+            guild.name, user.nickname
+        ))
+
+        event = discord_events.GuildBanAddEvent(self, user, guild)
         self.event_manager.run_callback("Discord/GuildBanAdded", event)
 
     def discord_event_guild_ban_remove(self, message):
-        user = self.get_user(message["id"])
+        user = self.add_user(message)
+        guild = self.get_guild(message["guild_id"])
 
-        event = discord_events.GuildBanRemoveEvent(self, user)
+        self.log.info("User unbanned from {}: {}".format(
+            guild.name, user.nickname
+        ))
+
+        event = discord_events.GuildBanRemoveEvent(self, user, guild)
         self.event_manager.run_callback("Discord/GuildBanRemoved", event)
 
     def discord_event_guild_create(self, message):
         guild_id = message["id"]
         channels = message["channels"]
         members = message["members"]
+        presences = message["presences"]
 
         guild = self.add_guild(message)
 
@@ -178,6 +214,12 @@ class Protocol(DiscordProtocol):
 
         for user in members:
             self.add_user(user)
+
+        for presence in presences:
+            user = self.get_user(int(presence["user"]["id"]))
+
+            user.status = presence["status"]
+            user.game = presence["game"]["name"]
 
         event = discord_events.GuildCreateEvent(self, guild)
         self.event_manager.run_callback("Discord/GuildCreated", event)
@@ -215,10 +257,14 @@ class Protocol(DiscordProtocol):
         )
 
     def discord_event_guild_member_add(self, message):
-        guild = self.get_guild(message["guild_id"])
+        guild = self.get_guild(int(message["guild_id"]))
         user = self.add_user(message)
 
-        roles = message["roles"]
+        roles = [Role.from_message(r) for r in message["roles"]]
+
+        user.guilds.append(guild.id)
+        user.roles[guild.id] = {r.id: r for r in roles}
+
         joined_at = message["joined_at"]
 
         event = discord_events.GuildMemberAddEvent(
@@ -228,31 +274,46 @@ class Protocol(DiscordProtocol):
         self.event_manager.run_callback("Discord/GuildMemberAdded", event)
 
     def discord_event_guild_member_remove(self, message):
-        guild = self.get_guild(message["guild_id"])
+        guild = self.get_guild(int(message["guild_id"]))
         user = self.add_user(message)
 
         event = discord_events.GuildMemberRemoveEvent(self, guild, user)
         self.event_manager.run_callback("Discord/GuildMemberRemoved", event)
 
+        if user.id in guild.members:
+            guild.members.remove(user.id)
+
+        if guild.id in user.guilds:
+            user.guilds.remove(guild.id)
+
+        if guild.id in user.roles:
+            del user.roles[guild.id]
+
+        if len(user.guilds) < 1:
+            self.del_user(user.id)
+
     def discord_event_guild_member_update(self, message):
         guild = self.get_guild(message["guild_id"])
         user = self.add_user(message)
 
-        roles = message["roles"]
+        roles = [Role.from_message(r) for r in message["roles"]]
+
+        for role in roles:
+            user.roles[guild.id][role.id] = role
 
         event = discord_events.GuildMemberUpdateEvent(self, guild, user, roles)
         self.event_manager.run_callback("Discord/GuildMemberUpdated", event)
 
     def discord_event_guild_role_create(self, message):
         guild = self.get_guild(message["guild_id"])
-        role = message["role"]
+        role = Role.from_message(message["role"])
 
         event = discord_events.GuildRoleCreateEvent(self, guild, role)
         self.event_manager.run_callback("Discord/GuildRoleCreated", event)
 
     def discord_event_guild_role_update(self, message):
         guild = self.get_guild(message["guild_id"])
-        role = message["role"]
+        role = Role.from_message(message["role"])
 
         event = discord_events.GuildRoleUpdateEvent(self, guild, role)
         self.event_manager.run_callback("Discord/GuildRoleUpdated", event)
@@ -304,6 +365,23 @@ class Protocol(DiscordProtocol):
         if discord_event.cancelled:
             return
 
+        if ACTION_REGEX.match(content):
+            # It's an action
+            event = general_events.ActionReceived(
+                self, user, channel, content[1:-1]
+            )
+
+            self.event_manager.run_callback("ActionReceived", event)
+
+            if event.printable:
+                self.log.info(
+                    u"* {}:{} {}".format(
+                        user.nickname, channel.name, event.message
+                    )
+                )
+
+            return
+
         pre_event = general_events.PreMessageReceived(
             self, user, channel, content, "message"
         )
@@ -311,8 +389,8 @@ class Protocol(DiscordProtocol):
         self.event_manager.run_callback("PreMessageReceived", pre_event)
 
         if pre_event.printable:
-            self.log.info("<{}:{}> {}".format(
-                user.nickname, channel.name, content
+            self.log.info(u"<{}:{}> {}".format(
+                user.nickname, channel.name, pre_event.message
             ))
 
         if pre_event.cancelled:
@@ -348,7 +426,7 @@ class Protocol(DiscordProtocol):
             self.log.debug("Unknown command state: %s" % result[0])
 
         event = general_events.MessageReceived(
-            self, user, channel, content, "message"
+            self, user, channel, pre_event.message, "message"
         )
 
         self.event_manager.run_callback(
@@ -398,14 +476,43 @@ class Protocol(DiscordProtocol):
         self.event_manager.run_callback("Discord/MessageDeleted", event)
 
     def discord_event_presence_update(self, message):
-        # TODO: https://github.com/hammerandchisel/discord-api-docs/issues/34
-        user = self.get_user(message)
-        roles = message["roles"]
+        # https://github.com/hammerandchisel/discord-api-docs/issues/34
+        # {
+        #  u'status': u'offline',
+        #  u'game': None,
+        #  u'guild_id': u'124255619791323136',
+        #  u'user': {
+        #   u'id': u'116138050710536192'
+        #  },
+        #  u'roles': []
+        # }
+        user = self.get_user(message["user"]["id"])
+
+        if user is None:
+            self.log.debug("No such user: {}".format(message["user"]["id"]))
+            return  # Can happen when a user is removed from a guild
+
+        guild = self.get_guild(message["guild_id"])
+
+        roles = [Role.from_message(r) for r in message["roles"]]
         game = message["game"]  # Or null
-        guild_id = message["guild_id"]
+
+        if game:
+            game = game["name"]
+
         status = message["status"]  # "idle", "online", "offline"
 
-        pass
+        user.game = game
+        user.status = status
+
+        for role in roles:
+            user.roles[guild.id][role.id] = role
+
+        event = discord_events.PresenceUpdateEvent(
+            self, user, guild, roles, game, status
+        )
+
+        self.event_manager.run_callback("Discord/PresenceUpdate", event)
 
     def discord_event_typing_start(self, message):
         user = self.get_user(["user_id"])
@@ -440,12 +547,36 @@ class Protocol(DiscordProtocol):
         server_mute = message["mute"]
         server_deaf = message["deaf"]
 
+        user.mute = self_mute or server_mute
+        user.deaf = self_deaf or server_deaf
+
         event = discord_events.VoiceStateUpdateEvent(
             self, user, guild, channel, session_id, self_mute, self_deaf,
             server_mute, server_deaf
         )
 
         self.event_manager.run_callback("Discord/VoiceStateUpdated", event)
+
+    def discord_event_guild_member_chunk(self, message):
+        guild = self.get_guild(message["guild_id"])
+        done_members = []
+
+        for member in message["members"]:
+            user = self.add_user(member)
+
+            guild.members.append(user.id)
+            user.guilds.append(guild.id)
+            user.roles[guild.id] = [
+                Role.from_message(r) for r in member["roles"]
+            ]
+
+            done_members.append(user)
+
+        event = discord_events.GuildMemberChunk(
+            self, guild, done_members
+        )
+
+        self.event_manager.run_callback("Discord/GuildMemberChunk", event)
 
     # endregion
 
@@ -676,6 +807,7 @@ class Protocol(DiscordProtocol):
             del self.guilds[guild]
 
     def get_guild(self, guild):
+        guild = int(guild)
         if guild in self.guilds:
             return self.guilds[guild]
         return None
@@ -760,6 +892,9 @@ class Protocol(DiscordProtocol):
             for c in channel_set.values():
                 if c.name == channel:
                     return c
+
+                if INTEGER_REGEX.match(channel):
+                    return self.get_channel(int(channel), _type)
         elif isinstance(channel, Number):
             for c in channel_set.values():
                 if c.id == channel:
@@ -772,17 +907,43 @@ class Protocol(DiscordProtocol):
             for u in self.users:
                 if u.nickname == user:
                     return u
+            if INTEGER_REGEX.match(user):
+                return self.get_user(int(user))
         elif isinstance(user, Number):
             for u in self.users:
                 if u.id == user:
                     return u
         return None
 
-    def global_ban(self, user, reason=None, force=False):
-        pass
+    def global_ban(self, user, reason=None, force=False, guild=None):
+        if guild is None:
+            for guild in user.guilds:
+                self.global_ban(user, reason, force, guild)
+            return
 
-    def global_kick(self, user, reason=None, force=False):
-        pass
+        if isinstance(guild, Guild):
+            guild = guild.id
+
+        roles = self.ourselves.roles[guild.id]
+
+        for role in roles.values():
+            if force or KICK_MEMBERS in role.permissions:
+                return self.web_create_guild_ban(guild, user.id)
+
+    def global_kick(self, user, reason=None, force=False, guild=None):
+        if guild is None:
+            for guild in user.guilds:
+                self.global_kick(user, reason, force, guild)
+            return
+
+        if isinstance(guild, Guild):
+            guild = guild.id
+
+        roles = self.ourselves.roles[guild.id]
+
+        for role in roles.values():
+            if force or BAN_MEMBERS in role.permissions:
+                self.web_remove_guild_member(guild, user.id)
 
     def join_channel(self, channel, password=None):
         pass

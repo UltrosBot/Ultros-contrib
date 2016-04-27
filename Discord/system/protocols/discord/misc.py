@@ -1,4 +1,5 @@
 # coding=utf-8
+from system.protocols.discord.permissions import get_permissions
 
 __author__ = 'Gareth Coles'
 
@@ -77,9 +78,16 @@ class Role(object):
         self.color = color
         self.hoist = hoist
         self.position = position
-        self.permissions = permissions
+        self.permissions = get_permissions(permissions)
         self.managed = managed
 
     @property
     def colour(self):
         return self.color
+
+    @staticmethod
+    def from_message(message):
+        return Role(
+            message["id"], message["name"], message["color"], message["hoist"],
+            message["position"], message["permissions"], message["managed"]
+        )

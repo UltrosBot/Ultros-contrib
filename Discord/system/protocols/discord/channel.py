@@ -5,6 +5,8 @@ __author__ = 'Gareth Coles'
 
 
 class Channel(BaseChannel):
+    guild_id = None
+
     def __init__(self, name, protocol, _id, guild_id, _type, position,
                  is_private, permission_overwrites, topic="",
                  last_message_id="", bitrate=-1):
@@ -12,7 +14,10 @@ class Channel(BaseChannel):
         self.real_name = self.name
 
         self.id = int(_id)
-        self.guild_id = guild_id
+
+        if guild_id:
+            self.guild_id = int(guild_id)
+
         self.type = _type
         self.position = position
         self.private = is_private
@@ -22,15 +27,16 @@ class Channel(BaseChannel):
         self.bitrate = bitrate
 
         d_m = self.protocol.discriminator_manager
-        guild = self.protocol.get_guild(self.guild_id)
-
         self.discriminator = d_m.get_channel_discriminator(self.id)
 
-        if guild is not None:
-            self.name = "{}#{}/{}#{}".format(
-                guild.name, guild.discriminator,
-                self.name, self.discriminator
-            )
+        if self.guild_id:
+            guild = self.protocol.get_guild(self.guild_id)
+
+            if guild is not None:
+                self.name = "{}#{}/{}#{}".format(
+                    guild.name, guild.discriminator,
+                    self.name, self.discriminator
+                )
 
     def respond(self, message):
         message = message.replace("{CHARS}", self.protocol.control_chars)

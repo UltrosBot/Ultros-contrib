@@ -36,17 +36,19 @@ class ChannelUpdateEvent(DiscordEvent):
 
 
 class GuildBanAddEvent(DiscordEvent):
-    def __init__(self, caller, channel):
+    def __init__(self, caller, user, guild):
         super(GuildBanAddEvent, self).__init__(caller)
 
-        self.channel = channel
+        self.user = user
+        self.guild = guild
 
 
 class GuildBanRemoveEvent(DiscordEvent):
-    def __init__(self, caller, channel):
+    def __init__(self, caller, user, guild):
         super(GuildBanRemoveEvent, self).__init__(caller)
 
-        self.channel = channel
+        self.user = user
+        self.guild = guild
 
 
 class GuildCreateEvent(DiscordEvent):
@@ -87,6 +89,14 @@ class GuildMemberAddEvent(DiscordEvent):
         self.user = user
         self.roles = roles
         self.joined_at = joined_at
+
+
+class GuildMemberChunk(DiscordEvent):
+    def __init__(self, caller, guild, members):
+        super(GuildMemberChunk, self).__init__(caller)
+
+        self.guild = guild
+        self.members = members
 
 
 class GuildMemberRemoveEvent(DiscordEvent):
@@ -194,8 +204,14 @@ class MessageUpdateEvent(DiscordEvent):
 
 
 class PresenceUpdateEvent(DiscordEvent):
-    def __init__(self, caller, user, game, status):
+    def __init__(self, caller, user, guild, roles, game, status):
         super(PresenceUpdateEvent, self).__init__(caller)
+
+        self.user = user
+        self.guild = guild
+        self.roles = roles
+        self.game = game
+        self.status = status
 
 
 class ReadyEvent(DiscordEvent):
@@ -248,4 +264,4 @@ class VoiceStateUpdateEvent(DiscordEvent):
         self.self_mute = self_mute
         self.self_deaf = self_deaf
         self.server_mute = server_mute
-        self.server_deaf =server_deaf
+        self.server_deaf = server_deaf

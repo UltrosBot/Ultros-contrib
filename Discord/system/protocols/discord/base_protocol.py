@@ -170,7 +170,9 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         headers = {
             "Content-Type": "application/json",
             "Authorization": self.token,
-            "User-Agent": "Ultros (https://ultros.io {})".format(__version__)
+            "User-Agent": "DiscordBot (https://ultros.io {}); Ultros".format(
+                __version__
+            )
         }
 
         func = getattr(s, method.lower())
@@ -178,6 +180,9 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         result = yield func(
             url, headers=headers, **kwargs
         )
+
+        if result.status_code != 200:
+            result.raise_for_status()
 
         returnValue(result)
         return

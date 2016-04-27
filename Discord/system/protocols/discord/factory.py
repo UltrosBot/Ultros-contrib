@@ -42,7 +42,9 @@ class Factory(BaseFactory, WebSocketClientFactory):
             return
 
         self.logger.trace("Connecting to gateway: {}".format(self.gateway))
-        self.useragent = "Ultros (https://ultros.io {})".format(__version__)
+        self.useragent = "DiscordBot (https://ultros.io {}); Ultros".format(
+            __version__
+        )
 
         WebSocketClientFactory.__init__(
             self, url=self.gateway, useragent=self.useragent
