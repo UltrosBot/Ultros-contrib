@@ -44,7 +44,6 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         self.send_identify(self.token)
 
     def onMessage(self, payload, is_binary):
-
         if is_binary:
             payload = zlib.decompress(payload)
 

@@ -1,9 +1,10 @@
 # coding=utf-8
 import base64
 import re
-from Queue import Queue
 
+from collections import deque
 from numbers import Number
+
 from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.internet.task import LoopingCall
 from txrequests import Session
@@ -23,17 +24,18 @@ from system.protocols.discord.misc import Attachment, Embed, Role
 from system.protocols.discord.permissions import BAN_MEMBERS, KICK_MEMBERS
 from system.protocols.discord.user import User
 
-# TODO: Logging
-# TODO: Outgoing message/etc events
+# TODO: Role object tracking
+# TODO: Document
 
 __author__ = 'Gareth Coles'
 
-ACTION_REGEX = re.compile(r"^[\*_].*[\*_]$")
-INTEGER_REGEX = re.compile(r"^[\d]+$")
+ACTION_REGEX = re.compile(ur"^[\*_].*[\*_]$")
+INTEGER_REGEX = re.compile(ur"^[\d]+$")
 
-INCOMING_MENTION_REGEX = re.compile(r"^<@[\d]+>$")
-OUTGOING_MENTION_REGEX = re.compile(r"^@.*#[\d]{4}$")
+INCOMING_MENTION_REGEX = re.compile(ur"^<@[\d]+>$")
+OUTGOING_MENTION_REGEX = re.compile(ur"^@.*#[\d]{4}$")
 
+MESSAGE_SEPARATOR = "\n"
 ZWS = u"\u200B"  # Zero-width space
 
 
@@ -53,7 +55,7 @@ class Protocol(DiscordProtocol):
     heartbeat_interval = 0
     last_seq = 0
 
-    message_queue = Queue()
+    message_queue = deque()
     queue_emptying = False
     sending_message = False
     queue_task = None
@@ -89,6 +91,7 @@ class Protocol(DiscordProtocol):
         roles,
         "guilds" (servers), and so on.
         """
+
         gateway_version = int(message["v"])
 
         if gateway_version != 4:
@@ -99,6 +102,7 @@ class Protocol(DiscordProtocol):
                 )
             )
 
+            self.factory.shutting_down = True
             return self.shutdown()
 
         private_channels = message["private_channels"]
@@ -145,8 +149,11 @@ class Protocol(DiscordProtocol):
 
         if event.cancelled:
             self.log.info("Ready event cancelled, shutting down...")
+
+            self.factory.shutting_down = True
             return self.shutdown()
-        self.log.info("Ready event handled.")
+
+        self.log.info("Received ready event")
 
     def discord_event_channel_create(self, message):
         channel = self.add_channel(message)
@@ -155,7 +162,7 @@ class Protocol(DiscordProtocol):
         if channel.id not in guild.channels:
             guild.channels.append(channel.id)
 
-        self.log.info("Channel created: {}".format(channel.name))
+        self.log.info(u"Channel created: {}".format(channel.name))
 
         event = discord_events.ChannelCreateEvent(self, channel)
         self.event_manager.run_callback("Discord/ChannelCreated", event)
@@ -163,7 +170,7 @@ class Protocol(DiscordProtocol):
     def discord_event_channel_update(self, message):
         channel = self.add_channel(message)
 
-        self.log.info("Channel updated: {}".format(channel.name))
+        self.log.info(u"Channel updated: {}".format(channel.name))
 
         event = discord_events.ChannelUpdateEvent(self, channel)
         self.event_manager.run_callback("Discord/ChannelUpdated", event)
@@ -175,7 +182,7 @@ class Protocol(DiscordProtocol):
         if channel.id in guild.channels:
             guild.channels.remove(channel.id)
 
-        self.log.info("Channel deleted: {}".format(channel.name))
+        self.log.info(u"Channel deleted: {}".format(channel.name))
 
         event = discord_events.ChannelDeleteEvent(self, channel)
         self.event_manager.run_callback("Discord/ChannelDeleted", event)
@@ -194,7 +201,7 @@ class Protocol(DiscordProtocol):
         user = self.get_user(int(message["user"]["id"]))
         guild = self.get_guild(int(message["guild_id"]))
 
-        self.log.info("User banned from {}: {}".format(
+        self.log.info(u"User banned from {}: {}".format(
             guild.name, user.nickname
         ))
 
@@ -205,7 +212,7 @@ class Protocol(DiscordProtocol):
         user = self.add_user(message)
         guild = self.get_guild(message["guild_id"])
 
-        self.log.info("User unbanned from {}: {}".format(
+        self.log.info(u"User unbanned from {}: {}".format(
             guild.name, user.nickname
         ))
 
@@ -235,6 +242,8 @@ class Protocol(DiscordProtocol):
             if presence["game"]:
                 user.game = presence["game"]["name"]
 
+        self.log.info(u"Got guild: {}".format(guild.name))
+
         event = discord_events.GuildCreateEvent(self, guild)
         self.event_manager.run_callback("Discord/GuildCreated", event)
 
@@ -243,12 +252,16 @@ class Protocol(DiscordProtocol):
     def discord_event_guild_update(self, message):
         guild = self.add_guild(message)
 
+        self.log.info(u"Guild updated: {}".format(guild.name))
+
         event = discord_events.GuildUpdateEvent(self, guild)
         self.event_manager.run_callback("Discord/GuildUpdated", event)
 
     def discord_event_guild_emjoi_update(self, message):
         guild = self.get_guild(message["guild_id"])
         emojis = message["emojis"]  # Emoji object
+
+        self.log.info(u"Guild emoji updated: {}".format(guild.name))
 
         event = discord_events.GuildEmojiUpdateEvent(self, guild, emojis)
         self.event_manager.run_callback("Discord/GuildEmojisUpdated", event)
@@ -257,11 +270,18 @@ class Protocol(DiscordProtocol):
         guild = self.get_guild(message["id"])
         was_removed = not message.get("unavailable", False)
 
+        if was_removed:
+            self.log.info(u"Removed from guild: {}".format(guild.name))
+        else:
+            self.log.info(u"Lost guild: {}".format(guild.name))
+
         event = discord_events.GuildDeleteEvent(self, guild, was_removed)
         self.event_manager.run_callback("Discord/GuildDeleted", event)
 
     def discord_event_guild_integrations_update(self, message):
         guild = self.get_guild(message["guild_id"])
+
+        self.log.info(u"Guild integrations updated: {}".format(guild.name))
 
         # IDK, it exists but it only gives the guild ID, so.. yeah
         event = discord_events.GuildIntegrationsUpdateEvent(self, guild)
@@ -281,6 +301,10 @@ class Protocol(DiscordProtocol):
 
         joined_at = message["joined_at"]
 
+        self.log.info(u"User \"{}\" was added to guild: {}".format(
+            user.nickname, guild.name
+        ))
+
         event = discord_events.GuildMemberAddEvent(
             self, guild, user, roles, joined_at
         )
@@ -290,6 +314,10 @@ class Protocol(DiscordProtocol):
     def discord_event_guild_member_remove(self, message):
         guild = self.get_guild(int(message["guild_id"]))
         user = self.add_user(message)
+
+        self.log.info(u"User \"{}\" was removed from guild: {}".format(
+            user.nickname, guild.name
+        ))
 
         event = discord_events.GuildMemberRemoveEvent(self, guild, user)
         self.event_manager.run_callback("Discord/GuildMemberRemoved", event)
@@ -315,12 +343,20 @@ class Protocol(DiscordProtocol):
         for role in roles:
             user.roles[guild.id][role.id] = role
 
+        self.log.info(u"User \"{}\" in guild \"{}\" was updated".format(
+            user.nickname, guild.name
+        ))
+
         event = discord_events.GuildMemberUpdateEvent(self, guild, user, roles)
         self.event_manager.run_callback("Discord/GuildMemberUpdated", event)
 
     def discord_event_guild_role_create(self, message):
         guild = self.get_guild(message["guild_id"])
         role = Role.from_message(message["role"])
+
+        self.log.info(u"Role \"{}\" was created in guild: {}".format(
+            role.name, guild.name
+        ))
 
         event = discord_events.GuildRoleCreateEvent(self, guild, role)
         self.event_manager.run_callback("Discord/GuildRoleCreated", event)
@@ -329,12 +365,20 @@ class Protocol(DiscordProtocol):
         guild = self.get_guild(message["guild_id"])
         role = Role.from_message(message["role"])
 
+        self.log.info(u"Role \"{}\" was updated in guild: {}".format(
+            role.name, guild.name
+        ))
+
         event = discord_events.GuildRoleUpdateEvent(self, guild, role)
         self.event_manager.run_callback("Discord/GuildRoleUpdated", event)
 
     def discord_event_guild_role_delete(self, message):
         guild = self.get_guild(message["guild_id"])
         role = message["role_id"]
+
+        self.log.info(u"Role \"{}\" was deleted from guild: {}".format(
+            role.name, guild.name
+        ))
 
         event = discord_events.GuildRoleDeleteEvent(self, guild, role)
         self.event_manager.run_callback("Discord/GuildRoleDeleted", event)
@@ -485,6 +529,10 @@ class Protocol(DiscordProtocol):
                 Embed.from_message(m) for m in message["embeds"]
             ]
 
+        self.log.info(u"Message in channel \"{}\" updated: {}".format(
+            channel.name, message_id
+        ))
+
         event = discord_events.MessageUpdateEvent(
             self, message_id, channel, **message
         )
@@ -494,6 +542,10 @@ class Protocol(DiscordProtocol):
     def discord_event_message_delete(self, message):
         message_id = message["id"]
         channel = self.get_channel(message["channel_id"])
+
+        self.log.info(u"Message in channel \"{}\" deleted: {}".format(
+            channel.name, message_id
+        ))
 
         event = discord_events.MessageDeleteEvent(
             self, message_id, channel
@@ -515,10 +567,13 @@ class Protocol(DiscordProtocol):
         user = self.get_user(message["user"]["id"])
 
         if user is None:
-            self.log.debug("No such user: {}".format(message["user"]["id"]))
+            self.log.debug(u"No such user: {}".format(message["user"]["id"]))
             return  # Can happen when a user is removed from a guild
 
         guild = self.get_guild(message["guild_id"])
+
+        if user.id not in guild.members:
+            return  # User isn't in the guild any longer, so ignore
 
         roles = [Role.from_message(r) for r in message["roles"]]
         game = message["game"]  # Or null
@@ -533,6 +588,10 @@ class Protocol(DiscordProtocol):
 
         for role in roles:
             user.roles[guild.id][role.id] = role
+
+        self.log.info(u"Got presence update for user: {}".format(
+            user.nickname
+        ))
 
         event = discord_events.PresenceUpdateEvent(
             self, user, guild, roles, game, status
@@ -549,16 +608,25 @@ class Protocol(DiscordProtocol):
             self, user, channel, timestamp
         )
 
+        self.log.debug(
+            u"User \"{}\" started typing".format(user.nickname)
+        )
+
         self.event_manager.run_callback("Discord/TypingStarted", event)
 
     def discord_event_user_settings_update(self, message):
         # Payload: User settings; not documented
+        self.log.info("Synchronised user settings were updated")
         event = discord_events.UserSettingsUpdateEvent(self, message)
 
         self.event_manager.run_callback("Discord/UserSettingsUpdated", event)
 
     def discord_event_user_update(self, message):
         user = self.add_user(message)
+
+        self.log.info(
+            u"User \"{}\" updated their profile".format(user.nickname)
+        )
 
         event = discord_events.UserUpdateEvent(self, user)
         self.event_manager.run_callback("Discord/UserUpdated", event)
@@ -581,6 +649,10 @@ class Protocol(DiscordProtocol):
             server_mute, server_deaf
         )
 
+        self.log.debug(
+            u"User \"{}\" updated their voice state".format(user.nickname)
+        )
+
         self.event_manager.run_callback("Discord/VoiceStateUpdated", event)
 
     def discord_event_guild_member_chunk(self, message):
@@ -597,6 +669,12 @@ class Protocol(DiscordProtocol):
             ]
 
             done_members.append(user)
+
+        self.log.debug(
+            u"Received guild member chunk for guild: {} ({} members)".format(
+                guild.name, len(done_members)
+            )
+        )
 
         event = discord_events.GuildMemberChunk(
             self, guild, done_members
@@ -626,7 +704,7 @@ class Protocol(DiscordProtocol):
 
         self.last_seq = sequence
 
-        self.log.trace("Received event: [{}] {}".format(message_type, data))
+        self.log.trace(u"Received event: [{}] {}".format(message_type, data))
 
         function_name = "discord_event_{}".format(message_type.lower())
 
@@ -637,7 +715,7 @@ class Protocol(DiscordProtocol):
         # Not sure if the client ever gets this
         data = self.last_seq
 
-        self.log.info("Heartbeat received: {}".format(data))
+        self.log.debug(u"Heartbeat received: {}".format(data))
 
     def discord_identify(self, message):
         # Not sure if the client ever gets this
@@ -646,14 +724,14 @@ class Protocol(DiscordProtocol):
         # compress = message["compress"]
         # large_threshold = message["large_threshold"]
 
-        self.log.info("Received identify message for token: {}".format(token))
+        self.log.debug(u"Received identify message for token: {}".format(token))
 
     def discord_status_update(self, message):
         # Not sure if the client ever gets this
         idle_since = message["idle_since"]  # Or null
         game = message["game"]  # Or null
 
-        self.log.info("Received idle state: {} / {}".format(game, idle_since))
+        self.log.debug(u"Received idle state: {} / {}".format(game, idle_since))
 
     def discord_voice_state_update(self, message):
         # Not sure if the client ever gets this
@@ -662,7 +740,7 @@ class Protocol(DiscordProtocol):
         # self_mute = message["self_mute"]
         # self_deaf = message["self_deaf"]
 
-        self.log.info("Received voice state: {} / {}".format(
+        self.log.debug(u"Received voice state: {} / {}".format(
             guild_id, channel_id
         ))
 
@@ -676,7 +754,7 @@ class Protocol(DiscordProtocol):
         # session_id = message["session_id"]
         # seq = message["seq"]
 
-        self.log.info("Received resume message: {}".format(token))
+        self.log.debug(u"Received resume message: {}".format(token))
 
     def discord_reconnect(self, message):
         # Not documented
@@ -688,11 +766,12 @@ class Protocol(DiscordProtocol):
         # query = message["query"]
         # limit = message["limit"]
 
-        self.log.info("Received guild members request: {}".format(guild_id))
+        self.log.debug(u"Received guild members request: {}".format(guild_id))
 
     def discord_invalid_session(self, message):
-        # Not documented
-        pass
+        self.log.error("Error: Invalid session. Check your token.")
+        self.factory.shutting_down = True
+        self.shutdown()
 
     # endregion
 
@@ -705,7 +784,7 @@ class Protocol(DiscordProtocol):
         if c is None:
             try:
                 self.log.debug(
-                    "No private channel for '{}' - let's create one".format(
+                    u"No private channel for '{}' - let's create one".format(
                         user.name
                     )
                 )
@@ -713,12 +792,12 @@ class Protocol(DiscordProtocol):
                 result["recipient"] = self.get_user(
                     int(result["recipient"]["id"])
                 )
-                self.log.debug("Result: {}".format(result))
+                self.log.debug(u"Result: {}".format(result))
 
                 c = self.add_channel(result)
-                self.log.debug("Channel ({}): {}".format(type(c), c))
+                self.log.debug(u"Channel ({}): {}".format(type(c), c))
             except Exception:
-                self.log.exception("Failed to create channel for {}".format(
+                self.log.exception(u"Failed to create channel for {}".format(
                     user.name
                 ))
                 raise
@@ -775,7 +854,7 @@ class Protocol(DiscordProtocol):
 
                 return other_channel
         else:
-            raise TypeError("Unknown channel type: {}".format(channel.type))
+            raise TypeError(u"Unknown channel type: {}".format(channel.type))
 
         return channel
 
@@ -930,6 +1009,8 @@ class Protocol(DiscordProtocol):
 
     def get_user(self, user):
         if isinstance(user, basestring):
+            if user[0] == "@":
+                user = user[1:]
             for u in self.users:
                 if u.nickname == user:
                     return u
@@ -981,10 +1062,46 @@ class Protocol(DiscordProtocol):
         return len(self.all_channels)
 
     def send_action(self, target, message, target_type=None, use_event=True):
-        return self.send_msg(
-            target, "_{}_".format(message),
-            target_type=target_type, use_event=use_event
-        )
+        if isinstance(target, basestring):
+            if target_type == "channel":
+                target = self.get_channel(target)
+            elif target_type == "user":
+                target = self.get_user(target)
+
+        if self.config.get("mentions", {}).get("autoconvert", True):
+            words = []
+
+            for word in message.split(" "):
+                if OUTGOING_MENTION_REGEX.match(word):
+                    word = word[1:]
+                    user = self.get_user(word)
+                    word = u"<@{}>".format(user.id)
+
+                words.append(word)
+
+            message = " ".join(words)
+
+        if self.config.get("mentions", {}).get("prevent_everyone", True):
+            message = message.replace(u"@everyone", u"@{}everyone".format(ZWS))
+            message = message.replace(u"@here", u"@{}here".format(ZWS))
+
+        if isinstance(target, User):
+            target = yield self.get_private_channel(target)
+
+        if use_event:
+            event = general_events.ActionSent(self, target, message)
+            self.event_manager.run_callback("ActionSent", event)
+
+            if event.cancelled:
+                return
+
+            if event.printable:
+                self.log.info(u"-> *{}* {}".format(target.name, message))
+
+        else:
+            self.log.info(u"-> *{}* {}".format(target.name, message))
+
+        self.add_to_queue(target.id, u"_{}_".format(message))
 
     @inlineCallbacks
     def send_msg(self, target, message, target_type=None, use_event=True):
@@ -1001,24 +1118,36 @@ class Protocol(DiscordProtocol):
                 if OUTGOING_MENTION_REGEX.match(word):
                     word = word[1:]
                     user = self.get_user(word)
-                    word = "<@{}>".format(user.id)
+                    word = u"<@{}>".format(user.id)
 
                 words.append(word)
 
             message = " ".join(words)
 
         if self.config.get("mentions", {}).get("prevent_everyone", True):
-            message = message.replace("@everyone", u"@{}everyone".format(ZWS))
-            message = message.replace("@here", u"@{}here".format(ZWS))
+            message = message.replace(u"@everyone", u"@{}everyone".format(ZWS))
+            message = message.replace(u"@here", u"@{}here".format(ZWS))
 
-        if isinstance(target, Channel):
-            self.add_to_queue(target.id, message)
-        elif isinstance(target, User):
-            c = yield self.get_private_channel(target)
-            self.add_to_queue(c.id, message)
+        if isinstance(target, User):
+            target = yield self.get_private_channel(target)
+
+        if use_event:
+            event = general_events.MessageSent(self, "message", target, message)
+            self.event_manager.run_callback("MessageSent", event)
+
+            if event.cancelled:
+                return
+
+            if event.printable:
+                self.log.info(u"-> *{}* {}".format(target.name, message))
+
+        else:
+            self.log.info(u"-> *{}* {}".format(target.name, message))
+
+        self.add_to_queue(target.id, message)
 
     def add_to_queue(self, target, message):
-        self.message_queue.put_nowait((target, message))
+        self.message_queue.append((target, message))
 
         if not self.queue_emptying:
             self.start_emptying_queue()
@@ -1043,20 +1172,40 @@ class Protocol(DiscordProtocol):
         if self.sending_message:
             return
 
-        if self.message_queue.empty():
+        if len(self.message_queue) < 1:
             self.stop_emptying_queue()
             return
 
         self.sending_message = True
-        message = self.message_queue.get_nowait()
+
+        constructed = ""
+        current_id = None
+
+        while len(self.message_queue) > 0:
+            _id, content = self.message_queue[0]
+
+            if current_id is None:
+                current_id = _id
+
+            if _id != current_id:
+                break
+
+            message = MESSAGE_SEPARATOR + content
+
+            if (len(constructed) + len(message)) < 2000:
+                constructed += message
+                self.message_queue.popleft()
+            else:
+                break
 
         try:
-            _ = yield self.web_create_message(*message)
+            _ = yield self.web_create_message(current_id, constructed)
         finally:
             self.sending_message = False
 
     def shutdown(self):
         self.stop_emptying_queue()
+        self.message_queue.clear()
         self.stop_heartbeat()
         self.sendClose()
         self.transport.loseConnection()
