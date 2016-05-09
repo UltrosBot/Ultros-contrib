@@ -14,17 +14,23 @@ from system.enums import CommandState
 from system.events import discord as discord_events
 from system.events import general as general_events
 from system.events.manager import EventManager
+from system.factory_manager import FactoryManager
 
 from system.protocols.discord.base_protocol import DiscordProtocol
-from system.protocols.discord.channel import Channel, PrivateChannel
+from system.protocols.discord.channel import PrivateChannel
 from system.protocols.discord import opcodes
 from system.protocols.discord.discriminators import DiscriminatorManager
 from system.protocols.discord.guild import Guild
-from system.protocols.discord.misc import Attachment, Embed, Role
-from system.protocols.discord.permissions import BAN_MEMBERS, KICK_MEMBERS
+from system.protocols.discord.misc import Attachment, Embed, Role, \
+    PermissionOverwrite
+from system.protocols.discord.permissions import BAN_MEMBERS, KICK_MEMBERS, \
+    get_permissions
 from system.protocols.discord.user import User
 
-# TODO: Role object tracking
+from system.storage.manager import StorageManager
+from system.storage.formats import MEMORY
+
+# TODO: Dispatch work
 # TODO: Document
 
 __author__ = 'Gareth Coles'
@@ -40,16 +46,20 @@ ZWS = u"\u200B"  # Zero-width space
 
 
 class Protocol(DiscordProtocol):
+    command_manager = None
+    discriminator_manager = None
+    event_manager = None
+    factory_manager = None
+    storage_manager = None
+
     ourselves = None
     user_settings = {}
-    discriminator_manager = None
 
     guilds = {}
-    users = []
-
+    users = {}
     channels = {}
-    voice_channels = {}
-    private_channels = {}
+    sub_protocols = {}
+    roles = {}
 
     heartbeat_task = None
     heartbeat_interval = 0
@@ -67,19 +77,13 @@ class Protocol(DiscordProtocol):
         self.setup()
 
     def setup(self):
-        self.discriminator_manager = DiscriminatorManager(self)
-        self.discriminator_manager.setup()
-
-        self.event_manager = EventManager()
         self.command_manager = CommandManager()
+        self.discriminator_manager = DiscriminatorManager(self)
+        self.event_manager = EventManager()
+        self.factory_manager = FactoryManager()
+        self.storage_manager = StorageManager()
 
-    @property
-    def all_channels(self):
-        channels = self.channels.copy()
-        channels.update(self.voice_channels)
-        channels.update(self.private_channels)
-
-        return channels
+        self.discriminator_manager.setup()
 
     # region Discord event handlers
 
@@ -91,6 +95,8 @@ class Protocol(DiscordProtocol):
         roles,
         "guilds" (servers), and so on.
         """
+
+        # TODO: Check over
 
         gateway_version = int(message["v"])
 
@@ -106,11 +112,10 @@ class Protocol(DiscordProtocol):
             return self.shutdown()
 
         private_channels = message["private_channels"]
-        ourselves = {"user": message["user"]}
 
         self.log.info("Connected. Gateway version: {}".format(gateway_version))
 
-        self.ourselves = self.add_user(ourselves)
+        self.ourselves = self.add_user(message["user"])
 
         servers = message["guilds"]
 
@@ -131,8 +136,7 @@ class Protocol(DiscordProtocol):
         parsed_private_channels = []
 
         for channel in private_channels:
-            user = {"user": channel["recipient"]}
-            channel["recipient"] = self.add_user(user)
+            self.add_user(channel["recipient"])
 
             parsed_private_channels.append(self.add_channel(channel))
 
@@ -155,92 +159,120 @@ class Protocol(DiscordProtocol):
 
         self.log.info("Received ready event")
 
+        self.send_presence_update(None, "Ultros", "https://ultros.io")
+
     def discord_event_channel_create(self, message):
-        channel = self.add_channel(message)
-        guild = self.get_guild(channel.guild_id)
+        if "guild_id" not in message:
+            channel = self.add_channel(message)
 
-        if channel.id not in guild.channels:
-            guild.channels.append(channel.id)
+            self.log.info(u"Channel created: {}".format(channel.name))
 
-        self.log.info(u"Channel created: {}".format(channel.name))
+            event = discord_events.ChannelCreateEvent(self, channel)
+            self.event_manager.run_callback("Discord/ChannelCreated", event)
+        else:
+            guild = self.get_guild(int(message["guild_id"]))
+            del message["guild_id"]
 
-        event = discord_events.ChannelCreateEvent(self, channel)
-        self.event_manager.run_callback("Discord/ChannelCreated", event)
+            permission_overwrites = []
+            for overwrite in message["permission_overwrites"]:
+                permission_overwrites.append(
+                    PermissionOverwrite(
+                        overwrite["id"],
+                        overwrite["type"],
+                        overwrite["allow"],
+                        overwrite["deny"]
+                    )
+                )
+
+            # We're doing this instead of just passing it as later
+            # message passing will likely use setattr()
+            message["permission_overwrites"] = permission_overwrites
+            del permission_overwrites
+
+            sub_protocol = self.get_protocol(guild.id)
+
+            if message["type"] == "voice":  # Voice channel
+                sub_protocol.dispatch_voice_channel_created(
+                    int(message["id"]), message["name"],
+                    message["position"], message["permission_overwrites"],
+                    message["bitrate"]
+                )
+            else:  # Text channel
+                sub_protocol.dispatch_text_channel_created(
+                    int(message["id"]), message["name"],
+                    message["position"], message["permission_overwrites"],
+                    message["topic"], message["last_message_id"]
+                )
 
     def discord_event_channel_update(self, message):
-        channel = self.add_channel(message)
+        # This only happens with Guild channels; not private
+        guild = self.get_guild(int(message["guild_id"]))
+        channel_id = int(message["id"])
 
-        self.log.info(u"Channel updated: {}".format(channel.name))
+        del message["guild_id"]
+        del message["id"]
 
-        event = discord_events.ChannelUpdateEvent(self, channel)
-        self.event_manager.run_callback("Discord/ChannelUpdated", event)
+        if "permission_overwrites" in message:
+            permission_overwrites = []
+
+            for overwrite in message["permission_overwrites"]:
+                permission_overwrites.append(
+                    PermissionOverwrite(
+                        overwrite["id"],
+                        overwrite["type"],
+                        overwrite["allow"],
+                        overwrite["deny"]
+                    )
+                )
+
+            # We're doing this instead of just passing it as later
+            # message passing will likely use setattr()
+
+            message["permission_overwrites"] = permission_overwrites
+            del permission_overwrites
+
+        sub_protocol = self.get_protocol(guild.id)
+
+        if message["type"] == "voice":  # Voice channel
+            sub_protocol.dispatch_voice_channel_updated(
+                channel_id, message
+            )
+        else:  # Text channel
+            sub_protocol.dispatch_text_channel_updated(
+                channel_id, message
+            )
 
     def discord_event_channel_delete(self, message):
-        channel = self.del_channel(message["id"])
-        guild = self.get_guild(channel.guild_id)
+        channel_id = int(message["id"])
 
-        if channel.id in guild.channels:
-            guild.channels.remove(channel.id)
+        if "guild_id" not in message:
+            channel = self.del_channel(channel_id)
 
-        self.log.info(u"Channel deleted: {}".format(channel.name))
+            self.log.info(u"Channel deleted: {}".format(channel.name))
 
-        event = discord_events.ChannelDeleteEvent(self, channel)
-        self.event_manager.run_callback("Discord/ChannelDeleted", event)
+            event = discord_events.ChannelRemoveEvent(self, channel)
+            self.event_manager.run_callback("Discord/ChannelRemoved", event)
+        else:
+            guild = self.get_guild(int(message["guild_id"]))
+            sub_protocol = self.get_protocol(guild.id)
+
+            if message["type"] == "voice":  # Voice channel
+                sub_protocol.dispatch_voice_channel_removed(channel_id)
+            else:  # Text channel
+                sub_protocol.dispatch_text_channel_removed(channel_id)
 
     def discord_event_guild_ban_add(self, message):
-        # {
-        #  u'guild_id': u'124255619791323136',
-        #  u'user':
-        #   {
-        #    u'username': u'Roadcrosser',
-        #    u'discriminator': u'3657',
-        #    u'id': u'116138050710536192',
-        #    u'avatar': u'7593703d9fd5f0a7c86fe378490e52e2'
-        #   }
-        # }
-        user = self.get_user(int(message["user"]["id"]))
         guild = self.get_guild(int(message["guild_id"]))
-
-        self.log.info(u"User banned from {}: {}".format(
-            guild.name, user.nickname
-        ))
-
-        event = discord_events.GuildBanAddEvent(self, user, guild)
-        self.event_manager.run_callback("Discord/GuildBanAdded", event)
+        sub_protocol = self.get_protocol(guild.id)
+        sub_protocol.dispatch_ban_added(int(message["user"]["id"]))
 
     def discord_event_guild_ban_remove(self, message):
-        user = self.add_user(message)
-        guild = self.get_guild(message["guild_id"])
-
-        self.log.info(u"User unbanned from {}: {}".format(
-            guild.name, user.nickname
-        ))
-
-        event = discord_events.GuildBanRemoveEvent(self, user, guild)
-        self.event_manager.run_callback("Discord/GuildBanRemoved", event)
+        guild = self.get_guild(int(message["guild_id"]))
+        sub_protocol = self.get_protocol(guild.id)
+        sub_protocol.dispatch_ban_removed(int(message["user"]["id"]))
 
     def discord_event_guild_create(self, message):
-        guild_id = message["id"]
-        channels = message["channels"]
-        members = message["members"]
-        presences = message["presences"]
-
         guild = self.add_guild(message)
-
-        for channel in channels:
-            channel["guild_id"] = guild_id
-            self.add_channel(channel)
-
-        for user in members:
-            self.add_user(user)
-
-        for presence in presences:
-            user = self.get_user(int(presence["user"]["id"]))
-
-            user.status = presence["status"]
-
-            if presence["game"]:
-                user.game = presence["game"]["name"]
 
         self.log.info(u"Got guild: {}".format(guild.name))
 
@@ -250,21 +282,44 @@ class Protocol(DiscordProtocol):
         self.send_request_guild_members(guild.id)
 
     def discord_event_guild_update(self, message):
-        guild = self.add_guild(message)
+        guild = self.get_guild(message["id"])
+
+        if "roles" in message:
+            roles = []
+
+            for role in message["roles"]:
+                existing_role = self.get_role(int(role["id"]))
+
+                if existing_role is not None:
+                    role["permissions"] = get_permissions(role["permissions"])
+
+                    for k, v in role.iteritems():
+                        if v is not None:
+                            setattr(existing_role, k, v)
+
+                    roles.append(existing_role)
+
+                else:
+                    roles.append(self.add_role(role))
+
+            message["roles"] = roles
+            del roles
+
+        for k, v in message.iteritems():
+            if v is not None:
+                setattr(guild, k, v)
+
+        self.get_protocol(guild.id).dispatch_guild_updated(message)
 
         self.log.info(u"Guild updated: {}".format(guild.name))
 
         event = discord_events.GuildUpdateEvent(self, guild)
         self.event_manager.run_callback("Discord/GuildUpdated", event)
 
-    def discord_event_guild_emjoi_update(self, message):
+    def discord_event_guild_emoji_update(self, message):
         guild = self.get_guild(message["guild_id"])
-        emojis = message["emojis"]  # Emoji object
 
-        self.log.info(u"Guild emoji updated: {}".format(guild.name))
-
-        event = discord_events.GuildEmojiUpdateEvent(self, guild, emojis)
-        self.event_manager.run_callback("Discord/GuildEmojisUpdated", event)
+        self.get_protocol(guild.id).dispatch_emoji_updated(message["emojis"])
 
     def discord_event_guild_delete(self, message):
         guild = self.get_guild(message["id"])
@@ -278,112 +333,54 @@ class Protocol(DiscordProtocol):
         event = discord_events.GuildDeleteEvent(self, guild, was_removed)
         self.event_manager.run_callback("Discord/GuildDeleted", event)
 
+        self.del_guild(guild.id)
+
     def discord_event_guild_integrations_update(self, message):
-        guild = self.get_guild(message["guild_id"])
-
-        self.log.info(u"Guild integrations updated: {}".format(guild.name))
-
-        # IDK, it exists but it only gives the guild ID, so.. yeah
-        event = discord_events.GuildIntegrationsUpdateEvent(self, guild)
-
-        self.event_manager.run_callback(
-            "Discord/GuildIntegrationsUpdated", event
-        )
+        proto = self.get_protocol(int(message["guild_id"]))
+        proto.dispatch_integrations_updated()
 
     def discord_event_guild_member_add(self, message):
-        guild = self.get_guild(int(message["guild_id"]))
-        user = self.add_user(message)
+        user = self.add_user(message["user"])
+        roles = [self.get_role(r) for r in message["roles"]]
 
-        roles = [Role.from_message(r) for r in message["roles"]]
-
-        user.guilds.append(guild.id)
-        user.roles[guild.id] = {r.id: r for r in roles}
-
-        joined_at = message["joined_at"]
-
-        self.log.info(u"User \"{}\" was added to guild: {}".format(
-            user.nickname, guild.name
-        ))
-
-        event = discord_events.GuildMemberAddEvent(
-            self, guild, user, roles, joined_at
+        proto = self.get_protocol(int(message["guild_id"]))
+        proto.dispatch_member_added(
+            user, message.get("nick", None), roles, message["joined_at"],
+            message["deaf"], message["mute"]
         )
 
-        self.event_manager.run_callback("Discord/GuildMemberAdded", event)
-
     def discord_event_guild_member_remove(self, message):
-        guild = self.get_guild(int(message["guild_id"]))
-        user = self.add_user(message)
-
-        self.log.info(u"User \"{}\" was removed from guild: {}".format(
-            user.nickname, guild.name
-        ))
-
-        event = discord_events.GuildMemberRemoveEvent(self, guild, user)
-        self.event_manager.run_callback("Discord/GuildMemberRemoved", event)
-
-        if user.id in guild.members:
-            guild.members.remove(user.id)
-
-        if guild.id in user.guilds:
-            user.guilds.remove(guild.id)
-
-        if guild.id in user.roles:
-            del user.roles[guild.id]
-
-        if len(user.guilds) < 1:
-            self.del_user(user.id)
+        proto = self.get_protocol(int(message["guild_id"]))
+        proto.dispatch_member_removed(int(message["user"]["id"]))
 
     def discord_event_guild_member_update(self, message):
-        guild = self.get_guild(message["guild_id"])
-        user = self.add_user(message)
+        message["user"] = self.add_user(message["user"])
+        message["roles"] = [self.get_role(r) for r in message["roles"]]
 
-        roles = [Role.from_message(r) for r in message["roles"]]
+        proto = self.get_protocol(int(message["guild_id"]))
 
-        for role in roles:
-            user.roles[guild.id][role.id] = role
-
-        self.log.info(u"User \"{}\" in guild \"{}\" was updated".format(
-            user.nickname, guild.name
-        ))
-
-        event = discord_events.GuildMemberUpdateEvent(self, guild, user, roles)
-        self.event_manager.run_callback("Discord/GuildMemberUpdated", event)
+        proto.dispatch_member_updated(**message)
 
     def discord_event_guild_role_create(self, message):
-        guild = self.get_guild(message["guild_id"])
-        role = Role.from_message(message["role"])
+        proto = self.get_protocol(int(message["guild_id"]))
+        role = self.add_role(message["role"])
 
-        self.log.info(u"Role \"{}\" was created in guild: {}".format(
-            role.name, guild.name
-        ))
-
-        event = discord_events.GuildRoleCreateEvent(self, guild, role)
-        self.event_manager.run_callback("Discord/GuildRoleCreated", event)
+        proto.dispatch_role_created(role)
 
     def discord_event_guild_role_update(self, message):
-        guild = self.get_guild(message["guild_id"])
-        role = Role.from_message(message["role"])
+        proto = self.get_protocol(int(message["guild_id"]))
+        role = self.add_role(message["role"])
 
-        self.log.info(u"Role \"{}\" was updated in guild: {}".format(
-            role.name, guild.name
-        ))
-
-        event = discord_events.GuildRoleUpdateEvent(self, guild, role)
-        self.event_manager.run_callback("Discord/GuildRoleUpdated", event)
+        proto.dispatch_role_updated(role)
 
     def discord_event_guild_role_delete(self, message):
-        guild = self.get_guild(message["guild_id"])
-        role = message["role_id"]
+        proto = self.get_protocol(int(message["guild_id"]))
+        proto.dispatch_role_removed(int(message["role_id"]))
 
-        self.log.info(u"Role \"{}\" was deleted from guild: {}".format(
-            role.name, guild.name
-        ))
-
-        event = discord_events.GuildRoleDeleteEvent(self, guild, role)
-        self.event_manager.run_callback("Discord/GuildRoleDeleted", event)
+        self.del_role(int(message["role_id"]))
 
     def discord_event_message_create(self, message):
+        # TODO
         message_id = message["id"]
         channel_id = int(message["channel_id"])
         author = message["author"]  # User object
@@ -504,6 +501,7 @@ class Protocol(DiscordProtocol):
         )
 
     def discord_event_message_update(self, message):
+        # TODO (No guild ID)
         # Payload: Partial message
         message_id = message["id"]
         channel = self.get_channel(message["channel_id"])
@@ -540,6 +538,7 @@ class Protocol(DiscordProtocol):
         self.event_manager.run_callback("Discord/MessageUpdated", event)
 
     def discord_event_message_delete(self, message):
+        # TODO (No guild ID)
         message_id = message["id"]
         channel = self.get_channel(message["channel_id"])
 
@@ -554,52 +553,37 @@ class Protocol(DiscordProtocol):
         self.event_manager.run_callback("Discord/MessageDeleted", event)
 
     def discord_event_presence_update(self, message):
-        # https://github.com/hammerandchisel/discord-api-docs/issues/34
         # {
         #  u'status': u'offline',
-        #  u'game': None,
+        #  u'game': {"url?", "type?", "name"},
         #  u'guild_id': u'124255619791323136',
         #  u'user': {
         #   u'id': u'116138050710536192'
         #  },
         #  u'roles': []
         # }
-        user = self.get_user(message["user"]["id"])
 
-        if user is None:
-            self.log.debug(u"No such user: {}".format(message["user"]["id"]))
-            return  # Can happen when a user is removed from a guild
+        proto = self.get_protocol(int(message["guild_id"]))
+        roles = [self.get_role(r) for r in message["roles"]]
 
-        guild = self.get_guild(message["guild_id"])
+        game_name = None
+        game_url = None
+        game_type = None
 
-        if user.id not in guild.members:
-            return  # User isn't in the guild any longer, so ignore
+        if message.get("game", None) is not None:
+            game = message["game"]
 
-        roles = [Role.from_message(r) for r in message["roles"]]
-        game = message["game"]  # Or null
+            game_name = game.get("name", None)
+            game_url = game.get("url", None)
+            game_type = game.get("type", None)
 
-        if game:
-            game = game["name"]
-
-        status = message["status"]  # "idle", "online", "offline"
-
-        user.game = game
-        user.status = status
-
-        for role in roles:
-            user.roles[guild.id][role.id] = role
-
-        self.log.info(u"Got presence update for user: {}".format(
-            user.nickname
-        ))
-
-        event = discord_events.PresenceUpdateEvent(
-            self, user, guild, roles, game, status
+        proto.dispatch_presence_updated(
+            int(message["user"]["id"]), message["status"], roles, game_name,
+            game_url, game_type
         )
 
-        self.event_manager.run_callback("Discord/PresenceUpdate", event)
-
     def discord_event_typing_start(self, message):
+        # TODO (No guild ID)
         user = self.get_user(["user_id"])
         channel = self.get_channel(message["channel_id"])
         timestamp = message["timestamp"]
@@ -616,7 +600,7 @@ class Protocol(DiscordProtocol):
 
     def discord_event_user_settings_update(self, message):
         # Payload: User settings; not documented
-        self.log.info("Synchronised user settings were updated")
+        self.log.info(u"Synchronised user settings were updated")
         event = discord_events.UserSettingsUpdateEvent(self, message)
 
         self.event_manager.run_callback("Discord/UserSettingsUpdated", event)
@@ -632,55 +616,26 @@ class Protocol(DiscordProtocol):
         self.event_manager.run_callback("Discord/UserUpdated", event)
 
     def discord_event_voice_state_update(self, message):
-        user = self.get_user(message["user_id"])
-        guild = self.get_guild(message["guild_id"])
-        channel = self.get_channel(message["channel_id"], "voice")
+        proto = self.get_protocol(int(message["guild_id"]))
+
         session_id = message["session_id"]
         self_mute = message["self_mute"]
         self_deaf = message["self_deaf"]
         server_mute = message["mute"]
         server_deaf = message["deaf"]
 
-        user.mute = self_mute or server_mute
-        user.deaf = self_deaf or server_deaf
-
-        event = discord_events.VoiceStateUpdateEvent(
-            self, user, guild, channel, session_id, self_mute, self_deaf,
+        proto.dispatch_voice_state_updated(
+            int(message["user_id"]), session_id, self_mute, self_deaf,
             server_mute, server_deaf
         )
 
-        self.log.debug(
-            u"User \"{}\" updated their voice state".format(user.nickname)
-        )
-
-        self.event_manager.run_callback("Discord/VoiceStateUpdated", event)
-
     def discord_event_guild_member_chunk(self, message):
-        guild = self.get_guild(message["guild_id"])
-        done_members = []
+        proto = self.get_protocol(int(message["guild_id"]))
 
         for member in message["members"]:
-            user = self.add_user(member)
+            member["user"] = self.add_user(member["user"])
 
-            guild.members.append(user.id)
-            user.guilds.append(guild.id)
-            user.roles[guild.id] = [
-                Role.from_message(r) for r in member["roles"]
-            ]
-
-            done_members.append(user)
-
-        self.log.debug(
-            u"Received guild member chunk for guild: {} ({} members)".format(
-                guild.name, len(done_members)
-            )
-        )
-
-        event = discord_events.GuildMemberChunk(
-            self, guild, done_members
-        )
-
-        self.event_manager.run_callback("Discord/GuildMemberChunk", event)
+        proto.dispatch_member_chunk(message["members"])
 
     # endregion
 
@@ -697,6 +652,9 @@ class Protocol(DiscordProtocol):
             )
         )
 
+    def discord_heartbeat(self, message):
+        self.send_heartbeat(message["d"])
+
     def discord_dispatch(self, message):
         data = message["d"]
         sequence = message["s"]
@@ -711,62 +669,14 @@ class Protocol(DiscordProtocol):
         if hasattr(self, function_name):
             getattr(self, function_name)(data)
 
-    def discord_heartbeat(self, message):
-        # Not sure if the client ever gets this
-        data = self.last_seq
-
-        self.log.debug(u"Heartbeat received: {}".format(data))
-
-    def discord_identify(self, message):
-        # Not sure if the client ever gets this
-        token = message["token"]
-        # properties = message["properties"]
-        # compress = message["compress"]
-        # large_threshold = message["large_threshold"]
-
-        self.log.debug(u"Received identify message for token: {}".format(token))
-
-    def discord_status_update(self, message):
-        # Not sure if the client ever gets this
-        idle_since = message["idle_since"]  # Or null
-        game = message["game"]  # Or null
-
-        self.log.debug(u"Received idle state: {} / {}".format(game, idle_since))
-
-    def discord_voice_state_update(self, message):
-        # Not sure if the client ever gets this
-        guild_id = message["guild_id"]
-        channel_id = message["channel_id"]  # Or null
-        # self_mute = message["self_mute"]
-        # self_deaf = message["self_deaf"]
-
-        self.log.debug(u"Received voice state: {} / {}".format(
-            guild_id, channel_id
-        ))
-
     def discord_voice_server_ping(self, message):
         # Not documented
         pass
 
-    def discord_resume(self, message):
-        # Not sure if the client ever gets this
-        token = message["token"]
-        # session_id = message["session_id"]
-        # seq = message["seq"]
-
-        self.log.debug(u"Received resume message: {}".format(token))
-
     def discord_reconnect(self, message):
         # Not documented
+        self.shutdown()  # Force a reconnect
         pass
-
-    def discord_request_guild_members(self, message):
-        # Not sure if the client ever gets this
-        guild_id = message["guild_id"]
-        # query = message["query"]
-        # limit = message["limit"]
-
-        self.log.debug(u"Received guild members request: {}".format(guild_id))
 
     def discord_invalid_session(self, message):
         self.log.error("Error: Invalid session. Check your token.")
@@ -804,57 +714,108 @@ class Protocol(DiscordProtocol):
 
         returnValue(c)
 
-    def add_user(self, member):
-        u = self.get_user(int(member["user"]["id"]))
-        user = User.from_message(member, self, False)
+    def add_user(self, user_obj):
+        _id = int(user_obj["id"])
 
-        if u:
-            u.update(user)
-            return u
+        existing_user = self.get_user(_id)
+
+        if existing_user:
+            for key, value in user_obj.iteritems():
+                if value is not None:
+                    setattr(existing_user, key, value)
+
+            return existing_user
+
+        username = user_obj["username"]
+        discriminator = user_obj["discriminator"]
+        avatar = user_obj["avatar"]
+        verified = user_obj.get("verified", None)
+        email = user_obj.get("email", None)
+
+        user = User(
+            username, self, _id, discriminator, avatar, verified, email, False
+        )
 
         user.is_tracked = True
-        self.users.append(user)
+        self.users[_id] = user
 
         return user
 
     def del_user(self, user):
         u = self.get_user(user)
 
-        if u:
-            self.users.remove(u)
+        if u is not None:
+            del self.users[u.id]
 
-    def add_channel(self, data):
-        if data.get("is_private", False):
-            channel = PrivateChannel.from_message(data, self)
+        return u
+
+    def add_role(self, role_obj):
+        _id = role_obj["id"]
+
+        existing_role = self.get_role(_id)
+
+        if existing_role is not None:
+            for k, v in role_obj.iteritems():
+                if v is not None:
+                    setattr(existing_role, k, v)
+            return existing_role
+
+        name = role_obj["name"]
+        color = role_obj["color"]
+        hoist = role_obj["hoist"]
+        position = role_obj["position"]
+        permissions = role_obj["permissions"]
+        managed = role_obj["managed"]
+
+        role = Role(_id, name, color, hoist, position, permissions, managed)
+
+        self.roles[_id] = role
+        return role
+
+    def get_role(self, role):
+        role_obj = None
+
+        if isinstance(role, basestring):
+            if INTEGER_REGEX.match(role):
+                role_obj = self.roles.get(int(role), None)
+            else:
+                for r in self.roles.itervalues():
+                    if r.name.lower() == role.lower():
+                        role_obj = r
+                        break
         else:
-            channel = Channel.from_message(data, self)
+            role_obj = self.roles.get(role, None)
+        return role_obj
 
-        if channel.is_private():
-            if channel.id not in self.private_channels:
-                self.private_channels[channel.id] = channel
-            else:
-                other_channel = self.get_channel(channel.id, "private")
-                other_channel.update(channel)
+    def del_role(self, role):
+        r = self.get_role(role)
 
-                return other_channel
-        elif channel.is_text():
-            if channel.id not in self.channels:
-                self.channels[channel.id] = channel
-            else:
-                other_channel = self.get_channel(channel.id, "text")
-                other_channel.update(channel)
+        if r is not None:
+            del self.roles[r.id]
 
-                return other_channel
-        elif channel.is_voice():
-            if channel.id not in self.voice_channels:
-                self.voice_channels[channel.id] = channel
-            else:
-                other_channel = self.get_channel(channel.id, "voice")
-                other_channel.update(channel)
+        return r
 
-                return other_channel
-        else:
-            raise TypeError(u"Unknown channel type: {}".format(channel.type))
+    def add_channel(self, channel_obj):
+        _id = int(channel_obj["id"])
+
+        existing_channel = self.get_channel(_id)
+
+        if existing_channel is not None:
+            for key, value in channel_obj.iteritems():
+                if value is not None:
+                    setattr(existing_channel, key, value)
+
+            return existing_channel
+
+        is_private = channel_obj["is_private"]
+        recipient = self.get_user(int(channel_obj["recipient"]["id"]))
+        last_message_id = channel_obj["last_message_id"]
+
+        channel = PrivateChannel(
+            recipient, self, last_message_id, _id, is_private
+        )
+
+        self.channels[channel.id] = channel
 
         return channel
 
@@ -862,60 +823,168 @@ class Protocol(DiscordProtocol):
         c = self.get_channel(channel)
 
         if c:
-            if c.is_private:
-                del self.private_channels[channel.id]
-            elif c.is_voice:
-                del self.voice_channels[channel.id]
-            else:
-                del self.channels[channel.id]
+            del self.channels[channel.id]
 
         return c
 
-    def add_guild(self, data):
-        guild_id = int(data["id"])
+    def add_protocol(self, guild, channels, members, presences):
+        existing_protocol = self.get_protocol(guild.id)
 
-        name = data["name"]
-        icon = data["icon"]
-        splash = data["splash"]
-        owner_id = data["owner_id"]
-        region = data["region"]
-        afk_channel_id = data["afk_channel_id"]
-        afk_timeout = data["afk_timeout"]
-        verification_level = data["verification_level"]
-        roles = data["roles"]  # Array of role objects
-        emojis = data["emojis"]  # Array of emoji objects
-        features = data["features"]  # ???
+        if existing_protocol is not None:
+            return existing_protocol
 
-        channels = data["channels"]
-        members = data["members"]
+        protocol_names = self.config.get("protocol_names", {})
 
-        guild = Guild(
-            name, self, guild_id, icon, splash, owner_id, region,
-            afk_channel_id, afk_timeout, verification_level, roles, emojis,
-            features,
-            channels=[int(channel["id"]) for channel in channels],
-            members=[int(user["user"]["id"]) for user in members]
+        if guild.id in protocol_names:
+            name = "{}/{}".format(self.name, protocol_names[guild.id])
+        elif guild.name in protocol_names:
+            name = "{}/{}".format(self.name, protocol_names[guild.name])
+        else:
+            name = "{}/{}#{}".format(
+                self.name, guild.name,
+                self.discriminator_manager.get_guild_discriminator(
+                    guild.id)
+            )
+
+        config = self.storage_manager.get_file(
+            self, "config", MEMORY, ":memory:{}:".format(name),
+            {
+                "main": {
+                    "protocol-type": "discord_dispatch",
+                    "can-flood": self.config["main"]["can-flood"]
+                },
+                "guild": guild.id,
+                "channels": channels,
+                "members": members,
+                "presences": presences,
+                "parent-protocol": self.name
+            }
         )
 
-        if guild_id not in self.guilds:
-            self.guilds[guild_id] = guild
-        else:
-            other_guild = self.get_guild(guild_id)
-            other_guild.update(guild)
+        config.editable = False
 
-            return other_guild
+        self.factory_manager.load_protocol(name, config)
+        self.sub_protocols[guild.id] = name
+
+    def get_protocol(self, guild_id):
+        """
+        :rtype: system.protocols.discord_dispatch.protocol.Protocol
+        """
+
+        if guild_id in self.sub_protocols:
+            proto_name = self.sub_protocols[guild_id]
+
+            return self.factory_manager.get_protocol(proto_name)
+        return None
+
+    def get_protocol_by_channel(self, channel_id):
+        for proto in self.sub_protocols.itervalues():
+            if proto.has_channel(channel_id):
+                return proto
+
+        return None
+
+    def get_protocols_for_user(self, user_id):
+        protos = []
+
+        for proto in self.sub_protocols.itervalues():
+            if proto.has_user(user_id):
+                protos.append(proto)
+
+        return protos
+
+    def del_protocol(self, guild_id):
+        proto = self.get_protocol(guild_id)
+
+        if proto is None:
+            return
+
+        proto_name = proto.name
+
+        del proto
+        del self.sub_protocols[guild_id]
+
+        return self.factory_manager.unload_protocol(proto_name)
+
+    def add_guild(self, guild_obj):
+        guild_id = int(guild_obj["id"])
+        channels = guild_obj["channels"]
+        members = guild_obj["members"]
+
+        roles = guild_obj["roles"]
+        done_roles = []
+
+        for role in roles:
+            done_roles.append(self.add_role(role))
+
+            guild_obj["roles"] = done_roles
+
+        for member in members:
+            member["user"] = self.add_user(member["user"])
+
+        existing_guild = self.get_guild(guild_id)
+
+        if existing_guild is not None:
+            for key, value in guild_obj.iteritems():
+                if value is not None:
+                    setattr(existing_guild, key, value)
+
+            existing_protocol = self.get_protocol(existing_guild.id)
+            existing_protocol.add_channels(channels)
+            existing_protocol.add_members(members)
+
+            return existing_guild
+
+        name = guild_obj["name"]
+        icon = guild_obj["icon"]
+        splash = guild_obj["splash"]
+        owner_id = guild_obj["owner_id"]
+        region = guild_obj["region"]
+        afk_channel_id = guild_obj["afk_channel_id"]
+        afk_timeout = guild_obj["afk_timeout"]
+        verification_level = guild_obj["verification_level"]
+        emojis = guild_obj["emojis"]  # Array of emoji objects
+        features = guild_obj["features"]  # ???
+
+        embed_enabled = guild_obj.get("embed_enabled", False)
+        embed_channel_id = guild_obj.get("embed_channel_id", None)
+        presences = guild_obj.get("presences", [])
+
+        guild = Guild(name, None, guild_id, icon, splash, owner_id,
+                      region, afk_channel_id, afk_timeout, embed_enabled,
+                      embed_channel_id, verification_level, roles, emojis,
+                      features)
+
+        self.add_protocol(guild, channels, members, presences)
+
+        self.guilds[guild_id] = guild
 
         return guild
 
     def del_guild(self, guild):
-        if guild in self.guilds:
-            del self.guilds[guild]
+        g = self.get_guild(guild)
+
+        if g is not None:
+            del self.guilds[guild.id]
+            self.del_protocol(guild)
+
+        return g
 
     def get_guild(self, guild):
-        guild = int(guild)
-        if guild in self.guilds:
-            return self.guilds[guild]
-        return None
+        guild_obj = None
+
+        if isinstance(guild, basestring):
+            if INTEGER_REGEX.match(guild):
+                guild_obj = self.guilds.get(int(guild), None)
+            else:
+                for g in self.guilds.values():
+                    if g.name.lower() == guild.lower():
+                        guild_obj = g
+                        break
+        else:
+            guild_obj = self.guilds.get(guild, None)
+
+        return guild_obj
 
     def start_heartbeat(self):
         if self.heartbeat_interval:
@@ -978,32 +1047,19 @@ class Protocol(DiscordProtocol):
     def get_extra_groups(self, user, target=None):
         return Protocol.get_extra_groups(self, user, target)
 
-    def get_channel(self, channel, _type=None):
+    def get_channel(self, channel):
         """
         :rtype channel: system.protocols.discord.channel.Channel
         """
-        if _type is None:
-            channel_set = self.all_channels
-        elif _type == "text":
-            channel_set = self.channels
-        elif _type == "voice":
-            channel_set = self.voice_channels
-        elif _type == "private":
-            channel_set = self.private_channels
-        else:
-            channel_set = self.all_channels
-
         if isinstance(channel, basestring):
-            for c in channel_set.values():
-                if c.name == channel:
-                    return c
+            if INTEGER_REGEX.match(channel):
+                return self.channels.get(int(channel), None)
 
-                if INTEGER_REGEX.match(channel):
-                    return self.get_channel(int(channel), _type)
-        elif isinstance(channel, Number):
-            for c in channel_set.values():
-                if c.id == channel:
+            for c in self.channels.itervalues():
+                if c.name.lower() == channel.lower():
                     return c
+        elif isinstance(channel, Number):
+            return self.channels.get(channel, None)
 
         return None
 
@@ -1011,13 +1067,13 @@ class Protocol(DiscordProtocol):
         if isinstance(user, basestring):
             if user[0] == "@":
                 user = user[1:]
-            for u in self.users:
-                if u.nickname == user:
-                    return u
             if INTEGER_REGEX.match(user):
                 return self.get_user(int(user))
+            for u in self.users.itervalues():
+                if u.nickname == user:
+                    return u
         elif isinstance(user, Number):
-            for u in self.users:
+            for u in self.users.itervalues():
                 if u.id == user:
                     return u
         return None
@@ -1059,7 +1115,7 @@ class Protocol(DiscordProtocol):
         pass
 
     def num_channels(self):
-        return len(self.all_channels)
+        return len(self.channels)
 
     def send_action(self, target, message, target_type=None, use_event=True):
         if isinstance(target, basestring):
@@ -1198,12 +1254,18 @@ class Protocol(DiscordProtocol):
             else:
                 break
 
+        if constructed.startswith(MESSAGE_SEPARATOR):
+            constructed = constructed[len(MESSAGE_SEPARATOR):]
+
         try:
             _ = yield self.web_create_message(current_id, constructed)
         finally:
             self.sending_message = False
 
     def shutdown(self):
+        for guild in list(self.guilds.values()):
+            self.del_protocol(guild.id)
+
         self.stop_emptying_queue()
         self.message_queue.clear()
         self.stop_heartbeat()

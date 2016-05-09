@@ -65,6 +65,12 @@ MOVE_MEMBERS = 0x1000000
 # Allows for using voice-activity-detection in a voice channel
 USE_VAD = 0x2000000
 
+# Allows for modification of own nickname
+CHANGE_NICKNAME = 0x4000000
+
+# Allows for modification of other users nicknames
+MANAGE_NICKNAMES = 0x8000000
+
 
 permissions = {
     "create instant invite": CREATE_INSTANT_INVITE,
@@ -86,7 +92,9 @@ permissions = {
     "mute U": MUTE_MEMBERS,
     "deafen members": DEAFEN_MEMBERS,
     "move members": MOVE_MEMBERS,
-    "use vad": USE_VAD
+    "use vad": USE_VAD,
+    "change nickname": CHANGE_NICKNAME,
+    "manage nicknames": MANAGE_NICKNAMES
 }
 
 

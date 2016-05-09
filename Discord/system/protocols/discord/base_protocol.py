@@ -110,13 +110,17 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
 
         self.send_payload(opcodes.IDENTIFY, payload)
 
-    def send_status_update(self, idle_since=None, game=None):
+    def send_presence_update(self, idle_since=None, game=None, url=None):
         payload = {
             "idle_since": idle_since,
             "game": {
                 "name": game
             }
         }
+
+        if url is not None:
+            payload["game"]["type"] = 1
+            payload["game"]["url"] = url
 
         self.send_payload(opcodes.STATUS_UPDATE, payload)
 
@@ -205,7 +209,7 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         s = Session()
 
         headers = {
-            "Authorization": self.token,
+            "Authorization": "Bot {}".format(self.token),
             "User-Agent": "DiscordBot (https://ultros.io {}); Ultros".format(
                 __version__
             )
@@ -581,11 +585,13 @@ class DiscordProtocol(ChannelsProtocol, WebSocketClientProtocol):
         return
 
     @inlineCallbacks
-    def web_modify_guild_member(self, guild_id, user_id, roles=None,
+    def web_modify_guild_member(self, guild_id, user_id, nick=None, roles=None,
                                 mute=None, deaf=None, channel_id=None):
 
         data = {}
 
+        if nick is not None:
+            data["nick"] = nick
         if roles is not None:
             data["roles"] = roles
         if mute is not None:

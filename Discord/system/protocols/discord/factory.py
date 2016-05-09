@@ -18,6 +18,9 @@ GATEWAY_URL = "https://discordapp.com/api/gateway"
 
 
 class Factory(BaseFactory, WebSocketClientFactory):
+    __version__ = "0.0.1"
+    TYPE = "discord"
+
     gateway = None
     gateway_address = None
     useragent = None
@@ -61,7 +64,9 @@ class Factory(BaseFactory, WebSocketClientFactory):
     def get_gateway(self):
         s = Session()
 
-        r = yield s.get(GATEWAY_URL, headers={"Authorization": self.token})
+        r = yield s.get(GATEWAY_URL, headers={
+            "Authorization": "Bot {}".format(self.token)
+        })
 
         data = r.json()
         self.gateway = data["url"] + "/encoding=json?v=4"

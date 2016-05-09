@@ -15,14 +15,6 @@ class Attachment(object):
         self.height = height
         self.width = width
 
-    @staticmethod
-    def from_message(message):
-        return Attachment(
-            message["id"], message["filename"], message["size"],
-            message["url"], message["proxy_url"],
-            message.get("height"), message.get("width")
-        )
-
 
 class Embed(object):
     def __init__(self, title, _type, description, url, thumbnail, provider):
@@ -33,15 +25,6 @@ class Embed(object):
         self.thumbnail = thumbnail
         self.provider = provider
 
-    @staticmethod
-    def from_message(message):
-        return Embed(
-            message["title"], message["type"], message["description"],
-            message["url"],
-            EmbedThumbnail.from_message(message["thumbnail"]),
-            EmbedProvider.from_message(message["provider"])
-        )
-
 
 class EmbedThumbnail(object):
     def __init__(self, url, proxy_url, height, width):
@@ -50,24 +33,11 @@ class EmbedThumbnail(object):
         self.height = height
         self.width = width
 
-    @staticmethod
-    def from_message(message):
-        return EmbedThumbnail(
-            message["url"], message["proxy_url"], message["height"],
-            message["width"]
-        )
-
 
 class EmbedProvider(object):
     def __init__(self, name, url):
         self.name = name
         self.url = url
-
-    @staticmethod
-    def from_message(message):
-        return EmbedProvider(
-            message["name"], message["url"]
-        )
 
 
 class Role(object):
@@ -85,9 +55,10 @@ class Role(object):
     def colour(self):
         return self.color
 
-    @staticmethod
-    def from_message(message):
-        return Role(
-            message["id"], message["name"], message["color"], message["hoist"],
-            message["position"], message["permissions"], message["managed"]
-        )
+
+class PermissionOverwrite(object):
+    def __init__(self, _id, _type, allow, deny):
+        self.id = int(_id)
+        self.type = _type
+        self.allow = allow
+        self.deny = deny

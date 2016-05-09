@@ -21,9 +21,9 @@ class ChannelCreateEvent(DiscordEvent):
         self.channel = channel
 
 
-class ChannelDeleteEvent(DiscordEvent):
+class ChannelRemoveEvent(DiscordEvent):
     def __init__(self, caller, channel):
-        super(ChannelDeleteEvent, self).__init__(caller)
+        super(ChannelRemoveEvent, self).__init__(caller)
 
         self.channel = channel
 
